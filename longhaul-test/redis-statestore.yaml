@@ -1,3 +1,8 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:

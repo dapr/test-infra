@@ -27,6 +27,7 @@ namespace Dapr.Tests.HashTagApp
             Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder =>
             {
                 webBuilder.UseStartup<Startup>()
+                    .UseUrls(urls: "http://*:3000")
                     .UseActors(actorRuntime =>
                     {
                         // Register HashTagActor ActorType

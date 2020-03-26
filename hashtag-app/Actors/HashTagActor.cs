@@ -5,6 +5,7 @@
 
 namespace Dapr.Tests.HashTagApp.Actors
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Dapr.Actors;
     using Dapr.Actors.Runtime;
@@ -40,11 +41,15 @@ namespace Dapr.Tests.HashTagApp.Actors
         {
             int count = 0;
 
-            try {
+            try 
+            {
                 count = await this.StateManager.GetStateAsync<int>(sentiment);
-            } catch(System.Collections.Generic.KeyNotFoundException) {
+            }
+            catch (KeyNotFoundException)
+            {
                 this.logger.LogInformation($"{sentiment} does not exist. {sentiment} will be initialized to 0.");
             }
+
             this.logger.LogInformation($"{sentiment} = {count}");
             count++;
             await this.StateManager.SetStateAsync<int>(sentiment, count);

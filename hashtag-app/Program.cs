@@ -27,6 +27,7 @@ namespace Dapr.Tests.HashTagApp
             Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder =>
             {
                 webBuilder.UseStartup<Startup>()
+                    // TODO: Make app port configurable by appsetting.json
                     .UseUrls(urls: "http://*:3000")
                     .UseActors(actorRuntime =>
                     {

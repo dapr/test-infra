@@ -75,4 +75,4 @@ jobs:
           az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
       - name: Deploy apps to longhaul test environment
         run: |
-          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/testapp-deploy.yaml
+          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/testapp-deploy.yml

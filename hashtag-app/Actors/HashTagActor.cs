@@ -12,7 +12,7 @@ namespace Dapr.Tests.HashTagApp.Actors
 
     public class HashTagActor : Actor, IHashTagActor
     {
-        private readonly ILogger<HashTagActor> _logger;
+        private readonly ILogger<HashTagActor> logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HashTagActor"/> class.
@@ -32,17 +32,17 @@ namespace Dapr.Tests.HashTagApp.Actors
                     .AddConsole();
             });
 
-            _logger = loggerFactory.CreateLogger<HashTagActor>();
+            this.logger = loggerFactory.CreateLogger<HashTagActor>();
         }
 
         /// <inheritdoc/>
         public async Task Increment(string sentiment)
         {
             var count = await this.StateManager.GetStateAsync<int>(sentiment);
-            _logger.LogInformation($"{sentiment} = {count}");
+            this.logger.LogInformation($"{sentiment} = {count}");
             count++;
             await this.StateManager.SetStateAsync<int>(sentiment, count);
-            _logger.LogInformation($"Increment {sentiment}.");
+            this.logger.LogInformation($"Increment {sentiment}.");
         }
     }
 }

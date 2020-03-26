@@ -1,0 +1,19 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: statestore
+  namespace: longhaul-test
+spec:
+  type: state.redis
+  metadata:
+  - name: redisHost
+    value: dapr-redis-master.dapr-components.svc.cluster.local:6379
+  - name: redisPassword
+    value: ""
+  - name: actorStateStore
+    value: "true"

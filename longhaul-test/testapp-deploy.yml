@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hashtag-actor-app
+  labels:
+    app: hashtag-actor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hashtag-actor
+  template:
+    metadata:
+      labels:
+        app: hashtag-actor
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/id: "hashtag-actor"
+        dapr.io/port: "3000"
+        dapr.io/log-as-json: "true"
+    spec:
+      containers:
+      - name: hashtag-actor
+        image: youngp/hashtag-app:dev
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: Always

@@ -30,8 +30,8 @@ namespace Dapr.Tests.HashTagApp.Controllers
             this.configuration = config;
         }
 
-        [HttpPost("message_binding")]
-        public async Task<IActionResult> PostMessageBinding([FromBody]BindingMessage message)
+        [HttpPost("messagebinding")]
+        public async Task<IActionResult> PostMessageBinding([FromBody]SocialMediaMessage message)
         {
             if (this.configuration[AppSettings.AppType] != AppSettings.HashTagCounter)
             {

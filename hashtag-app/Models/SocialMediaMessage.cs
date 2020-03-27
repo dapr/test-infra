@@ -8,7 +8,7 @@ namespace Dapr.Tests.HashTagApp.Models
     using System;
     using System.ComponentModel.DataAnnotations;
 
-    public class BindingMessage
+    public class SocialMediaMessage
     {
         [Required]
         public string CorrelationId { get; set; }

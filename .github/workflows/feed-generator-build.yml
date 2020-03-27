@@ -1,0 +1,78 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+name: build-feed-generator
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'feed-generator/**'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'feed-generator/**'
+
+jobs:
+  build:
+    name: build feed-generator
+    runs-on: ubuntu-latest
+    env:
+      APP_REGISTRY: ${{ secrets.DOCKER_HASHTAG_APP_REGISTRY }}
+      APP_IMAGE_NAME: feed-generator
+      # TODO: APP_VER needs to be versioned correctly
+      APP_VER: dev
+      APP_DIR: ./feed-generator
+      ARTIFACT_DIR: ./deploy_artifact
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: docker login
+        if: github.event_name != 'pull_request'
+        run: |
+          docker login -u ${{ secrets.DOCKER_REGISTRY_ID }} -p ${{ secrets.DOCKER_REGISTRY_PASS }}
+      - name: Build feed-generator app docker image
+        run: |
+          docker build -t ${{ env.APP_REGISTRY }}/${{ env.APP_IMAGE_NAME }}:${{ env.APP_VER }} ${{ env.APP_DIR }}
+      - name: Push feed-generator app image to dockerhub
+        if: github.event_name != 'pull_request'
+        run: |
+          docker push ${{ env.APP_REGISTRY }}/${{ env.APP_IMAGE_NAME }}:${{ env.APP_VER }}
+      - name: Copy deployment yaml to archieve
+        run: |
+          mkdir -p ${{ env.ARTIFACT_DIR }}
+          cp ./longhaul-test/*.yml ${{ env.ARTIFACT_DIR }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: longhaul-test
+          path: ${{ env.ARTIFACT_DIR }}
+  deploy:
+    name: deploy feed-generator to test cluster
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      APP_NAMESPACE: longhaul-test
+      TEST_CLUSTER_NAME: dapr-seattle
+      TEST_RESOURCE_GROUP: dapr-test
+      ARTIFACT_DIR: ./deploy_artifact
+    steps:
+      - name: download artifacts
+        uses: actions/download-artifact@master
+        with:
+          name: longhaul-test
+          path: ${{ env.ARTIFACT_DIR }}
+      - name: Login Azure
+        run: |
+          az login --service-principal -u ${{ secrets.AZURE_LOGIN_USER }} -p ${{ secrets.AZURE_LOGIN_PASS }} --tenant ${{ secrets.AZURE_TENANT }} --output none
+      - name: Set up kubeconf for longhaul test environment
+        run: |
+          az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
+      - name: Deploy apps to longhaul test environment
+        run: |
+          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/feed-generator-deploy.yml

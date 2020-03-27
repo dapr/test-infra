@@ -50,7 +50,7 @@ namespace Dapr.Tests.HashTagApp.Controllers
             }
             catch (Exception e)
             {
-                this.logger.LogError(e, "message-topic");
+                this.logger.LogError(e, "messagebinding");
                 throw;
             }
 

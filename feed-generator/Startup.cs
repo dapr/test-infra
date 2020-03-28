@@ -65,31 +65,8 @@ namespace FeedGenerator
             app.UseCloudEvents();
 
             app.UseEndpoints(endpoints =>
-            {
-                //endpoints.MapSubscribeHandler();
-
-                //endpoints.MapPost("callhana", CallHana).WithTopic("callhana");
-
-                // call self for now
-                //endpoints.MapPost("receivemediapost", ReceiveMediaPost).WithTopic("receivemediapost");
+            {       
             });
-
-            //async Task CallHana(HttpContext context)
-            //{
-            //    Console.WriteLine("Enter CallHana");
-            //    var client = context.RequestServices.GetRequiredService<DaprClient>();
-
-            //    var data = await JsonSerializer.DeserializeAsync<Post>(context.Request.Body, serializerOptions);
-
-            //    string jsonString;
-            //    JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
-            //    jsonString = JsonSerializer.Serialize(data, options);
-            //    Console.WriteLine(".....content as json is '{0}'", jsonString);
-
-            //    Console.WriteLine(".....publishing");
-            //    await client.PublishEventAsync<Post>("receivemediapost", data);
-            //    Console.WriteLine(".....done publishing");
-            //}
         }
     }
 }

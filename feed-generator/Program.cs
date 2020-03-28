@@ -23,9 +23,20 @@ namespace FeedGenerator
         /// <param name="args">Arguments.</param>
         public static void Main(string[] args)
         {
+            int delayInMilliseconds = 10000;
+            if (args.Length != 0)
+            {                
+                if (int.TryParse(args[0], out delayInMilliseconds) == false)
+                {
+                    string msg = "Could not parse delay";
+                    Console.WriteLine(msg);
+                    throw new InvalidOperationException(msg);
+                }
+            }
+
             IHost host = CreateHostBuilder(args).Build();
 
-            Task.Run(() => StartMessageGeneratorAsync());
+            Task.Run(() => StartMessageGeneratorAsync(delayInMilliseconds));
 
             host.Run();
         }
@@ -42,10 +53,10 @@ namespace FeedGenerator
                     webBuilder.UseStartup<Startup>();
                 });
 
-        static internal async void StartMessageGeneratorAsync()
+        static internal async void StartMessageGeneratorAsync(int delayInMilliseconds)
         {
             const string PubsubTopicName = "receivemediapost";
-            TimeSpan delay = TimeSpan.FromSeconds(10);
+            TimeSpan delay = TimeSpan.FromMilliseconds(delayInMilliseconds);
 
             DaprClientBuilder daprClientBuilder = new DaprClientBuilder();
             DaprClient client = daprClientBuilder.Build();
@@ -54,20 +65,20 @@ namespace FeedGenerator
             {
                 await Task.Delay(delay);
 
-                Post post = GeneratePost();
+                SocialMediaMessage message = GeneratePost();
                 Console.WriteLine("Publishing");
-                await client.PublishEventAsync<Post>(PubsubTopicName, post);                
+                await client.PublishEventAsync<SocialMediaMessage>(PubsubTopicName, message);                
             }
         }
 
-        static internal Post GeneratePost()
+        static internal SocialMediaMessage GeneratePost()
         {
             Guid correlationId = Guid.NewGuid();
             Guid messageId = Guid.NewGuid();
             string message = GenerateRandomMessage();
             DateTime creationDate = DateTime.UtcNow;
 
-            return new Post()
+            return new SocialMediaMessage()
             {
                 CorrelationId = correlationId,
                 MessageId = messageId,

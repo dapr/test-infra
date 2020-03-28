@@ -6,9 +6,7 @@
 namespace Dapr.Tests.HashTagApp
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
+    using System.IO;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Hosting;
@@ -23,17 +21,38 @@ namespace Dapr.Tests.HashTagApp
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder =>
-            {
-                webBuilder.UseStartup<Startup>()
-                    // TODO: Make app port configurable by appsetting.json
-                    .UseUrls(urls: "http://*:3000")
-                    .UseActors(actorRuntime =>
-                    {
-                        // Register HashTagActor ActorType
-                        actorRuntime.RegisterActor<HashTagActor>();
-                    });
-            });
+        public static string GetEnvironment() => 
+            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "hashtag-actor.dev";
+
+        public static IHostBuilder CreateHostBuilder(string[] args) {
+            var hostBuilder = Host.CreateDefaultBuilder(args)
+                .ConfigureLogging((hostingContext, config) =>
+                {
+                    config.ClearProviders();
+                    config.AddConsole();
+                })
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    var appSettings = new ConfigurationBuilder()
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile($"appsettings.json", optional: true, reloadOnChange: true)
+                        .AddJsonFile($"appsettings.{GetEnvironment()}.json", optional: true, reloadOnChange: true)
+                        .AddCommandLine(args)
+                        .Build();
+
+                    var host = webBuilder.UseStartup<Startup>()
+                        .UseUrls(urls: $"http://*:{appSettings[AppSettings.DaprHTTPAppPort]}");
+
+                    switch (appSettings[AppSettings.AppType]) {
+                        case AppSettings.HashTagActor:
+                            host.UseActors(actorRuntime => actorRuntime.RegisterActor<HashTagActor>());
+                            break;
+                    }
+
+                    Console.WriteLine($"Starting HashTag App as {appSettings[AppSettings.AppType]} role...");
+                });
+
+            return hostBuilder;
+        }
     }
 }

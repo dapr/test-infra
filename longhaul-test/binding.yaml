@@ -7,7 +7,7 @@ spec:
   metadata:
   # Kafka broker connection setting
   - name: brokers
-    value: localhost:9092
+    value: dapr-kafka.kafka:9092
   # consumer configuration: topic and consumer group
   - name: topics
     value: sample
@@ -16,5 +16,3 @@ spec:
   # publisher configuration: topic
   - name: publishTopic
     value: sample
-  - name: authRequired
-    value: "false"

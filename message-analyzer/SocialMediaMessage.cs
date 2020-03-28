@@ -7,9 +7,9 @@ namespace MessageAnalyzer
 {
     using System;
 
-    internal class Post
+    internal class SocialMediaMessage
     {
-        public Post() { }
+        public SocialMediaMessage() { }
 
         public Guid CorrelationId { get; set; }
 
@@ -18,5 +18,7 @@ namespace MessageAnalyzer
         public string Message { get; set; }
 
         public DateTime CreationDate { get; set; }
+
+        public string Sentiment { get; set; }
     }
 }

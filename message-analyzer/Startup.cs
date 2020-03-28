@@ -21,6 +21,15 @@ namespace MessageAnalyzer
     /// </summary>
     public class Startup
     {
+        private static string[] Sentiments = new string[]
+        {
+            "very negative",
+            "negative",
+            "neutral",
+            "strong",
+            "very strong"
+        };
+
         /// <summary>
         /// 
         /// </summary>
@@ -90,21 +99,20 @@ namespace MessageAnalyzer
                 Console.WriteLine("Enter ReceiveMediaPost");
                 var client = context.RequestServices.GetRequiredService<DaprClient>();
 
-                var data = await JsonSerializer.DeserializeAsync<Post>(context.Request.Body, serializerOptions);
+                var message = await JsonSerializer.DeserializeAsync<SocialMediaMessage>(context.Request.Body, serializerOptions);
 
-                PostWithSentiment postWithSentiment = new PostWithSentiment(data)
-                {
-                    Sentiment = GenerateRandomSentiment()
-                };
+                // update with a sentiment
+                message.Sentiment = GenerateRandomSentiment();
 
-                await client.InvokeBindingAsync<PostWithSentiment>(BindingName, postWithSentiment);
+                await client.InvokeBindingAsync<SocialMediaMessage>(BindingName, message);
             }
         }
 
-        internal int GenerateRandomSentiment()
+        internal string GenerateRandomSentiment()
         {
             Random random = new Random();
-            return random.Next(1, 6);
+            int i = random.Next(Sentiments.Length);
+            return Sentiments[i];
         }
     }
 }

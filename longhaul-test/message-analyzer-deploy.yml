@@ -1,0 +1,32 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: message-analyzer-app
+  labels:
+    app: message-analyzer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: message-analyzer
+  template:
+    metadata:
+      labels:
+        app: message-analyzer
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/id: "message-analyzer"
+        dapr.io/port: "3000"
+        dapr.io/log-as-json: "true"
+    spec:
+      containers:
+      - name: message-analyzer
+        image: dapriotest/message-analyzer:dev
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: Always

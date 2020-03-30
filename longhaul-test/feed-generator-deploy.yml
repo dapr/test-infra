@@ -1,0 +1,32 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: feed-generator-app
+  labels:
+    app: feed-generator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: feed-generator
+  template:
+    metadata:
+      labels:
+        app: feed-generator
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/id: "feed-generator"
+        dapr.io/port: "3000"
+        dapr.io/log-as-json: "true"
+    spec:
+      containers:
+      - name: feed-generator
+        image: dapriotest/feed-generator:dev
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: Always

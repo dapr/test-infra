@@ -7,6 +7,7 @@ namespace MessageAnalyzer
 {
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
+    using System;
 
     /// <summary>
     /// MessageAnalyzer - receives messages from Dapr through pub/sub, adds a 
@@ -20,6 +21,7 @@ namespace MessageAnalyzer
         /// <param name="args">Arguments.</param>
         public static void Main(string[] args)
         {
+            Console.WriteLine("Enter main");
             CreateHostBuilder(args).Build().Run();
         }
 

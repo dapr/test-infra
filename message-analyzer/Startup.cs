@@ -60,7 +60,8 @@ namespace MessageAnalyzer
         /// <param name="services">Service Collection.</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDaprClient();
+            // workaround.  remove when dapr runtime is 0.6
+            services.AddDaprClient((b) => b.UseEndpoint("https://127.0.0.1:50001"));
 
             services.AddSingleton(new JsonSerializerOptions()
             {

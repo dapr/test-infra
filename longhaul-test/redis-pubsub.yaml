@@ -1,0 +1,17 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: receivemediapost
+  namespace: longhaul-test
+spec:
+  type: pubsub.redis
+  metadata:
+  - name: redisHost
+    value: dapr-redis-master.dapr-components.svc.cluster.local:6379
+  - name: redisPassword
+    value: ""

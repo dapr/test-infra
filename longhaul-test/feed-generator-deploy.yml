@@ -20,9 +20,8 @@ spec:
         app: feed-generator
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/id: "feed-generator"
-        dapr.io/port: "3000"
-        dapr.io/log-as-json: "true"
+        dapr.io/id: "feed-generator"        
+        dapr.io/log-as-json: "true"                 
     spec:
       containers:
       - name: feed-generator

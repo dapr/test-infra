@@ -21,12 +21,12 @@ spec:
       annotations:
         dapr.io/enabled: "true"
         dapr.io/id: "message-analyzer"
-        dapr.io/port: "3000"
+        dapr.io/port: "80"
         dapr.io/log-as-json: "true"
     spec:
       containers:
       - name: message-analyzer
         image: dapriotest/message-analyzer:dev
         ports:
-        - containerPort: 3000
+        - containerPort: 80
         imagePullPolicy: Always

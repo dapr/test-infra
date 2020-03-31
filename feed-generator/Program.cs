@@ -25,7 +25,7 @@ namespace FeedGenerator
         {
             int delayInMilliseconds = 10000;
             if (args.Length != 0)
-            {                
+            {
                 if (int.TryParse(args[0], out delayInMilliseconds) == false)
                 {
                     string msg = "Could not parse delay";
@@ -59,15 +59,24 @@ namespace FeedGenerator
             TimeSpan delay = TimeSpan.FromMilliseconds(delayInMilliseconds);
 
             DaprClientBuilder daprClientBuilder = new DaprClientBuilder();
-            DaprClient client = daprClientBuilder.Build();
-
+            
+            // workaround - remove "UseEndpoint("https://127.0.0.1:50001")" when dapr runtime moves to 0.6
+            DaprClient client = daprClientBuilder.UseEndpoint("https://127.0.0.1:50001").Build();
             while (true)
-            {
-                await Task.Delay(delay);
-
+            {              
                 SocialMediaMessage message = GeneratePost();
                 Console.WriteLine("Publishing");
-                await client.PublishEventAsync<SocialMediaMessage>(PubsubTopicName, message);                
+                try
+                {
+                    
+                    await client.PublishEventAsync<SocialMediaMessage>(PubsubTopicName, message);
+                }
+                catch (Exception e)
+                {                    
+                    Console.WriteLine("Caught {0}", e.ToString());
+                }
+
+                await Task.Delay(delay);
             }
         }
 

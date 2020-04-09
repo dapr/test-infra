@@ -1,0 +1,172 @@
+{
+  "version": 3,
+  "targets": {
+    ".NETCoreApp,Version=v3.1": {
+      "Dapr.Actors/0.6.0-preview01": {
+        "type": "package",
+        "compile": {
+          "lib/netcoreapp3.1/Dapr.Actors.dll": {}
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Dapr.Actors.dll": {}
+        }
+      },
+      "Dapr.Actors.AspNetCore/0.6.0-preview01": {
+        "type": "package",
+        "dependencies": {
+          "Dapr.Actors": "0.6.0-preview01",
+          "System.IO.Pipelines": "4.7.0"
+        },
+        "compile": {
+          "lib/netcoreapp3.1/Dapr.Actors.AspNetCore.dll": {}
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Dapr.Actors.AspNetCore.dll": {}
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ]
+      },
+      "System.IO.Pipelines/4.7.0": {
+        "type": "package",
+        "compile": {
+          "ref/netcoreapp2.0/System.IO.Pipelines.dll": {}
+        },
+        "runtime": {
+          "lib/netcoreapp3.0/System.IO.Pipelines.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Dapr.Actors/0.6.0-preview01": {
+      "sha512": "hxOh5fez9vcDtZNA2OW3RpT1ugoornLixC7ef0rSz3AYkPV57nJgWzGgofNxpGuJ/aQmDvW5xXvx+wtBlHDq5Q==",
+      "type": "package",
+      "path": "dapr.actors/0.6.0-preview01",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "dapr.actors.0.6.0-preview01.nupkg.sha512",
+        "dapr.actors.nuspec",
+        "images/logo-transparent.png",
+        "lib/netcoreapp3.1/Dapr.Actors.dll",
+        "lib/netcoreapp3.1/Dapr.Actors.xml"
+      ]
+    },
+    "Dapr.Actors.AspNetCore/0.6.0-preview01": {
+      "sha512": "CQyqcJ6MSrR5Lku2FLAyIC6x9bQACNN2J5SnnPa271+bYjptCfhATn7qY6q1wWYviKDEj/A68i6EbSAL/dOMTQ==",
+      "type": "package",
+      "path": "dapr.actors.aspnetcore/0.6.0-preview01",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "dapr.actors.aspnetcore.0.6.0-preview01.nupkg.sha512",
+        "dapr.actors.aspnetcore.nuspec",
+        "images/logo-transparent.png",
+        "lib/netcoreapp3.1/Dapr.Actors.AspNetCore.dll",
+        "lib/netcoreapp3.1/Dapr.Actors.AspNetCore.xml"
+      ]
+    },
+    "System.IO.Pipelines/4.7.0": {
+      "sha512": "S0L7oyWyQdVzD+5xIvcC8h44Vc+FY+qXDCLRh2+YsuBDORNphcxNX+tXR6ByLMjQ/7jDaXxsYBF6qbAr7ZIaFw==",
+      "type": "package",
+      "path": "system.io.pipelines/4.7.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/netcoreapp3.0/System.IO.Pipelines.dll",
+        "lib/netcoreapp3.0/System.IO.Pipelines.xml",
+        "lib/netstandard1.3/System.IO.Pipelines.dll",
+        "lib/netstandard1.3/System.IO.Pipelines.xml",
+        "lib/netstandard2.0/System.IO.Pipelines.dll",
+        "lib/netstandard2.0/System.IO.Pipelines.xml",
+        "ref/netcoreapp2.0/System.IO.Pipelines.dll",
+        "ref/netcoreapp2.0/System.IO.Pipelines.xml",
+        "system.io.pipelines.4.7.0.nupkg.sha512",
+        "system.io.pipelines.nuspec",
+        "useSharedDesignerContext.txt",
+        "version.txt"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    ".NETCoreApp,Version=v3.1": [
+      "Dapr.Actors >= 0.6.0-preview01",
+      "Dapr.Actors.AspNetCore >= 0.6.0-preview01"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\lemai\\.nuget\\packages\\": {},
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "D:\\dapr\\test-infra\\hashtag-actor\\hashtag-actor.csproj",
+      "projectName": "hashtag-actor",
+      "projectPath": "D:\\dapr\\test-infra\\hashtag-actor\\hashtag-actor.csproj",
+      "packagesPath": "C:\\Users\\lemai\\.nuget\\packages\\",
+      "outputPath": "D:\\dapr\\test-infra\\hashtag-actor\\obj\\",
+      "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+      ],
+      "configFilePaths": [
+        "C:\\Users\\lemai\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "netcoreapp3.1"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "projectReferences": {}
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "netcoreapp3.1": {
+        "dependencies": {
+          "Dapr.Actors": {
+            "target": "Package",
+            "version": "[0.6.0-preview01, )"
+          },
+          "Dapr.Actors.AspNetCore": {
+            "target": "Package",
+            "version": "[0.6.0-preview01, )"
+          }
+        },
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.AspNetCore.App": {
+            "privateAssets": "none"
+          },
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.200\\RuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

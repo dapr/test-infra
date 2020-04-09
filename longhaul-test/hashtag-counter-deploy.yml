@@ -1,0 +1,32 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hashtag-counter-app
+  labels:
+    app: hashtag-counter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hashtag-counter
+  template:
+    metadata:
+      labels:
+        app: hashtag-counter
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/id: "hashtag-counter"
+        dapr.io/port: "3000"
+        dapr.io/log-as-json: "true"
+    spec:
+      containers:
+      - name: hashtag-counter
+        image: dapriotest/hashtag-counter:dev
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: Always

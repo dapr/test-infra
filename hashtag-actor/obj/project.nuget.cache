@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "lTtcQcIMCEgK6iYvTlvA8mmBg0qoj0VF2vuyr/mhJNHiepZYiYZ684xvCuuWcipk/dgXbX+a4HqD/I9YO+3rPw==",
+  "success": true,
+  "projectFilePath": "D:\\dapr\\test-infra\\hashtag-actor\\hashtag-actor.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\lemai\\.nuget\\packages\\dapr.actors\\0.6.0-preview01\\dapr.actors.0.6.0-preview01.nupkg.sha512",
+    "C:\\Users\\lemai\\.nuget\\packages\\dapr.actors.aspnetcore\\0.6.0-preview01\\dapr.actors.aspnetcore.0.6.0-preview01.nupkg.sha512",
+    "C:\\Users\\lemai\\.nuget\\packages\\system.io.pipelines\\4.7.0\\system.io.pipelines.4.7.0.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,3 +1,0 @@
-# ignore dotnet build outputs
-bin/
-obj/

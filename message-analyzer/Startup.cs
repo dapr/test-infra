@@ -23,11 +23,11 @@ namespace MessageAnalyzer
     {
         private static string[] Sentiments = new string[]
         {
-            "very negative",
+            "verynegative",
             "negative",
             "neutral",
             "strong",
-            "very strong"
+            "verystrong"
         };
 
         /// <summary>
@@ -59,9 +59,8 @@ namespace MessageAnalyzer
         /// </summary>
         /// <param name="services">Service Collection.</param>
         public void ConfigureServices(IServiceCollection services)
-        {
-            // workaround.  remove when dapr runtime is 0.6
-            services.AddDaprClient((b) => b.UseEndpoint("https://127.0.0.1:50001"));
+        {            
+            services.AddDaprClient();
 
             services.AddSingleton(new JsonSerializerOptions()
             {
@@ -104,7 +103,7 @@ namespace MessageAnalyzer
 
                 // update with a sentiment
                 message.Sentiment = GenerateRandomSentiment();
-
+                Console.WriteLine($"....Invoking binding {BindingName} with message {message.Message} and sentiment {message.Sentiment}");
                 await client.InvokeBindingAsync<SocialMediaMessage>(BindingName, message);
             }
         }

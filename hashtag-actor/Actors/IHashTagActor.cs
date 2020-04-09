@@ -10,6 +10,6 @@ namespace Dapr.Tests.HashTagApp.Actors
     
     public interface IHashTagActor : IActor
     {
-        Task Increment(string sentiment);
+        Task Increment(string hashtagAndSentiment);
     }
 }

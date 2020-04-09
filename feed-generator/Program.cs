@@ -17,6 +17,21 @@ namespace FeedGenerator
     /// </summary>
     public class Program
     {
+        // This uses the names of shapes for a generic theme
+        static internal string[] HashTags = new string[]
+        {
+            "circle",
+            "ellipse",
+            "square",
+            "rectangle",
+            "triangle",
+            "star",
+            "cardioid",
+            "picycloid",
+            "limocon",
+            "hypocycoid"
+        };
+
         /// <summary>
         /// Main for FeedGenerator
         /// </summary>
@@ -24,7 +39,7 @@ namespace FeedGenerator
         public static void Main(string[] args)
         {
             int delayInMilliseconds = 10000;
-            if (args.Length != 0)
+            if (args.Length != 0 && args[0] != "%LAUNCHER_ARGS%")
             {
                 if (int.TryParse(args[0], out delayInMilliseconds) == false)
                 {
@@ -59,20 +74,19 @@ namespace FeedGenerator
             TimeSpan delay = TimeSpan.FromMilliseconds(delayInMilliseconds);
 
             DaprClientBuilder daprClientBuilder = new DaprClientBuilder();
-            
-            // workaround - remove "UseEndpoint("https://127.0.0.1:50001")" when dapr runtime moves to 0.6
-            DaprClient client = daprClientBuilder.UseEndpoint("https://127.0.0.1:50001").Build();
+
+            DaprClient client = daprClientBuilder.Build();
             while (true)
-            {              
+            {
                 SocialMediaMessage message = GeneratePost();
                 Console.WriteLine("Publishing");
                 try
                 {
-                    
+
                     await client.PublishEventAsync<SocialMediaMessage>(PubsubTopicName, message);
                 }
                 catch (Exception e)
-                {                    
+                {
                     Console.WriteLine("Caught {0}", e.ToString());
                 }
 
@@ -109,6 +123,9 @@ namespace FeedGenerator
                 s += c;
             }
 
+            // add hashtag
+            s += " #";
+            s += HashTags[random.Next(HashTags.Length)];
             return s;
         }
     }

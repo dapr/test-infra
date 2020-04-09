@@ -5,52 +5,51 @@
 
 namespace Dapr.Tests.HashTagApp.Controllers
 {
-    using System;
-    using System.Net.Mime;
-    using System.Threading.Tasks;
     using Dapr.Actors;
     using Dapr.Actors.Client;
-    using Dapr.Tests.HashTagApp;
     using Dapr.Tests.HashTagApp.Actors;
     using Dapr.Tests.HashTagApp.Models;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
+    using System;
+    using System.Net.Mime;
+    using System.Threading.Tasks;
 
     [ApiController]
     [Produces(MediaTypeNames.Application.Json)]
     public class HashTagController : ControllerBase
     {
-        private readonly ILogger<HashTagController> logger;
         private readonly IConfiguration configuration;
 
-        public HashTagController(ILogger<HashTagController> logger, IConfiguration config)
+        public HashTagController( IConfiguration config)
         {
-            this.logger = logger;
+            Console.WriteLine("ctor.");           
             this.configuration = config;
         }
 
         [HttpPost("messagebinding")]
         public async Task<IActionResult> PostMessageBinding([FromBody]SocialMediaMessage message)
         {
-            if (this.configuration[AppSettings.AppType] != AppSettings.HashTagCounter)
-            {
-                return BadRequest(new HTTPResponse($"Illegal request for {this.configuration[AppSettings.AppType]}"));
-            }
+            Console.WriteLine("enter messagebinding");
 
-            this.logger.LogTrace($"${message.CreationDate}, {message.CorrelationId}, ${message.MessageId}, ${message.Message}, ${message.Sentiment}");
+            Console.WriteLine($"{message.CreationDate}, {message.CorrelationId}, {message.MessageId}, {message.Message}, {message.Sentiment}");
 
-            var actorId = new ActorId(this.configuration[AppSettings.HashTagCounterActorId]);
-            var proxy = ActorProxy.Create<IHashTagActor>(actorId, this.configuration[AppSettings.HashTagCounterActorType]);
+            int indexOfHash = message.Message.LastIndexOf('#');
+            string hashTag = message.Message.Substring(indexOfHash + 1);
+            string key = hashTag + "_" + message.Sentiment;
 
-            this.logger.LogTrace($"Increase ${message.Sentiment}.");
+            var actorId = new ActorId(key);
+            var proxy = ActorProxy.Create<IHashTagActor>(actorId, "HashTagActor");
+
+            Console.WriteLine($"Increase {key}.");
             try
             {
-                await proxy.Increment(message.Sentiment);
+                await proxy.Increment(key);
             }
             catch (Exception e)
             {
-                this.logger.LogError(e, "messagebinding");
+                Console.WriteLine($"{e}");
                 throw;
             }
 

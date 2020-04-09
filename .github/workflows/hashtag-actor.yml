@@ -10,23 +10,23 @@ on:
     branches:
       - master
     paths:
-      - 'hashtag-app/**'
+      - 'hashtag-actor/**'
   pull_request:
     branches:
       - master
     paths:
-      - 'hashtag-app/**'
+      - 'hashtag-actor/**'
 
 jobs:
   build:
-    name: build hashtag-app
+    name: build hashtag-actor
     runs-on: ubuntu-latest
     env:
       APP_REGISTRY: ${{ secrets.DOCKER_HASHTAG_APP_REGISTRY }}
-      APP_IMAGE_NAME: hashtag-app
+      APP_IMAGE_NAME: hashtag-actor
       # TODO: APP_VER needs to be versioned correctly
       APP_VER: dev
-      APP_DIR: ./hashtag-app
+      APP_DIR: ./hashtag-actor
       ARTIFACT_DIR: ./deploy_artifact
     steps:
       - name: Check out code
@@ -52,7 +52,7 @@ jobs:
           name: longhaul-test
           path: ${{ env.ARTIFACT_DIR }}
   deploy:
-    name: deploy hashtag-app to test cluster
+    name: deploy hashtag-actor to test cluster
     needs: build
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -75,4 +75,4 @@ jobs:
           az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
       - name: Deploy apps to longhaul test environment
         run: |
-          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/testapp-deploy.yml
+          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/hashtag-actor-deploy.yml

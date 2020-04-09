@@ -5,6 +5,7 @@
 
 namespace Dapr.Tests.HashTagApp.Actors
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Dapr.Actors;
@@ -37,23 +38,23 @@ namespace Dapr.Tests.HashTagApp.Actors
         }
 
         /// <inheritdoc/>
-        public async Task Increment(string sentiment)
+        public async Task Increment(string hashtagAndSentiment)
         {
             int count = 0;
 
             try 
             {
-                count = await this.StateManager.GetStateAsync<int>(sentiment);
+                count = await this.StateManager.GetStateAsync<int>(hashtagAndSentiment);
             }
             catch (KeyNotFoundException)
             {
-                this.logger.LogInformation($"{sentiment} does not exist. {sentiment} will be initialized to 0.");
+                Console.WriteLine($"{hashtagAndSentiment} does not exist. {hashtagAndSentiment} will be initialized to 0.");
             }
 
-            this.logger.LogInformation($"{sentiment} = {count}");
+            Console.WriteLine($"{hashtagAndSentiment} = {count}");
             count++;
-            await this.StateManager.SetStateAsync<int>(sentiment, count);
-            this.logger.LogInformation($"Increment {sentiment}.");
+            await this.StateManager.SetStateAsync<int>(hashtagAndSentiment, count);
+            Console.WriteLine($"Incrementd {hashtagAndSentiment}.");
         }
     }
 }

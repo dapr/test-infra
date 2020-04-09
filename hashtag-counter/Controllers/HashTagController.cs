@@ -20,13 +20,11 @@ namespace Dapr.Tests.HashTagApp.Controllers
     [Produces(MediaTypeNames.Application.Json)]
     public class HashTagController : ControllerBase
     {
-        private readonly ILogger<HashTagController> logger;
         private readonly IConfiguration configuration;
 
-        public HashTagController(ILogger<HashTagController> logger, IConfiguration config)
+        public HashTagController( IConfiguration config)
         {
-            Console.WriteLine("ctor.");
-            this.logger = logger;
+            Console.WriteLine("ctor.");           
             this.configuration = config;
         }
 
@@ -36,7 +34,6 @@ namespace Dapr.Tests.HashTagApp.Controllers
             Console.WriteLine("enter messagebinding");
 
             Console.WriteLine($"{message.CreationDate}, {message.CorrelationId}, {message.MessageId}, {message.Message}, {message.Sentiment}");
-            this.logger.LogTrace($"{message.CreationDate}, {message.CorrelationId}, {message.MessageId}, {message.Message}, {message.Sentiment}");
 
             int indexOfHash = message.Message.LastIndexOf('#');
             string hashTag = message.Message.Substring(indexOfHash + 1);
@@ -46,18 +43,16 @@ namespace Dapr.Tests.HashTagApp.Controllers
             var proxy = ActorProxy.Create<IHashTagActor>(actorId, "HashTagActor");
 
             Console.WriteLine($"Increase {key}.");
-            this.logger.LogTrace($"Increase {key}.");
             try
             {
                 await proxy.Increment(key);
             }
             catch (Exception e)
             {
-                this.logger.LogError(e, "messagebinding");
+                Console.WriteLine($"{e}");
                 throw;
             }
 
-            this.logger.LogTrace("succeeded");
             return Ok(new HTTPResponse("Received"));
         }
     }

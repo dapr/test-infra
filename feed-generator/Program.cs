@@ -74,10 +74,6 @@ namespace FeedGenerator
             TimeSpan delay = TimeSpan.FromMilliseconds(delayInMilliseconds);
 
             DaprClientBuilder daprClientBuilder = new DaprClientBuilder();
-
-            // workaround - remove "UseEndpoint("https://127.0.0.1:50001")" when dapr runtime moves to 0.6
-            //DaprClient client = daprClientBuilder.UseEndpoint("https://127.0.0.1:50001").Build();
-            Console.WriteLine("not using workaround");
             DaprClient client = daprClientBuilder.Build();
             while (true)
             {

@@ -54,7 +54,7 @@ namespace Dapr.Tests.Snapshot
             }
 
             Console.WriteLine("Configured delayInMilliseconds={0}", delayInMilliseconds);
-            
+
             var host = CreateHostBuilder(args).Build();
 
             Task.Run(() => StartQueryLoopAsync(delayInMilliseconds));
@@ -103,7 +103,7 @@ namespace Dapr.Tests.Snapshot
 
                 foreach (string hashtag in HashTags)
                 {
-                   
+
                     foreach (string sentiment in Sentiments)
                     {
                         string key = hashtag + "_" + sentiment;
@@ -126,7 +126,7 @@ namespace Dapr.Tests.Snapshot
                     }
                 }
 
-                await client.SaveStateAsync<Dictionary<string, int>>("statestore", "statskey", stats);                              
+                await client.SaveStateAsync<Dictionary<string, int>>("statestore", "statskey", stats);
             }
         }
     }

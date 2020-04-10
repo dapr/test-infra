@@ -6,7 +6,7 @@
 namespace Dapr.Tests.Snapshot
 {
     public class AppSettings
-    {        
-        public const string DaprHTTPAppPort = "DaprHTTPAppPort";        
+    {
+        public const string DaprHTTPAppPort = "DaprHTTPAppPort";
     }
 }

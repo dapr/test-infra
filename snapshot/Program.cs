@@ -40,8 +40,8 @@ namespace Dapr.Tests.Snapshot
             "verynegative",
             "negative",
             "neutral",
-            "strong",
-            "verystrong"
+            "positive",
+            "verypositive"
         };
 
         public static void Main(string[] args)

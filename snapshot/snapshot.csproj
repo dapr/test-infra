@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>054b86fc-ba82-49dc-a816-4887a9c62d33</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>.</DockerfileContext>    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapr.Actors" Version="0.6.0-preview01" />
+    <PackageReference Include="Dapr.Actors.AspNetCore" Version="0.6.0-preview01" />
+    <PackageReference Include="Dapr.AspNetCore" Version="0.6.0-preview01" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.8" />
+
+  </ItemGroup>
+
+</Project>

@@ -26,8 +26,8 @@ namespace MessageAnalyzer
             "verynegative",
             "negative",
             "neutral",
-            "strong",
-            "verystrong"
+            "positive",
+            "verypositive"
         };
 
         /// <summary>

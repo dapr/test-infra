@@ -56,5 +56,20 @@ namespace Dapr.Tests.HashTagApp.Actors
             await this.StateManager.SetStateAsync<int>(hashtagAndSentiment, count);
             Console.WriteLine($"Incrementd {hashtagAndSentiment}.");
         }
+
+        public async Task<int> GetCount(string hashtagAndSentiment)
+        {
+            int count = -1;
+            try
+            {
+                count = await this.StateManager.GetStateAsync<int>(hashtagAndSentiment);
+            }
+            catch (KeyNotFoundException)
+            {
+                Console.WriteLine($"{hashtagAndSentiment} does not exist.");
+            }
+
+            return count;
+        }
     }
 }

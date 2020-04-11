@@ -1,0 +1,35 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: snapshot-app
+  labels:
+    app: snapshot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: snapshot
+  template:
+    metadata:
+      labels:
+        app: snapshot
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/id: "snapshot"
+        dapr.io/port: "3000"
+        dapr.io/log-as-json: "true"
+    spec:
+      containers:
+      - name: snapshot
+        image: dapriotest/snapshot:dev
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: Always
+        env:
+        - name: DELAY_IN_MS
+          value: "7000"

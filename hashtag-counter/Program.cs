@@ -13,11 +13,16 @@ namespace Dapr.Tests.HashTagApp
     using Microsoft.Extensions.Logging;
     using Dapr.Actors.AspNetCore;
     using Dapr.Tests.HashTagApp.Actors;
+    using Prometheus;
 
     public class Program
     {
         public static void Main(string[] args)
         {
+            var server = new MetricServer(port: 9988);
+            server.Start();
+
+           
             CreateHostBuilder(args).Build().Run();
         }
 

@@ -13,6 +13,7 @@ namespace Dapr.Tests.Snapshot
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
+    using Prometheus;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -20,6 +21,10 @@ namespace Dapr.Tests.Snapshot
 
     public class Program
     {
+        private static readonly Gauge DelaySinceLastSnapShot = Metrics.CreateGauge("snapshot_actor_delay_since_last_snapshot", "The time since the last round of snapshots");
+
+        private static readonly Gauge ActorMethodCallTime = Metrics.CreateGauge("snapshot_actor_method_call_time", "The time it takes for the GetCount actor method to return");
+        
         // This uses the names of shapes for a generic theme
         static internal string[] HashTags = new string[]
         {
@@ -30,7 +35,7 @@ namespace Dapr.Tests.Snapshot
             "triangle",
             "star",
             "cardioid",
-            "picycloid",
+            "epicycloid",
             "limocon",
             "hypocycoid"
         };
@@ -54,6 +59,9 @@ namespace Dapr.Tests.Snapshot
             }
 
             Console.WriteLine("Configured delayInMilliseconds={0}", delayInMilliseconds);
+
+            var server = new MetricServer(port: 9988);
+            server.Start();
 
             var host = CreateHostBuilder(args).Build();
 
@@ -95,15 +103,20 @@ namespace Dapr.Tests.Snapshot
             DaprClientBuilder daprClientBuilder = new DaprClientBuilder();
             DaprClient client = daprClientBuilder.Build();
 
+            DateTime lastSnapshotTime = DateTime.MinValue;
             while (true)
             {
                 Console.WriteLine("Sleeping '{0}' ms", delayInMilliseconds);
                 await Task.Delay(delay);
                 Dictionary<string, int> stats = new Dictionary<string, int>();
 
+                if (lastSnapshotTime != DateTime.MinValue)
+                {
+                    DelaySinceLastSnapShot.Set(DateTime.UtcNow.Subtract(lastSnapshotTime).TotalSeconds);
+                }
+
                 foreach (string hashtag in HashTags)
                 {
-
                     foreach (string sentiment in Sentiments)
                     {
                         string key = hashtag + "_" + sentiment;
@@ -114,7 +127,11 @@ namespace Dapr.Tests.Snapshot
                         int count = -1;
                         try
                         {
-                            count = await proxy.GetCount(key);
+                            using (ActorMethodCallTime.NewTimer())
+                            {
+                                count = await proxy.GetCount(key);
+                            }
+
                             stats.Add(key, count);
                             Console.WriteLine($"key={key}, value={count}.");
                         }
@@ -125,6 +142,8 @@ namespace Dapr.Tests.Snapshot
                         }
                     }
                 }
+
+                lastSnapshotTime = DateTime.UtcNow;
 
                 await client.SaveStateAsync<Dictionary<string, int>>("statestore", "statskey", stats);
             }

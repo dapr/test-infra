@@ -3,6 +3,22 @@
 # Licensed under the MIT License.
 # ------------------------------------------------------------
 
+kind: Service
+apiVersion: v1
+metadata:
+  name: message-analyzer
+  labels:
+    app: message-analyzer
+spec:
+  selector:
+    app: message-analyzer
+  ports:
+  - protocol: TCP
+    port: 9988
+    targetPort: 9988
+  type: ClusterIP
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,10 +39,13 @@ spec:
         dapr.io/id: "message-analyzer"
         dapr.io/port: "80"
         dapr.io/log-as-json: "true"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9988'        
     spec:
       containers:
       - name: message-analyzer
         image: dapriotest/message-analyzer:dev
         ports:
         - containerPort: 80
+        - containerPort: 9988
         imagePullPolicy: Always

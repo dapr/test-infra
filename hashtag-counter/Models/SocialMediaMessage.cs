@@ -20,5 +20,10 @@ namespace Dapr.Tests.HashTagApp.Models
         public string Sentiment { get; set; }
         [Required]
         public DateTime CreationDate { get; set; }
+
+        // Used to measure the time between apps which is reported as a metric.  
+        // An app should overwrite this if it wants a later one to measure duration.
+        [Required]
+        public DateTime PreviousAppTimestamp { get; set; }
     }
 }

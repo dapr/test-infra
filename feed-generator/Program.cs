@@ -8,6 +8,7 @@ namespace FeedGenerator
     using Dapr.Client;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
+    using Prometheus;
     using System;
     using System.Threading.Tasks;
 
@@ -17,6 +18,10 @@ namespace FeedGenerator
     /// </summary>
     public class Program
     {
+        private static readonly Gauge PublishCallTime = Metrics.CreateGauge("feed_generator_publish_call_time", "The time it takes for the publish call to return");
+
+        private static readonly Counter PublishFailureCount = Metrics.CreateCounter("feed_generator_publish_failure_count", "Publich calls that throw");
+
         // This uses the names of shapes for a generic theme
         static internal string[] HashTags = new string[]
         {
@@ -27,7 +32,7 @@ namespace FeedGenerator
             "triangle",
             "star",
             "cardioid",
-            "picycloid",
+            "epicycloid",
             "limocon",
             "hypocycoid"
         };
@@ -48,6 +53,9 @@ namespace FeedGenerator
                     throw new InvalidOperationException(msg);
                 }
             }
+
+            var server = new MetricServer(port: 9988);
+            server.Start();
 
             IHost host = CreateHostBuilder(args).Build();
 
@@ -79,15 +87,18 @@ namespace FeedGenerator
             while (true)
             {
                 SocialMediaMessage message = GeneratePost();
-                Console.WriteLine("Publishing");
+
                 try
                 {
-
-                    await client.PublishEventAsync<SocialMediaMessage>(PubsubTopicName, message);
+                    using (PublishCallTime.NewTimer())
+                    {
+                        await client.PublishEventAsync<SocialMediaMessage>(PubsubTopicName, message);
+                    }
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine("Caught {0}", e.ToString());
+                    PublishFailureCount.Inc();
                 }
 
                 await Task.Delay(delay);
@@ -106,7 +117,8 @@ namespace FeedGenerator
                 CorrelationId = correlationId,
                 MessageId = messageId,
                 Message = message,
-                CreationDate = creationDate
+                CreationDate = creationDate,
+                PreviousAppTimestamp = DateTime.UtcNow
             };
         }
 

@@ -3,6 +3,22 @@
 # Licensed under the MIT License.
 # ------------------------------------------------------------
 
+kind: Service
+apiVersion: v1
+metadata:
+  name: hashtag-counter
+  labels:
+    app: hashtag-counter
+spec:
+  selector:
+    app: hashtag-counter
+  ports:
+  - protocol: TCP
+    port: 9988
+    targetPort: 9988
+  type: ClusterIP
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,10 +39,13 @@ spec:
         dapr.io/id: "hashtag-counter"
         dapr.io/port: "3000"
         dapr.io/log-as-json: "true"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9988'  
     spec:
       containers:
       - name: hashtag-counter
         image: dapriotest/hashtag-counter:dev
         ports:
         - containerPort: 3000
+        - containerPort: 9988
         imagePullPolicy: Always

@@ -3,6 +3,22 @@
 # Licensed under the MIT License.
 # ------------------------------------------------------------
 
+kind: Service
+apiVersion: v1
+metadata:
+  name: feed-generator
+  labels:
+    app: feed-generator
+spec:
+  selector:
+    app: feed-generator
+  ports:
+  - protocol: TCP
+    port: 9988
+    targetPort: 9988
+  type: ClusterIP
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -20,12 +36,18 @@ spec:
         app: feed-generator
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/id: "feed-generator"        
-        dapr.io/log-as-json: "true"                 
+        dapr.io/id: "feed-generator"
+        dapr.io/log-as-json: "true"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9988'        
     spec:
       containers:
       - name: feed-generator
         image: dapriotest/feed-generator:dev
-        ports:
-        - containerPort: 3000
+        ports:        
+        - name: dapp
+          containerPort: 3000
+        - name: prom
+          containerPort: 9988
+          
         imagePullPolicy: Always

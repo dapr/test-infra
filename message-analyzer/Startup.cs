@@ -6,12 +6,14 @@
 namespace MessageAnalyzer
 {
     using Dapr.Client;
+    using Google.Protobuf.WellKnownTypes;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using Prometheus;
     using System;
     using System.Text.Json;
     using System.Threading.Tasks;
@@ -21,6 +23,10 @@ namespace MessageAnalyzer
     /// </summary>
     public class Startup
     {
+        private static readonly Gauge PubSubDuration = Metrics.CreateGauge("lh_message_analyzer_pubsub_duration", "The time between the previous app's publish call and the time this app receives it");
+
+        private static readonly Gauge OutputBindingCallTime = Metrics.CreateGauge("lh_message_analyzer_output_binding_call_time", "The time it takes the binding api to return locally");
+
         private static string[] Sentiments = new string[]
         {
             "verynegative",
@@ -59,7 +65,7 @@ namespace MessageAnalyzer
         /// </summary>
         /// <param name="services">Service Collection.</param>
         public void ConfigureServices(IServiceCollection services)
-        {            
+        {
             services.AddDaprClient();
 
             services.AddSingleton(new JsonSerializerOptions()
@@ -101,10 +107,21 @@ namespace MessageAnalyzer
 
                 var message = await JsonSerializer.DeserializeAsync<SocialMediaMessage>(context.Request.Body, serializerOptions);
 
+                // record the time
+                TimeSpan durationFromPreviousApp = DateTime.UtcNow - message.PreviousAppTimestamp;                
+                PubSubDuration.Set(durationFromPreviousApp.TotalSeconds);
+
                 // update with a sentiment
                 message.Sentiment = GenerateRandomSentiment();
                 Console.WriteLine($"....Invoking binding {BindingName} with message {message.Message} and sentiment {message.Sentiment}");
-                await client.InvokeBindingAsync<SocialMediaMessage>(BindingName, message);
+
+                // overwrite the timestamp so the next app can use it
+                message.PreviousAppTimestamp = DateTime.UtcNow;
+
+                using (OutputBindingCallTime.NewTimer())
+                {
+                    await client.InvokeBindingAsync<SocialMediaMessage>(BindingName, message);
+                }
             }
         }
 

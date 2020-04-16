@@ -7,6 +7,7 @@ namespace MessageAnalyzer
 {
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
+    using Prometheus;
     using System;
 
     /// <summary>
@@ -22,6 +23,10 @@ namespace MessageAnalyzer
         public static void Main(string[] args)
         {
             Console.WriteLine("Enter main");
+
+            var server = new MetricServer(port: 9988);
+            server.Start();
+
             CreateHostBuilder(args).Build().Run();
         }
 

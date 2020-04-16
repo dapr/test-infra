@@ -21,9 +21,9 @@ namespace Dapr.Tests.Snapshot
 
     public class Program
     {
-        private static readonly Gauge DelaySinceLastSnapShot = Metrics.CreateGauge("snapshot_actor_delay_since_last_snapshot", "The time since the last round of snapshots");
+        private static readonly Gauge DelaySinceLastSnapShot = Metrics.CreateGauge("lh_snapshot_actor_delay_since_last_snapshot", "The time since the last round of snapshots");
 
-        private static readonly Gauge ActorMethodCallTime = Metrics.CreateGauge("snapshot_actor_method_call_time", "The time it takes for the GetCount actor method to return");
+        private static readonly Gauge ActorMethodCallTime = Metrics.CreateGauge("lh_snapshot_actor_method_call_time", "The time it takes for the GetCount actor method to return");
         
         // This uses the names of shapes for a generic theme
         static internal string[] HashTags = new string[]

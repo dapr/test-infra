@@ -18,9 +18,9 @@ namespace FeedGenerator
     /// </summary>
     public class Program
     {
-        private static readonly Gauge PublishCallTime = Metrics.CreateGauge("feed_generator_publish_call_time", "The time it takes for the publish call to return");
+        private static readonly Gauge PublishCallTime = Metrics.CreateGauge("lh_feed_generator_publish_call_time", "The time it takes for the publish call to return");
 
-        private static readonly Counter PublishFailureCount = Metrics.CreateCounter("feed_generator_publish_failure_count", "Publich calls that throw");
+        private static readonly Counter PublishFailureCount = Metrics.CreateCounter("lh_feed_generator_publish_failure_count", "Publich calls that throw");
 
         // This uses the names of shapes for a generic theme
         static internal string[] HashTags = new string[]

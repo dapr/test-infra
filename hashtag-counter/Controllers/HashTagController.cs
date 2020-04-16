@@ -21,7 +21,7 @@ namespace Dapr.Tests.HashTagApp.Controllers
     [Produces(MediaTypeNames.Application.Json)]
     public class HashTagController : ControllerBase
     {
-        private static readonly Gauge BindingDuration = Metrics.CreateGauge("hashtag_counter_binding_duration_in_ms", "The time between the previous app's binding call and the time this app receives it");
+        private static readonly Gauge BindingDuration = Metrics.CreateGauge("lh_hashtag_counter_binding_duration_in_ms", "The time between the previous app's binding call and the time this app receives it");
 
         private readonly IConfiguration configuration;
 

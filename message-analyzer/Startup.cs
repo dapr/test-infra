@@ -23,9 +23,9 @@ namespace MessageAnalyzer
     /// </summary>
     public class Startup
     {
-        private static readonly Gauge PubSubDuration = Metrics.CreateGauge("message_analyzer_pubsub_duration", "The time between the previous app's publish call and the time this app receives it");
+        private static readonly Gauge PubSubDuration = Metrics.CreateGauge("lh_message_analyzer_pubsub_duration", "The time between the previous app's publish call and the time this app receives it");
 
-        private static readonly Gauge OutputBindingCallTime = Metrics.CreateGauge("message_analyzer_output_binding_call_time", "The time it takes the binding api to return locally");
+        private static readonly Gauge OutputBindingCallTime = Metrics.CreateGauge("lh_message_analyzer_output_binding_call_time", "The time it takes the binding api to return locally");
 
         private static string[] Sentiments = new string[]
         {

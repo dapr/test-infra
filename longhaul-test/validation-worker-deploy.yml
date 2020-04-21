@@ -43,7 +43,7 @@ spec:
     spec:
       containers:
       - name: validation-worker
-        image: lemai/validation-worker:dev
+        image: dapriotest/validation-worker:dev
         ports:
         - containerPort: 3000
         - containerPort: 9988

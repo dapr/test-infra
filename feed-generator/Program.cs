@@ -90,6 +90,7 @@ namespace FeedGenerator
 
                 try
                 {
+                    Console.WriteLine("Publishing");
                     using (PublishCallTime.NewTimer())
                     {
                         await client.PublishEventAsync<SocialMediaMessage>(PubsubTopicName, message);

@@ -23,6 +23,8 @@ namespace Dapr.Tests.HashTagApp.Controllers
     {
         private static readonly Gauge BindingDuration = Metrics.CreateGauge("lh_hashtag_counter_binding_duration", "The time between the previous app's binding call and the time this app receives it");
 
+        private static readonly Counter ActorMethodFailureCount = Metrics.CreateCounter("lh_hashtag_counter_actor_method_failure_count", "Actor method calls that throw");
+
         private readonly IConfiguration configuration;
 
         public HashTagController(IConfiguration config)
@@ -49,6 +51,7 @@ namespace Dapr.Tests.HashTagApp.Controllers
             var proxy = ActorProxy.Create<IHashTagActor>(actorId, "HashTagActor");
 
             Console.WriteLine($"Increase {key}.");
+            Exception ex = null;
             try
             {
                 await proxy.Increment(key);
@@ -56,7 +59,13 @@ namespace Dapr.Tests.HashTagApp.Controllers
             catch (Exception e)
             {
                 Console.WriteLine($"{e}");
-                throw;
+                ex = e;
+                ActorMethodFailureCount.Inc();
+            }
+
+            if (ActorMethodFailureCount.Value > 10)
+            {
+                throw ex;
             }
 
             return Ok(new HTTPResponse("Received"));

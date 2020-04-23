@@ -27,6 +27,8 @@ namespace MessageAnalyzer
 
         private static readonly Gauge OutputBindingCallTime = Metrics.CreateGauge("lh_message_analyzer_output_binding_call_time", "The time it takes the binding api to return locally");
 
+        private static readonly Counter BindingApiFailureCount = Metrics.CreateCounter("lh_message_analyzer_binding_failure_count", "Output binding calls that throw");
+
         private static string[] Sentiments = new string[]
         {
             "verynegative",
@@ -118,9 +120,17 @@ namespace MessageAnalyzer
                 // overwrite the timestamp so the next app can use it
                 message.PreviousAppTimestamp = DateTime.UtcNow;
 
-                using (OutputBindingCallTime.NewTimer())
+                try
                 {
-                    await client.InvokeBindingAsync<SocialMediaMessage>(BindingName, message);
+                    using (OutputBindingCallTime.NewTimer())
+                    {
+                        await client.InvokeBindingAsync<SocialMediaMessage>(BindingName, message);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Caught {0}", e);
+                    BindingApiFailureCount.Inc();
                 }
             }
         }

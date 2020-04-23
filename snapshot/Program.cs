@@ -24,7 +24,9 @@ namespace Dapr.Tests.Snapshot
         private static readonly Gauge DelaySinceLastSnapShot = Metrics.CreateGauge("lh_snapshot_actor_delay_since_last_snapshot", "The time since the last round of snapshots");
 
         private static readonly Gauge ActorMethodCallTime = Metrics.CreateGauge("lh_snapshot_actor_method_call_time", "The time it takes for the GetCount actor method to return");
-        
+
+        private static readonly Counter ActorMethodFailureCount = Metrics.CreateCounter("lh_snapshot_actor_method_failure_count", "Actor method calls that throw from snapshot app");
+
         // This uses the names of shapes for a generic theme
         static internal string[] HashTags = new string[]
         {
@@ -138,6 +140,7 @@ namespace Dapr.Tests.Snapshot
                         catch (Exception e)
                         {
                             Console.WriteLine($"{e}");
+                            ActorMethodFailureCount.Inc();
                             throw;
                         }
                     }

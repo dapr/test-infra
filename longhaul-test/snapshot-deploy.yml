@@ -44,7 +44,7 @@ spec:
     spec:
       containers:
       - name: snapshot
-        image: lemai/snapshot:dev
+        image: dapriotest/snapshot:dev
         ports:
         - containerPort: 3000
         - containerPort: 9988

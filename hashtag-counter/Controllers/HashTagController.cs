@@ -7,6 +7,7 @@ namespace Dapr.Tests.HashTagApp.Controllers
 {
     using Dapr.Actors;
     using Dapr.Actors.Client;
+    using Dapr.Tests.Common.Models;
     using Dapr.Tests.HashTagApp.Actors;
     using Dapr.Tests.HashTagApp.Models;
     using Microsoft.AspNetCore.Mvc;

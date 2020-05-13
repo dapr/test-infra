@@ -8,6 +8,7 @@ namespace Dapr.Tests.Snapshot
     using Dapr.Actors;
     using Dapr.Actors.Client;
     using Dapr.Client;
+    using Dapr.Tests.Common.Models;
     using Dapr.Tests.HashTagApp.Actors;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
@@ -27,29 +28,6 @@ namespace Dapr.Tests.Snapshot
 
         private static readonly Counter ActorMethodFailureCount = Metrics.CreateCounter("lh_snapshot_actor_method_failure_count", "Actor method calls that throw from snapshot app");
 
-        // This uses the names of shapes for a generic theme
-        static internal string[] HashTags = new string[]
-        {
-            "circle",
-            "ellipse",
-            "square",
-            "rectangle",
-            "triangle",
-            "star",
-            "cardioid",
-            "epicycloid",
-            "limocon",
-            "hypocycoid"
-        };
-
-        private static string[] Sentiments = new string[]
-        {
-            "verynegative",
-            "negative",
-            "neutral",
-            "positive",
-            "verypositive"
-        };
 
         public static void Main(string[] args)
         {
@@ -117,9 +95,9 @@ namespace Dapr.Tests.Snapshot
                     DelaySinceLastSnapShot.Set(DateTime.UtcNow.Subtract(lastSnapshotTime).TotalSeconds);
                 }
 
-                foreach (string hashtag in HashTags)
+                foreach (string hashtag in Constants.HashTags)
                 {
-                    foreach (string sentiment in Sentiments)
+                    foreach (string sentiment in Constants.Sentiments)
                     {
                         string key = hashtag + "_" + sentiment;
                         var actorId = new ActorId(key);

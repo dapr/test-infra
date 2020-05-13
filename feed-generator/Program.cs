@@ -23,20 +23,6 @@ namespace FeedGenerator
 
         private static readonly Counter PublishFailureCount = Metrics.CreateCounter("lh_feed_generator_publish_failure_count", "Publich calls that throw");
 
-        // This uses the names of shapes for a generic theme
-        static internal string[] HashTags = new string[]
-        {
-            "circle",
-            "ellipse",
-            "square",
-            "rectangle",
-            "triangle",
-            "star",
-            "cardioid",
-            "epicycloid",
-            "limocon",
-            "hypocycoid"
-        };
 
         /// <summary>
         /// Main for FeedGenerator
@@ -139,7 +125,7 @@ namespace FeedGenerator
 
             // add hashtag
             s += " #";
-            s += HashTags[random.Next(HashTags.Length)];
+            s += Constants.HashTags[random.Next(Constants.HashTags.Length)];
             return s;
         }
     }

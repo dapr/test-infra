@@ -6,6 +6,7 @@
 namespace ValidationWorker
 {
     using Dapr.Client;
+    using Dapr.Client.Http;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
     using Prometheus;
@@ -79,9 +80,12 @@ namespace ValidationWorker
                 {
                     using (ServiceInvocationCallTime.NewTimer())
                     {
-                        Dictionary<string, string> metadata = new Dictionary<string, string>();
-                        metadata.Add("http.verb", "GET");
-                        stats = await client.InvokeMethodAsync<Dictionary<string, int>>(SnapshotAppName, "hashtagdata", metadata);
+                        HTTPExtension extension = new HTTPExtension()
+                        {
+                            Verb = HTTPVerb.Get
+                        };
+
+                        stats = await client.InvokeMethodAsync<Dictionary<string, int>>(SnapshotAppName, "hashtagdata", extension);
                     }
                 }
                 catch (Exception e)

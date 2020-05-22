@@ -1,0 +1,8 @@
+﻿version: '3.8'
+
+services: 
+  hashtag-actor:
+    image: ${DOCKER_REGISTRY-}hashtag-actor
+    build:
+      context: ..
+      dockerfile: hashtag-actor/Dockerfile

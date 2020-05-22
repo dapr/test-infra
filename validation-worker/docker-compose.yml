@@ -1,0 +1,8 @@
+﻿version: '3.8'
+
+services:
+  validation-worker:
+    image: ${DOCKER_REGISTRY-}validation-worker
+    build:
+      context: ..
+      dockerfile: validation-worker/Dockerfile

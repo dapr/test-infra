@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  feed-generator:
+    image: ${DOCKER_REGISTRY-}feed-generator
+    build:
+      context: .
+      dockerfile: feed-generator/Dockerfile
+      
+  hashtag-actor:
+    image: ${DOCKER_REGISTRY-}hashtag-actor
+    build:
+      context: .
+      dockerfile: hashtag-actor/Dockerfile
+
+  hashtag-counter:
+    image: ${DOCKER_REGISTRY-}hashtag-counter
+    build:
+      context: .
+      dockerfile: hashtag-counter/Dockerfile
+
+  message-analyzer:
+    image: ${DOCKER_REGISTRY-}message-analyzer
+    build:
+      context: .
+      dockerfile: message-analyzer/Dockerfile
+      
+  snapshot:
+    image: ${DOCKER_REGISTRY-}snapshot
+    build:
+      context: .
+      dockerfile: snapshot/Dockerfile
+
+  validation-worker:
+    image: ${DOCKER_REGISTRY-}validation-worker
+    build:
+      context: .
+      dockerfile: validation-worker/Dockerfile

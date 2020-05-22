@@ -3,19 +3,18 @@
 # Licensed under the MIT License.
 # ------------------------------------------------------------
 
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 AS base
+WORKDIR /app
+EXPOSE 80
+
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build-env
 WORKDIR /app
 
-# Copy csproj and restore as distinct layers
-COPY *.csproj ./
-RUN dotnet restore
-
-# Copy everything else and build
 COPY . ./
-RUN dotnet publish -c Release -o out
+RUN dotnet restore snapshot/*.csproj 
+RUN dotnet publish snapshot/*.csproj -c Release -o /out
 
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
+FROM base AS final
 WORKDIR /app
-COPY --from=build-env /app/out .
+COPY --from=build-env /out ./
 ENTRYPOINT ["dotnet", "snapshot.dll"]

@@ -1,0 +1,8 @@
+﻿version: '3.8'
+
+services:
+  snapshot:
+    image: ${DOCKER_REGISTRY-}snapshot
+    build:
+      context: ..
+      dockerfile: snapshot/Dockerfile

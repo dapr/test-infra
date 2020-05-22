@@ -1,9 +1,0 @@
-﻿version: '3.8'
-
-services:
-  message-analyzer:
-    image: ${DOCKER_REGISTRY-}message-analyzer
-    build:
-      context: ..
-      dockerfile: message-analyzer/Dockerfile
-      

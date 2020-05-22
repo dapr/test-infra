@@ -1,9 +1,0 @@
-﻿version: '3.8'
-
-services:
-  feed-generator:
-    image: ${DOCKER_REGISTRY-}feed-generator
-    build:
-      context: ..
-      dockerfile: feed-generator/Dockerfile
-      

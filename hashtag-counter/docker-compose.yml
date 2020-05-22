@@ -1,8 +1,0 @@
-﻿version: '3.8'
-
-services:
-  hashtag-counter:
-    image: ${DOCKER_REGISTRY-}hashtag-counter
-    build:
-      context: ..
-      dockerfile: hashtag-counter/Dockerfile

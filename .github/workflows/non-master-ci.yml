@@ -95,7 +95,7 @@ jobs:
 
           for i in "${arr[@]}"
           do
-            echo "Tagging docker image ${i}"
+            echo "Deploy image ${i}"
             kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/${i}-deploy.yml & kubectl rollout restart -n ${{ env.APP_NAMESPACE }} deploy/${i}-app
           done
           

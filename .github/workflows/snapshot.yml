@@ -37,7 +37,8 @@ jobs:
           docker login -u ${{ secrets.DOCKER_REGISTRY_ID }} -p ${{ secrets.DOCKER_REGISTRY_PASS }}
       - name: Build hashtag app docker image
         run: |
-          docker build -t ${{ env.APP_REGISTRY }}/${{ env.APP_IMAGE_NAME }}:${{ env.APP_VER }} ${{ env.APP_DIR }}
+          docker-compose build ${{ env.APP_IMAGE_NAME }}
+          docker tag ${{ env.APP_IMAGE_NAME }} ${{ env.APP_REGISTRY }}/${{ env.APP_IMAGE_NAME }}:${{ env.APP_VER }}
       - name: Push hashtag app image to dockerhub
         if: github.event_name != 'pull_request'
         run: |

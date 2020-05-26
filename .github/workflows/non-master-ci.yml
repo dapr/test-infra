@@ -3,30 +3,41 @@
 # Licensed under the MIT License.
 # ------------------------------------------------------------
 
-name: build-validation-worker
+name: integration-ci
 
 on:
   push:
-    branches:
+    branches-ignore:
       - master
     paths:
+      - 'feed-generator/**'
+      - 'hashtag-actor/**'
+      - 'hashtag-counter/**'
+      - 'message-analyzer/**'
+      - 'snapshot/**'
       - 'validation-worker/**'
   pull_request:
-    branches:
+    branches-ignore:
       - master
     paths:
+      - 'feed-generator/**'
+      - 'hashtag-actor/**'
+      - 'hashtag-counter/**'
+      - 'message-analyzer/**'
+      - 'snapshot/**'
       - 'validation-worker/**'
+
+env:
+  IMAGES: '"feed-generator" "hashtag-actor" "hashtag-counter" "message-analyzer" "snapshot" "validation-worker"'
 
 jobs:
   build:
-    name: build validation-worker
+    name: build feed-generator
     runs-on: ubuntu-latest
     env:
       APP_REGISTRY: ${{ secrets.DOCKER_HASHTAG_APP_REGISTRY }}
-      APP_IMAGE_NAME: validation-worker
       # TODO: APP_VER needs to be versioned correctly
       APP_VER: dev
-      APP_DIR: ./validation-worker
       ARTIFACT_DIR: ./deploy_artifact
     steps:
       - name: Check out code
@@ -35,14 +46,18 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           docker login -u ${{ secrets.DOCKER_REGISTRY_ID }} -p ${{ secrets.DOCKER_REGISTRY_PASS }}
-      - name: Build hashtag app docker image
+      - name: Build feed-generator app docker image
         run: |
-          docker-compose build ${{ env.APP_IMAGE_NAME }}
-          docker tag ${{ env.APP_IMAGE_NAME }} ${{ env.APP_REGISTRY }}/${{ env.APP_IMAGE_NAME }}:${{ env.APP_VER }}
-      - name: Push hashtag app image to dockerhub
-        if: github.event_name != 'pull_request'
-        run: |
-          docker push ${{ env.APP_REGISTRY }}/${{ env.APP_IMAGE_NAME }}:${{ env.APP_VER }}
+          docker-compose build
+
+          declare -a arr=(%{{ env.IMAGES }})
+
+          for i in "${arr[@]}"
+          do
+            echo "Tagging docker image ${i}"
+            docker tag $i ${{ env.APP_REGISTRY }}/${i}:${{ env.APP_VER }}
+            docker push ${{ env.APP_REGISTRY }}/${i}:${{ env.APP_VER }}
+          done
       - name: Copy deployment yaml to archieve
         run: |
           mkdir -p ${{ env.ARTIFACT_DIR }}
@@ -53,7 +68,7 @@ jobs:
           name: longhaul-test
           path: ${{ env.ARTIFACT_DIR }}
   deploy:
-    name: deploy validation-worker to test cluster
+    name: deploy longhaul applications to test cluster
     needs: build
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -76,4 +91,11 @@ jobs:
           az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
       - name: Deploy apps to longhaul test environment
         run: |
-          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/validation-worker-deploy.yml & kubectl rollout restart -n ${{ env.APP_NAMESPACE }} deploy/validation-worker-app
+          declare -a arr=(%{{ env.IMAGES }})
+
+          for i in "${arr[@]}"
+          do
+            echo "Deploy image ${i}"
+            kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/${i}-deploy.yml & kubectl rollout restart -n ${{ env.APP_NAMESPACE }} deploy/${i}-app
+          done
+          

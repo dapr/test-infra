@@ -1,0 +1,8 @@
+version: '3.3'
+
+services:
+  feed-generator:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "80"

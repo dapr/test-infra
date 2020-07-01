@@ -125,7 +125,7 @@ namespace MessageAnalyzer
                 {
                     using (OutputBindingCallTime.NewTimer())
                     {
-                        await client.InvokeBindingAsync<SocialMediaMessage>(BindingName, message);
+                        await client.InvokeBindingAsync<SocialMediaMessage>(BindingName, "create", message);
                     }
                 }
                 catch (Exception e)

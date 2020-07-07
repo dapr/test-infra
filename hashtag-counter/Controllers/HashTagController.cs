@@ -51,15 +51,16 @@ namespace Dapr.Tests.HashTagApp.Controllers
             var actorId = new ActorId(key);
             var proxy = ActorProxy.Create<IHashTagActor>(actorId, "HashTagActor");
 
-            Console.WriteLine($"Increase {key}.");
+            Console.WriteLine($"Increasing {key}.");
             Exception ex = null;
             try
             {
                 await proxy.Increment(key);
+                Console.WriteLine($"Increasing {key} successful.");
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{e}");
+                Console.WriteLine($"Increasing {key} failed with {e}");
                 ex = e;
                 ActorMethodFailureCount.Inc();
             }

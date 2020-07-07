@@ -54,7 +54,7 @@ namespace Dapr.Tests.HashTagApp.Actors
             Console.WriteLine($"{hashtagAndSentiment} = {count}");
             count++;
             await this.StateManager.SetStateAsync<int>(hashtagAndSentiment, count);
-            Console.WriteLine($"Incrementd {hashtagAndSentiment}.");
+            Console.WriteLine($"Incremented {hashtagAndSentiment}.");
         }
 
         public async Task<int> GetCount(string hashtagAndSentiment)

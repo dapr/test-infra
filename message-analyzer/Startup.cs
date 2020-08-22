@@ -40,7 +40,12 @@ namespace MessageAnalyzer
         };
 
         /// <summary>
-        /// 
+        /// The name of the pubsub component.  The name of the component and the topic happen to be the same here...
+        /// </summary>
+        public const string PubsubComponentName = "receivemediapost";
+
+        /// <summary>
+        /// The name of the topic to subscribe to.
         /// </summary>
         public const string PubsubTopicName = "receivemediapost";
 
@@ -99,7 +104,7 @@ namespace MessageAnalyzer
             {
                 endpoints.MapSubscribeHandler();
 
-                endpoints.MapPost(PubsubTopicName, ReceiveMediaPost).WithTopic(PubsubTopicName);
+                endpoints.MapPost(PubsubTopicName, ReceiveMediaPost).WithTopic(PubsubComponentName, PubsubTopicName);
             });
 
             // Receive a "Post" object from the previous app in the pipeline.

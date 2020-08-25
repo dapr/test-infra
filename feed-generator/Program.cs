@@ -65,7 +65,10 @@ namespace FeedGenerator
 
         static internal async void StartMessageGeneratorAsync(int delayInMilliseconds)
         {
+            // the name of the component and the topic happen to be the same here...
+            const string PubsubComponentName = "receivemediapost";
             const string PubsubTopicName = "receivemediapost";
+
             TimeSpan delay = TimeSpan.FromMilliseconds(delayInMilliseconds);
 
             DaprClientBuilder daprClientBuilder = new DaprClientBuilder();
@@ -80,7 +83,7 @@ namespace FeedGenerator
                     Console.WriteLine("Publishing");
                     using (PublishCallTime.NewTimer())
                     {
-                        await client.PublishEventAsync<SocialMediaMessage>(PubsubTopicName, message);
+                        await client.PublishEventAsync<SocialMediaMessage>(PubsubComponentName, PubsubTopicName, message);
                     }
                 }
                 catch (Exception e)

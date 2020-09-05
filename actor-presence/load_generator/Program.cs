@@ -1,4 +1,9 @@
-﻿namespace Dapr.Tests.Actors.PresenceTest
+﻿// ------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+// ------------------------------------------------------------
+
+namespace Dapr.Tests.Actors.PresenceTest
 {
     using System;
     using System.Collections.Generic;
@@ -19,8 +24,6 @@
 
             var sendInterval = TimeSpan.FromSeconds(5); // interval for sending updates
 
-            // Precreate base heartbeat data objects for each of the games.
-            // We'll modify them before every time before sending.
             var heartbeats = new HeartbeatData[nGames];
             for (var i = 0; i < nGames; i++)
             {
@@ -40,7 +43,6 @@
             while (true)
             {
                 iteration++;
-                Console.WriteLine();
                 Console.WriteLine("Sending heartbeat series # {0}", iteration);
 
                 ulong high = ((ulong) iteration) << 32;
@@ -82,9 +84,6 @@
                         outstandingScoreReads.Add(t);
                     }
 
-                    // Wait for all calls to finish.
-                    // It is okay to block the thread here because it's a client program with no parallelism.
-                    // One should never block a thread in grain code.
                     Task.WhenAll(outstandingScoreReads.ToArray()).Wait();
 
                     for (var i = 0; i < nGames; i++)
@@ -97,9 +96,6 @@
                     Console.WriteLine("Error: {0}", e);
                 }
 
-                Console.WriteLine();
-                Console.WriteLine("Sleeping for {0} seconds.", sendInterval.TotalSeconds);
-                Console.WriteLine("Press CTRL-C to exit");
                 Thread.Sleep(sendInterval);
             }
         }

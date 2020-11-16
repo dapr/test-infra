@@ -22,7 +22,7 @@ jobs:
     name: build hashtag-counter
     runs-on: ubuntu-latest
     env:
-      APP_REGISTRY: ${{ secrets.DOCKER_HASHTAG_APP_REGISTRY }}
+      APP_REGISTRY: dapriotest
       APP_IMAGE_NAME: hashtag-counter
       # TODO: APP_VER needs to be versioned correctly
       APP_VER: dev

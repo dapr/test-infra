@@ -22,7 +22,7 @@ jobs:
     name: build validation-worker
     runs-on: ubuntu-latest
     env:
-      APP_REGISTRY: ${{ secrets.DOCKER_HASHTAG_APP_REGISTRY }}
+      APP_REGISTRY: dapriotest
       APP_IMAGE_NAME: validation-worker
       # TODO: APP_VER needs to be versioned correctly
       APP_VER: dev

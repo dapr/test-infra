@@ -3,7 +3,7 @@
 # Licensed under the MIT License.
 # ------------------------------------------------------------
 
-name: build-feed-generator
+name: deploy-dapr-runtime
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
       DAPR_NAMESPACE: dapr-system
       TEST_CLUSTER_NAME: dapr-seattle
       TEST_RESOURCE_GROUP: dapr-test
-      HELMVER: v3.2.1
+      HELMVER: v3.4.0
     steps:
       - name: Set up Dapr CLI
         run: wget -q ${{ env.DAPR_INSTALL_URL }} -O - | /bin/bash

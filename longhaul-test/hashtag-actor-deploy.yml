@@ -20,7 +20,7 @@ spec:
         app: hashtag-actor
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/id: "hashtag-actor"
+        dapr.io/app-id: "hashtag-actor"
         dapr.io/port: "3000"
         dapr.io/log-as-json: "true"
     spec:

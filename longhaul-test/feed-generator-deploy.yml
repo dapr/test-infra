@@ -36,7 +36,7 @@ spec:
         app: feed-generator
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/id: "feed-generator"
+        dapr.io/app-id: "feed-generator"
         dapr.io/log-as-json: "true"
         prometheus.io/scrape: 'true'
         prometheus.io/port: '9988'        

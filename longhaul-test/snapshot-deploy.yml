@@ -36,7 +36,7 @@ spec:
         app: snapshot
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/id: "snapshot"
+        dapr.io/app-id: "snapshot"
         dapr.io/port: "3000"
         dapr.io/log-as-json: "true"
         prometheus.io/scrape: 'true'

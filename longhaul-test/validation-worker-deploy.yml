@@ -36,7 +36,7 @@ spec:
         app: validation-worker
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/id: "validation-worker"        
+        dapr.io/app-id: "validation-worker"
         dapr.io/log-as-json: "true"
         prometheus.io/scrape: 'true'
         prometheus.io/port: '9988'        

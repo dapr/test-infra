@@ -36,7 +36,7 @@ spec:
         app: message-analyzer
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/id: "message-analyzer"
+        dapr.io/app-id: "message-analyzer"
         dapr.io/port: "80"
         dapr.io/log-as-json: "true"
         prometheus.io/scrape: 'true'

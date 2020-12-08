@@ -36,7 +36,7 @@ spec:
         app: hashtag-counter
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/id: "hashtag-counter"
+        dapr.io/app-id: "hashtag-counter"
         dapr.io/port: "3000"
         dapr.io/log-as-json: "true"
         prometheus.io/scrape: 'true'

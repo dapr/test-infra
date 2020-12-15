@@ -19,12 +19,11 @@ namespace Dapr.Tests.HashTagApp.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="HashTagActor"/> class.
         /// </summary>
-        /// <param name="service">Actor Service hosting the actor.</param>
-        /// <param name="actorId">Actor Id.</param>
-        public HashTagActor(ActorService service, ActorId actorId)
-            : base(service, actorId)
+        /// <param name="host">Actor Service hosting the actor.</param>
+        public HashTagActor(ActorHost host)
+            : base(host)
         {
-            // TODO: ActorService may need to have IHostBuilder reference to allow user to interact web host.
+            // TODO: ActorHost may need to have IHostBuilder reference to allow user to interact web host.
             // For example, getting logger factory given by WebHost
             var loggerFactory = LoggerFactory.Create(builder =>
             {

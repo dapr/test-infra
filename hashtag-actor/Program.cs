@@ -40,7 +40,7 @@ namespace Dapr.Tests.HashTagApp
                     var host = webBuilder.UseStartup<Startup>()
                         .UseUrls(urls: $"http://*:{appSettings[AppSettings.DaprHTTPAppPort]}");
 
-                    host.UseActors(actorRuntime => actorRuntime.RegisterActor<HashTagActor>());
+                    host.UseActors(actorRuntime => actorRuntime.Actors.RegisterActor<HashTagActor>());
                 });
 
             return hostBuilder;

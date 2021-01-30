@@ -14,8 +14,8 @@ jobs:
     name: update dapr runtime
     runs-on: ubuntu-latest
     env:
-      DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/v1.0.0-rc.3/install/install.sh
-      DAPR_HELM_CHART_VER: v1.0.0-rc.2
+      DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/v1.0.0-rc.4/install/install.sh
+      DAPR_HELM_CHART_VER: v1.0.0-rc.3
       DAPR_NAMESPACE: dapr-system
       TEST_CLUSTER_NAME: dapr-seattle
       TEST_RESOURCE_GROUP: dapr-test

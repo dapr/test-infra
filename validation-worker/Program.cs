@@ -80,12 +80,10 @@ namespace ValidationWorker
                 {
                     using (ServiceInvocationCallTime.NewTimer())
                     {
-                        var httpOptions = new HttpInvocationOptions()
-                        {
-                            Method = HttpMethod.Get
-                        };
-
-                        stats = await client.InvokeMethodAsync<Dictionary<string, int>>(SnapshotAppName, "hashtagdata", httpOptions);
+                        var request = client.CreateInvokeMethodRequest(SnapshotAppName, "hashtagdata");
+                        request.Method = HttpMethod.Get;
+                        
+                        stats = await client.InvokeMethodAsync<Dictionary<string, int>>(request);
                     }
                 }
                 catch (Exception e)

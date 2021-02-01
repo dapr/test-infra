@@ -11,8 +11,6 @@ namespace Dapr.Tests.HashTagApp
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
-    using Dapr.Actors.AspNetCore;
-    using Dapr.Tests.HashTagApp.Actors;
     using Prometheus;
 
     public class Program

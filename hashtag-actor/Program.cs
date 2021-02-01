@@ -5,8 +5,6 @@
 
 namespace Dapr.Tests.HashTagApp
 {
-    using Dapr.Actors.AspNetCore;
-    using Dapr.Tests.HashTagApp.Actors;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Hosting;
@@ -39,8 +37,6 @@ namespace Dapr.Tests.HashTagApp
 
                     var host = webBuilder.UseStartup<Startup>()
                         .UseUrls(urls: $"http://*:{appSettings[AppSettings.DaprHTTPAppPort]}");
-
-                    host.UseActors(actorRuntime => actorRuntime.Actors.RegisterActor<HashTagActor>());
                 });
 
             return hostBuilder;

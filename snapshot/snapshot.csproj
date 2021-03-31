@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapr.Actors.AspNetCore" Version="1.0.0-rc06" />
-    <PackageReference Include="Dapr.AspNetCore" Version="1.0.0-rc06" />
+    <PackageReference Include="Dapr.Actors.AspNetCore" Version="1.1.0-rc01" />
+    <PackageReference Include="Dapr.AspNetCore" Version="1.1.0-rc01" />
     <PackageReference Include="prometheus-net" Version="3.5.0" />
 
   </ItemGroup>

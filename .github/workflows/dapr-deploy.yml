@@ -35,4 +35,4 @@ jobs:
           az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
       - name: Deploy new dapr version to longhaul cluster
         run: |
-          dapr upgrade -k --runtime-version ${{ DAPR_RUNTIME_VER }}
+          dapr upgrade -k --runtime-version ${{ env.DAPR_RUNTIME_VER }}

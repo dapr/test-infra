@@ -14,8 +14,8 @@ jobs:
     name: update dapr runtime
     runs-on: ubuntu-latest
     env:
-      DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/v1.1.0/install/install.sh
-      DAPR_HELM_CHART_VER: v1.1.2-rc.1
+      DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/v1.2.0-rc.2/install/install.sh
+      DAPR_RUNTIME_VER: 1.2.0-rc.3
       DAPR_NAMESPACE: dapr-system
       TEST_CLUSTER_NAME: dapr-seattle
       TEST_RESOURCE_GROUP: dapr-test
@@ -35,8 +35,4 @@ jobs:
           az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
       - name: Deploy new dapr version to longhaul cluster
         run: |
-          dapr mtls export -o ./certs
-          helm repo add dapr https://dapr.github.io/helm-charts/
-          helm repo update
-          helm upgrade dapr dapr/dapr --version ${{ env.DAPR_HELM_CHART_VER }} --namespace ${{ env.DAPR_NAMESPACE }} --reset-values --set-file dapr_sentry.tls.root.certPEM=certs/ca.crt --set-file dapr_sentry.tls.issuer.certPEM=certs/issuer.crt --set-file dapr_sentry.tls.issuer.keyPEM=certs/issuer.key
-          
+          dapr upgrade -k --runtime-version ${{ DAPR_RUNTIME_VER }}

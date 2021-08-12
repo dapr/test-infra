@@ -1,0 +1,21 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: longhaul-kv
+  namespace: longhaul-test
+spec:
+  type: secretstores.azure.keyvault
+  version: v1
+  metadata:
+  - name: vaultName
+    value: longhaul-kv
+  - name: spnTenantId
+    value: "72f988bf-86f1-41af-91ab-2d7cd011db47"
+  - name: spnClientId
+    value: "b5a57d13-8326-40b1-939f-41384ad68781"
+  - name: spnCertificate
+    secretKeyRef:
+      name: longhaulcert
+      key: longhaulcert
+auth:
+  secretStore: kubernetes

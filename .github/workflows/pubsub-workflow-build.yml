@@ -80,6 +80,6 @@ jobs:
           kubectl create secret generic longhaulcert --from-file=longhaulcert=./longhaul-cert.pfx
       - name: Deploy apps to longhaul test environment
         run: |
-          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/azure-keyvau;t.yml
-          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/azuer-service-bus-pubsub.yml
+          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/azure-keyvault.yml
+          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/azure-service-bus-pubsub.yml
           kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/pubsub-workflow-deploy.yml & kubectl rollout restart -n ${{ env.APP_NAMESPACE }} deploy/pubsub-workflow

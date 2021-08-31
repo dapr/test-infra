@@ -18,6 +18,8 @@ namespace PubsubWorkflow
 {
     class PubsubWorkflow
     {
+        private static string pubsubName = "longhaul-sb";
+
         static void Main(string[] args)
         {
             Console.WriteLine("Starting Pubsub Workflow");
@@ -27,9 +29,9 @@ namespace PubsubWorkflow
 
             var host = CreateHostBuilder(args).Build();
 
-            Task.Run(() => StartPublishingMessages(10, "asb-test", "rapidtopic"));
-            Task.Run(() => StartPublishingMessages(300, "asb-test", "mediumtopic"));
-            Task.Run(() => StartPublishingMessages(3600, "asb-test", "slowtopic"));
+            Task.Run(() => StartPublishingMessages(10, pubsubName, "rapidtopic"));
+            Task.Run(() => StartPublishingMessages(300, pubsubName, "mediumtopic"));
+            Task.Run(() => StartPublishingMessages(3600, pubsubName, "slowtopic"));
             
             host.Run();
         }

@@ -77,6 +77,7 @@ jobs:
       - name: Set up azure keyvault certificate secret
         run: |
           az keyvault secret download --vault-name longhaul-kv --name longhaul-cert --encoding base64 --file longhaul-cert.pfx
+          kubectl delete secret longhaulcert --ignore-not-found
           kubectl create secret generic longhaulcert --from-file=longhaulcert=./longhaul-cert.pfx
       - name: Deploy apps to longhaul test environment
         run: |

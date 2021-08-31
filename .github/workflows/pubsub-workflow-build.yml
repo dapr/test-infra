@@ -3,7 +3,7 @@
 # Licensed under the MIT License.
 # ------------------------------------------------------------
 
-name: build-snapshot
+name: build-pubsub-workflow
 
 on:
   push:
@@ -11,11 +11,13 @@ on:
       - master
     paths:
       - 'pubsub-workflow/**'
+      - '.github/workflows/**'
   pull_request:
     branches:
       - master
     paths:
       - 'pubsub-workflow/**'
+      - '.github/workflows/**'
 
 jobs:
   build:

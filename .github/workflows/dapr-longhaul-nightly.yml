@@ -1,0 +1,87 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation and Dapr Contributors.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+name: dapr-longhaul-nightly
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'
+  pull_request:
+    branches:
+      - master
+  repository_dispatch:
+    types: [longhaul-test]
+
+jobs:
+  test-nightly:
+    name: update dapr runtime
+    runs-on: ubuntu-latest
+    env:
+      GOVER: 1.16
+      KUBECTLVER: v1.19.3
+      GOOS: ${{ matrix.target_os }}
+      GOARCH: ${{ matrix.target_arch }}
+      GOPROXY: https://proxy.golang.org
+      DAPR_REGISTRY: ${{ secrets.DOCKER_TEST_REGISTRY }}
+      DAPR_TEST_REGISTRY: ${{ secrets.DOCKER_TEST_REGISTRY }}
+      HELMVER: v3.4.0
+      DAPR_NAMESPACE: dapr-tests
+      MAX_TEST_TIMEOUT: 5400
+      HA_MODE: true
+      TEST_OUTPUT_FILE_PREFIX: test_report
+
+    steps:
+      - name: Set up Go ${{ env.GOVER }}
+        if: env.CHECKOUT_REPO != '' && github.event_name != 'pull_request'
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GOVER }}
+      - name: Check out code into the Go module directory
+        if: env.CHECKOUT_REPO != ''
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ env.CHECKOUT_REPO }}
+          ref: ${{ env.CHECKOUT_REF }}
+      - uses: azure/setup-kubectl@v1
+        with:
+          version: ${{ env.KUBECTLVER }}
+        id: install
+      - name: Set up Helm ${{ env.HELMVER }}
+        uses: azure/setup-helm@v1
+        with:
+          version: ${{ env.HELMVER }}
+      - name: Login Azure
+        if: env.CHECKOUT_REPO != ''
+        run: |
+          az login --service-principal -u ${{ secrets.AZURE_LOGIN_USER }} -p ${{ secrets.AZURE_LOGIN_PASS }} --tenant ${{ secrets.AZURE_TENANT }} --output none
+      - name: Find the test cluster
+        if: env.CHECKOUT_REPO != ''
+        run: ./tests/test-infra/find_cluster.sh ./tests/test-infra/e2e-list.${{ matrix.target_os }}.txt
+        shell: bash
+      - name: docker login
+        if: env.TEST_CLUSTER != ''
+        run: |
+          docker login -u ${{ secrets.DOCKER_REGISTRY_ID }} -p ${{ secrets.DOCKER_REGISTRY_PASS }}
+      - name: Build dapr and its docker image and push them to test registry
+        if: env.TEST_CLUSTER != ''
+        run: |
+          make build
+          make docker-push
+      - name: Preparing ${{ env.TEST_CLUSTER }} cluster for test
+        if: env.TEST_CLUSTER != ''
+        run: |
+          make setup-helm-init
+          make setup-test-env
+          kubectl get pods -n ${{ env.DAPR_NAMESPACE }}
+      - name: Deploy dapr to ${{ env.TEST_CLUSTER }} cluster
+        if: env.TEST_CLUSTER != ''
+        run: make docker-deploy-k8s
+      - name: Deploy test components
+        if: env.TEST_CLUSTER != ''
+        run: make setup-test-components
+      - name: Show dapr configurations
+        if: env.TEST_CLUSTER != ''
+        run: kubectl get configurations daprsystem -n ${{ env.DAPR_NAMESPACE }} -o yaml
+      - name: 

@@ -10,7 +10,7 @@ on:
     - cron: '0 */2 * * *'
   pull_request:
     branches:
-      - master
+      - feature/tanvi
   repository_dispatch:
     types: [longhaul-test]
 

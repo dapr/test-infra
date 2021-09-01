@@ -8,7 +8,7 @@ name: deploy-dapr-runtime
 on:
   push:
     branches:
-      - master
+      - feature/tanvi
 jobs:
   deploy:
     name: update dapr runtime

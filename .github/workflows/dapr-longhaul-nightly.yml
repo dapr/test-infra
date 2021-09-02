@@ -57,7 +57,7 @@ jobs:
         uses: azure/setup-helm@v1
         with:
           version: ${{ env.HELMVER }}
-      - name: Login Azure
+      - name: Azure login
         if: env.CHECKOUT_REPO != ''
         run: |
           az login --service-principal -u ${{ secrets.AZURE_LOGIN_USER }} -p ${{ secrets.AZURE_LOGIN_PASS }} --tenant ${{ secrets.AZURE_TENANT }} --output none

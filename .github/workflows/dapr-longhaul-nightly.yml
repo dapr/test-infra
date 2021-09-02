@@ -6,8 +6,6 @@
 name: dapr-longhaul-nightly
 
 on:
-  #schedule:
-  #  - cron: '0 */2 * * *'
   push:
     branches:
       - feature/tanvi
@@ -37,72 +35,55 @@ jobs:
       TEST_CLUSTER_NAME: Dapr-longhaulnightly
       TEST_RESOURCE_GROUP: dapr-test
 
-    #steps:
-    #  - name: Set up Go ${{ env.GOVER }}
-    #    if: env.CHECKOUT_REPO != ''
-    #    uses: actions/setup-go@v2
-    #    with:
-    #      go-version: ${{ env.GOVER }}
-    #  - name: Check out code into the Go module directory
-    #    if: env.CHECKOUT_REPO != ''
-    #    uses: actions/checkout@v2
-    #    with:
-    #      repository: ${{ env.CHECKOUT_REPO }}
-    #      ref: ${{ env.CHECKOUT_REF }}
-    #  - uses: azure/setup-kubectl@v1
-    #    with:
-    #      version: ${{ env.KUBECTLVER }}
-    #    id: install
-    #  - name: Set up Helm ${{ env.HELMVER }}
-    #    uses: azure/setup-helm@v1
-    #    with:
-    #      version: ${{ env.HELMVER }}
-    #  - name: Azure login
-    #    if: env.CHECKOUT_REPO != ''
-    #    run: |
-    #      az login --service-principal -u ${{ secrets.AZURE_LOGIN_USER }} -p ${{ secrets.AZURE_LOGIN_PASS }} --tenant ${{ secrets.AZURE_TENANT }} --output none
-    #  - name: Find the test cluster
-    #    if: env.CHECKOUT_REPO != ''
-    #    run: az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
-    #    shell: bash
-    #  - name: docker login
-    #    if: env.TEST_CLUSTER != ''
-    #    run: |
-    #      docker login -u ${{ secrets.DOCKER_REGISTRY_ID }} -p ${{ secrets.DOCKER_REGISTRY_PASS }}
-    #  - name: Build dapr and its docker image and push them to test registry
-    
-    #    if: env.TEST_CLUSTER != ''
-    #    run: |
-    #      make build
-    #      make docker-push
-    #  - name: Preparing ${{ env.TEST_CLUSTER }} cluster for test
-    #    if: env.TEST_CLUSTER != ''
-    #    run: |
-    #      make setup-helm-init
-    #      make setup-test-env
-    #      kubectl get pods -n ${{ env.DAPR_NAMESPACE }}
-    #  - name: Deploy dapr to ${{ env.TEST_CLUSTER }} cluster
-    #    if: env.TEST_CLUSTER != ''
-    #    run: make docker-deploy-k8s
-    #  - name: Deploy test components
-    #    if: env.TEST_CLUSTER != ''
-    #    run: make setup-test-components
-    #  - name: Show dapr configurations
-    #    if: env.TEST_CLUSTER != ''
-    #    run: kubectl get configurations daprsystem -n ${{ env.DAPR_NAMESPACE }} -o yaml
     steps:
-      - name: Set up Dapr CLI
-        run: wget -q ${{ env.DAPR_INSTALL_URL }} -O - | /bin/bash
+      - name: Set up Go ${{ env.GOVER }}
+        if: env.CHECKOUT_REPO != ''
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GOVER }}
+      - name: Check out code into the Go module directory
+        if: env.CHECKOUT_REPO != ''
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ env.CHECKOUT_REPO }}
+          ref: ${{ env.CHECKOUT_REF }}
+      - uses: azure/setup-kubectl@v1
+        with:
+          version: ${{ env.KUBECTLVER }}
+        id: install
       - name: Set up Helm ${{ env.HELMVER }}
         uses: azure/setup-helm@v1
         with:
           version: ${{ env.HELMVER }}
-      - name: Login Azure
+      - name: Azure login
+        if: env.CHECKOUT_REPO != ''
         run: |
           az login --service-principal -u ${{ secrets.AZURE_LOGIN_USER }} -p ${{ secrets.AZURE_LOGIN_PASS }} --tenant ${{ secrets.AZURE_TENANT }} --output none
-      - name: Set up kubeconf for longhaul test environment
+      - name: Find the test cluster
+        if: env.CHECKOUT_REPO != ''
+        run: az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
+        shell: bash
+      - name: docker login
+        if: env.TEST_CLUSTER != ''
         run: |
-          az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
-      - name: Deploy new dapr version to longhaul cluster
+          docker login -u ${{ secrets.DOCKER_REGISTRY_ID }} -p ${{ secrets.DOCKER_REGISTRY_PASS }}
+      - name: Build dapr and its docker image and push them to test registry
+        if: env.TEST_CLUSTER != ''
         run: |
-          dapr upgrade -k --runtime-version ${{ env.DAPR_RUNTIME_VER }}
+          make build
+          make docker-push
+      - name: Preparing ${{ env.TEST_CLUSTER }} cluster for test
+        if: env.TEST_CLUSTER != ''
+        run: |
+          make setup-helm-init
+          make setup-test-env
+          kubectl get pods -n ${{ env.DAPR_NAMESPACE }}
+      - name: Deploy dapr to ${{ env.TEST_CLUSTER }} cluster
+        if: env.TEST_CLUSTER != ''
+        run: make docker-deploy-k8s
+      - name: Deploy test components
+        if: env.TEST_CLUSTER != ''
+        run: make setup-test-components
+      - name: Show dapr configurations
+        if: env.TEST_CLUSTER != ''
+        run: kubectl get configurations daprsystem -n ${{ env.DAPR_NAMESPACE }} -o yaml

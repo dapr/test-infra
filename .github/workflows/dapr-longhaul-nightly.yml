@@ -31,7 +31,6 @@ jobs:
       TEST_OUTPUT_FILE_PREFIX: test_report
       DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/master/install/install.sh
       DAPR_RUNTIME_VER: 1.3.0-rc.1
-      DAPR_NAMESPACE: dapr-system
       TEST_CLUSTER_NAME: Dapr-longhaulnightly
       TEST_RESOURCE_GROUP: dapr-test
 

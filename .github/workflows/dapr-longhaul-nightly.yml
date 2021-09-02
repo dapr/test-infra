@@ -31,6 +31,11 @@ jobs:
       MAX_TEST_TIMEOUT: 5400
       HA_MODE: true
       TEST_OUTPUT_FILE_PREFIX: test_report
+      DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/master/install/install.sh
+      DAPR_RUNTIME_VER: 1.3.0-rc.1
+      DAPR_NAMESPACE: dapr-system
+      TEST_CLUSTER_NAME: Dapr-longhaulnightly
+      TEST_RESOURCE_GROUP: dapr-test
 
     steps:
       - name: Set up Go ${{ env.GOVER }}
@@ -58,7 +63,7 @@ jobs:
           az login --service-principal -u ${{ secrets.AZURE_LOGIN_USER }} -p ${{ secrets.AZURE_LOGIN_PASS }} --tenant ${{ secrets.AZURE_TENANT }} --output none
       - name: Find the test cluster
         if: env.CHECKOUT_REPO != ''
-        run: ./tests/test-infra/find_cluster.sh ./tests/test-infra/e2e-list.${{ matrix.target_os }}.txt
+        run: az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
         shell: bash
       - name: docker login
         if: env.TEST_CLUSTER != ''

@@ -84,4 +84,3 @@ jobs:
       - name: Show dapr configurations
         if: env.TEST_CLUSTER != ''
         run: kubectl get configurations daprsystem -n ${{ env.DAPR_NAMESPACE }} -o yaml
-      - name: 

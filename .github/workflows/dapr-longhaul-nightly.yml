@@ -6,6 +6,9 @@
 name: dapr-longhaul-nightly
 
 on:
+  #schedule:
+  #  - cron: '0 */2 * * *'
+  #pull_request:
   push:
     branches:
       - feature/tanvi
@@ -31,17 +34,18 @@ jobs:
       TEST_OUTPUT_FILE_PREFIX: test_report
       DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/master/install/install.sh
       DAPR_RUNTIME_VER: 1.3.0-rc.1
+      DAPR_NAMESPACE: dapr-system
       TEST_CLUSTER_NAME: Dapr-longhaulnightly
       TEST_RESOURCE_GROUP: dapr-test
+      CHECKOUT_REPO: dapr/dapr
+      CHECKOUT_REF: refs/heads/master
 
     steps:
       - name: Set up Go ${{ env.GOVER }}
-        if: env.CHECKOUT_REPO != ''
         uses: actions/setup-go@v2
         with:
           go-version: ${{ env.GOVER }}
       - name: Check out code into the Go module directory
-        if: env.CHECKOUT_REPO != ''
         uses: actions/checkout@v2
         with:
           repository: ${{ env.CHECKOUT_REPO }}
@@ -55,11 +59,9 @@ jobs:
         with:
           version: ${{ env.HELMVER }}
       - name: Azure login
-        if: env.CHECKOUT_REPO != ''
         run: |
           az login --service-principal -u ${{ secrets.AZURE_LOGIN_USER }} -p ${{ secrets.AZURE_LOGIN_PASS }} --tenant ${{ secrets.AZURE_TENANT }} --output none
       - name: Find the test cluster
-        if: env.CHECKOUT_REPO != ''
         run: az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
         shell: bash
       - name: docker login

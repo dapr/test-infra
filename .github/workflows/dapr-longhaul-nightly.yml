@@ -6,9 +6,9 @@
 name: dapr-longhaul-nightly
 
 on:
-  schedule:
-    - cron: '0 */2 * * *'
-  pull_request:
+  #schedule:
+  #  - cron: '0 */2 * * *'
+  push:
     branches:
       - feature/tanvi
   repository_dispatch:
@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: Set up Go ${{ env.GOVER }}
-        if: env.CHECKOUT_REPO != '' && github.event_name != 'pull_request'
+        if: env.CHECKOUT_REPO != ''
         uses: actions/setup-go@v2
         with:
           go-version: ${{ env.GOVER }}

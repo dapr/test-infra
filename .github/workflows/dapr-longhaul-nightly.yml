@@ -34,7 +34,7 @@ jobs:
       DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/master/install/install.sh
       DAPR_RUNTIME_VER: 1.3.0-rc.1
       DAPR_NAMESPACE: dapr-system
-      TEST_CLUSTER_NAME: Dapr-longhaulnightly
+      TEST_CLUSTER_NAME: daprnightly
       TEST_RESOURCE_GROUP: dapr-test
       CHECKOUT_REPO: dapr/dapr
       CHECKOUT_REF: refs/heads/master
@@ -63,7 +63,7 @@ jobs:
       #- name: Find the test cluster
       #  run: az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
       #  shell: bash 
-      
+
       - name: docker login
         if: env.TEST_CLUSTER != ''
         run: |

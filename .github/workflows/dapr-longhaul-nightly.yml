@@ -67,7 +67,7 @@ jobs:
       - name: docker login
         if: env.TEST_CLUSTER != ''
         run: |
-          docker login -u ${{ evn.DAPR_REGISTRY_ID }} -p ${{ env.DAPR_REGISTRY_PASS }}
+          docker login -u ${{ env.DAPR_REGISTRY_ID }} -p ${{ env.DAPR_REGISTRY_PASS }}
       - name: Build dapr and its docker image and push them to test registry
         if: env.TEST_CLUSTER != ''
         run: |

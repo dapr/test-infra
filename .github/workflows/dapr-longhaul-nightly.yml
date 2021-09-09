@@ -79,10 +79,10 @@ jobs:
         run: |
           make build
           make docker-push 
-      - name: Preparing ${{ env.TEST_CLUSTER }} cluster for test
-        if: env.DAPR_NAMESPACE != 'longhaul-test'
-        run: |
-          kubectl create namespace longhaul-test
+      #- name: Create namespace, if it doesn't exist
+      #  if: env.DAPR_NAMESPACE != 'longhaul-test'
+      #  run: |
+      #    kubectl create namespace longhaul-test
       - name: Preparing ${{ env.TEST_CLUSTER }} cluster for test
         if: env.TEST_CLUSTER != ''
         run: |

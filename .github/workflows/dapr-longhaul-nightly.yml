@@ -82,9 +82,9 @@ jobs:
       - name: Preparing ${{ env.TEST_CLUSTER }} cluster for test
         if: env.TEST_CLUSTER != ''
         run: |
-          make setup-helm-init
+          kubectl create namespace longhaul-test
+          make setup-helm-init 
           make setup-test-env
-          kubectl create namespace longhaul-test 
           kubectl get pods -n ${{ env.DAPR_NAMESPACE }}
       - name: Deploy dapr to ${{ env.TEST_CLUSTER }} cluster
         if: env.TEST_CLUSTER != ''

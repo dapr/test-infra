@@ -79,10 +79,16 @@ jobs:
         run: |
           make build
           make docker-push 
+     # - name: Create namespace, if it doesn't exist
+     #   if: env.DAPR_NAMESPACE != 'longhaul-test'
+     #   run: |
+     #     kubectl create namespace longhaul-test
       - name: Preparing ${{ env.TEST_CLUSTER }} cluster for test
         if: env.TEST_CLUSTER != ''
         run: |
-          helm upgrade --install dapr dapr/dapr --version=1.3 --namespace longhaul-test --create-namespace --wait
+          helm uninstall dapr --namespace longhaul-test
+          make setup-helm-init
+          kubectl create namesapce longhaul-test
           make setup-test-env
           kubectl get pods -n ${{ env.DAPR_NAMESPACE }}
       - name: Deploy dapr to ${{ env.TEST_CLUSTER }} cluster

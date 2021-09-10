@@ -29,11 +29,17 @@ namespace PubsubWorkflow
 
             var host = CreateHostBuilder(args).Build();
 
-            Task.Run(() => StartPublishingMessages(10, pubsubName, "rapidtopic"));
-            Task.Run(() => StartPublishingMessages(300, pubsubName, "mediumtopic"));
-            Task.Run(() => StartPublishingMessages(3600, pubsubName, "slowtopic"));
+            var rapidTimer = StartPublishingMessages(10, pubsubName, "rapidtopic");
+            var mediumTimer = StartPublishingMessages(300, pubsubName, "mediumtopic");
+            var slowTimer = StartPublishingMessages(3600, pubsubName, "slowtopic");
             
             host.Run();
+
+            Console.WriteLine("Exiting Pubsub Workflow");
+
+            rapidTimer.Dispose();
+            mediumTimer.Dispose();
+            slowTimer.Dispose();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -56,12 +62,12 @@ namespace PubsubWorkflow
                             .UseUrls(urls: $"http://*:{appSettings["DaprHTTPAppPort"]}");
                     });
 
-        static internal void StartPublishingMessages(int periodInSeconds, string pubsubName, string topic)
+        static internal Timer StartPublishingMessages(int periodInSeconds, string pubsubName, string topic)
         {
             var client = new DaprClientBuilder().Build();
             var messagePublisher = new MessagePublisher(client, pubsubName, topic);
 
-            var publishTimer = new Timer(messagePublisher.Publish, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(periodInSeconds));
+            return new Timer(messagePublisher.Publish, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(periodInSeconds));
         }
     }
 }

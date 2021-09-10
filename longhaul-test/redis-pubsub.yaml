@@ -10,6 +10,7 @@ metadata:
   namespace: longhaul-test
 spec:
   type: pubsub.redis
+  version: v1
   metadata:
   - name: redisHost
     value: dapr-redis-master.dapr-components.svc.cluster.local:6379

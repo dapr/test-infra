@@ -86,7 +86,7 @@ jobs:
       - name: Preparing ${{ env.TEST_CLUSTER }} cluster for test
         if: env.TEST_CLUSTER != ''
         run: |
-          dapr uninstall --namespace longhaul-test
+          helm uninstall dapr --namespace longhaul-test
           make setup-helm-init
           kubectl create namespace longhaul-test 
           make setup-test-env

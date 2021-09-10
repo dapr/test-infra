@@ -86,7 +86,7 @@ jobs:
       - name: Preparing ${{ env.TEST_CLUSTER }} cluster for test
         if: env.TEST_CLUSTER != ''
         run: |
-          helm upgrade --install
+          helm upgrade --install --namespace longhaul-test
           make setup-test-env
           kubectl get pods -n ${{ env.DAPR_NAMESPACE }}
       - name: Deploy dapr to ${{ env.TEST_CLUSTER }} cluster

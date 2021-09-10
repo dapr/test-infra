@@ -88,7 +88,7 @@ jobs:
         run: |
           helm uninstall dapr --namespace longhaul-test
           make setup-helm-init
-          kubectl create namespace longhaul-test 
+         # kubectl create namespace longhaul-test 
           make setup-test-env
           kubectl get pods -n ${{ env.DAPR_NAMESPACE }}
       - name: Deploy dapr to ${{ env.TEST_CLUSTER }} cluster

@@ -6,8 +6,11 @@
 name: dapr-longhaul-nightly
 
 on:
-  schedule:
-   - cron: '0 */2 * * *'
+  #schedule:
+  # - cron: '0 */2 * * *'
+  push:
+    branches:
+      - feature/tanvi
   repository_dispatch:
     types: [longhaul-test]
 
@@ -88,6 +91,13 @@ jobs:
         if: env.DAPR_NAMESPACE != 'longhaul-test'
         run: |
           kubectl create namespace longhaul-test
+      - name: Install grafana to the cluster
+        if: env.TEST_CLUSTER != ''
+        run: |
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm install grafana grafana/grafana -n dapr-monitoring
+          kubectl get secret --namespace dapr-monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+          kubectl get pods -n dapr-monitoring
       - name: Check out test-infra code
         uses: actions/checkout@v2
         with:

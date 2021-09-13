@@ -82,8 +82,11 @@ jobs:
         if: env.TEST_CLUSTER != ''
         run: |
           make setup-helm-init
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm install grafana grafana/grafana -n ${{ env.DAPR_NAMESPACE }}
+          kubectl get secret --namespace ${{ env.DAPR_NAMESPACE }} grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
           kubectl get pods -n ${{ env.DAPR_NAMESPACE }}
-          helm uninstall dapr --namespace longhaul-test
+          helm uninstall dapr --namespace ${{ env.DAPR_NAMESPACE }}
       - name: Deploy dapr to ${{ env.TEST_CLUSTER }} cluster
         if: env.TEST_CLUSTER != ''
         run: make docker-deploy-k8s
@@ -91,13 +94,6 @@ jobs:
         if: env.DAPR_NAMESPACE != 'longhaul-test'
         run: |
           kubectl create namespace longhaul-test
-      - name: Install grafana to the cluster
-        if: env.TEST_CLUSTER != ''
-        run: |
-          helm repo add grafana https://grafana.github.io/helm-charts
-          helm install grafana grafana/grafana -n dapr-monitoring
-          kubectl get secret --namespace dapr-monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
-          kubectl get pods -n dapr-monitoring
       - name: Check out test-infra code
         uses: actions/checkout@v2
         with:

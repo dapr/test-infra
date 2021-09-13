@@ -92,6 +92,11 @@ jobs:
       - name: Deploy dapr to ${{ env.TEST_CLUSTER }} cluster
         if: env.TEST_CLUSTER != ''
         run: make docker-deploy-k8s
+      - name: Check out test-infra code
+        uses: actions/checkout@v2
+        with:
+          repository: dapr/test-infra
+          ref: refs/heads/master
       - name: Deploy test components
         if: env.TEST_CLUSTER != ''
         run: kubectl apply -f ./longhaul-test

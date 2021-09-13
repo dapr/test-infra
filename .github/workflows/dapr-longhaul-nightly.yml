@@ -101,7 +101,14 @@ jobs:
           ref: refs/heads/master
       - name: Deploy test components
         if: env.TEST_CLUSTER != ''
-        run: kubectl apply -f ./longhaul-test
+        run: |
+          kubectl apply -f ./longhaul-test/feed-generator-deploy.yml
+          kubectl apply -f ./longhaul-test/hashtag-actor-deploy.yml
+          kubectl apply -f ./longhaul-test/hashtag-counter-deploy.yml
+          kubectl apply -f ./longhaul-test/message-analyzer-deploy.yml
+          kubectl apply -f ./longhaul-test/snapshot-deploy.yml
+          kubectl apply -f ./longhaul-test/validation-worker-deploy.yml
+
       - name: Show dapr configurations
         if: env.TEST_CLUSTER != ''
         run: kubectl get configurations daprsystem -n ${{ env.DAPR_NAMESPACE }} -o yaml

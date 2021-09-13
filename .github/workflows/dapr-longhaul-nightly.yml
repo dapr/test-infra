@@ -89,6 +89,7 @@ jobs:
         run: |
           make setup-helm-init
           kubectl get pods -n ${{ env.DAPR_NAMESPACE }}
+          helm uninstall dapr --namespace longhaul-test
       - name: Deploy dapr to ${{ env.TEST_CLUSTER }} cluster
         if: env.TEST_CLUSTER != ''
         run: make docker-deploy-k8s

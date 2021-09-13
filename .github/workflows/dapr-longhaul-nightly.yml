@@ -36,8 +36,6 @@ jobs:
       TEST_RESOURCE_GROUP: dapr-test
       CHECKOUT_REPO: dapr/dapr
       CHECKOUT_REF: refs/heads/master
-      KINS: Pod
-      APIVERSION: v1
 
     steps:
       - name: Set up container log path

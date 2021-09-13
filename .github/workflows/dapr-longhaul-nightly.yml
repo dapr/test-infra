@@ -89,7 +89,6 @@ jobs:
         if: env.TEST_CLUSTER != ''
         run: make docker-deploy-k8s
       - name: Create namespace, if it doesn't exist
-        if: env.DAPR_NAMESPACE != 'longhaul-test'
         run: |
           kubectl create namespace longhaul-test
       - name: Check out test-infra code

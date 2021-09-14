@@ -6,11 +6,11 @@
 name: dapr-longhaul-nightly
 
 on:
-  schedule:
-   - cron: '0 */2 * * *'
-  #push:
-  #  branches:
-  #    - feature/tanvi
+  #schedule:
+  # - cron: '0 */2 * * *'
+  push:
+    branches:
+      - feature/tanvi
   repository_dispatch:
     types: [longhaul-test]
 
@@ -85,6 +85,8 @@ jobs:
           helm repo add grafana https://grafana.github.io/helm-charts
           helm install grafana grafana/grafana -n ${{ env.DAPR_NAMESPACE }}
           kubectl get secret --namespace ${{ env.DAPR_NAMESPACE }} grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm install dapr-prom prometheus-community/prometheus -n ${{ env.DAPR_NAMESPACE }}
           kubectl get pods -n ${{ env.DAPR_NAMESPACE }}
           helm uninstall dapr --namespace ${{ env.DAPR_NAMESPACE }}
       - name: Deploy dapr to ${{ env.TEST_CLUSTER }} cluster

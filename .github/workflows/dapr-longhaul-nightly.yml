@@ -83,9 +83,8 @@ jobs:
         run: |
           make setup-helm-init
           helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo update
-          helm install grafana grafana/grafana -n ${{ env.DAPR_NAMESPACE }}
           helm uninstall dapr --namespace ${{ env.DAPR_NAMESPACE }}
+          helm install grafana grafana/grafana -n ${{ env.DAPR_NAMESPACE }}
       - name: Deploy dapr to ${{ env.TEST_CLUSTER }} cluster
         if: env.TEST_CLUSTER != ''
         run: make docker-deploy-k8s

@@ -85,9 +85,6 @@ jobs:
           helm repo add grafana https://grafana.github.io/helm-charts
           helm install grafana grafana/grafana -n ${{ env.DAPR_NAMESPACE }}
           helm uninstall dapr --namespace ${{ env.DAPR_NAMESPACE }}
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm install dapr-prom prometheus-community/prometheus -n ${{ env.DAPR_NAMESPACE }}
-          kubectl get pods -n ${{ env.DAPR_NAMESPACE }}
       - name: Deploy dapr to ${{ env.TEST_CLUSTER }} cluster
         if: env.TEST_CLUSTER != ''
         run: make docker-deploy-k8s

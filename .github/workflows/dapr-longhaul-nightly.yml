@@ -1,7 +1,7 @@
 name: dapr-longhaul-nightly
 
 on:
-  #schedule:
+  #schedule
   # - cron: '0 */2 * * *'
   push:
     branches:

@@ -80,7 +80,6 @@ jobs:
           helm upgrade --install dapr-prom prometheus-community/prometheus -n ${{ env.DAPR_NAMESPACE }}
           kubectl get secret --namespace ${{ env.DAPR_NAMESPACE }} grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
           kubectl get pods -n ${{ env.DAPR_NAMESPACE }}
-          helm uninstall dapr --namespace ${{ env.DAPR_NAMESPACE }}
       - name: Deploy dapr to ${{ env.TEST_CLUSTER }} cluster
         if: env.TEST_CLUSTER != ''
         run: make docker-deploy-k8s

@@ -1,0 +1,110 @@
+name: dapr-longhaul-nightly
+
+on:
+  #schedule:
+   #- cron: '0 */2 * * *'
+  push:
+    branches:
+      - feature/tanvi
+  repository_dispatch:
+    types: [longhaul-test]
+
+jobs:
+  test-nightly:
+    name: update dapr runtime
+    runs-on: ubuntu-latest
+    env:
+      GOVER: 1.16
+      KUBECTLVER: v1.19.3
+      GOOS: linux
+      GOARCH: amd64
+      GOPROXY: https://proxy.golang.org
+      DAPR_REGISTRY: ${{ secrets.DOCKER_REGISTRY_ID }}
+      DAPR_TEST_REGISTRY: ${{ secrets.DOCKER_REGISTRY_ID }}
+      DAPR_REGISTRY_PASS: ${{ secrets.DOCKER_REGISTRY_PASS }}
+      HELMVER: v3.4.0
+      MAX_TEST_TIMEOUT: 5400
+      HA_MODE: true
+      DAPR_TAG : dev
+      TEST_OUTPUT_FILE_PREFIX: test_report
+      DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/master/install/install.sh
+      DAPR_RUNTIME_VER: 1.3.0-rc.1
+      DAPR_NAMESPACE: longhaul-test
+      TEST_CLUSTER: daprnightly
+      TEST_RESOURCE_GROUP: dapr-test
+      CHECKOUT_REPO: dapr/dapr
+      CHECKOUT_REF: refs/heads/master
+
+    steps:
+      - name: Set up container log path
+        run: |
+          echo "DAPR_CONTAINER_LOG_PATH=$GITHUB_WORKSPACE/container_logs/${{ matrix.target_os }}_${{ matrix.target_arch }}" | sed 's/\\/\//g' >> $GITHUB_ENV
+        shell: bash
+      - name: Set up Go ${{ env.GOVER }}
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GOVER }}
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ env.CHECKOUT_REPO }}
+          ref: ${{ env.CHECKOUT_REF }}
+      - uses: azure/setup-kubectl@v1
+        with:
+          version: ${{ env.KUBECTLVER }}
+        id: install
+      - name: Set up Helm ${{ env.HELMVER }}
+        uses: azure/setup-helm@v1
+        with:
+          version: ${{ env.HELMVER }}
+      - name: Azure login
+        run: |
+          az login --service-principal -u ${{ secrets.AZURE_LOGIN_USER }} -p ${{ secrets.AZURE_LOGIN_PASS }} --tenant ${{ secrets.AZURE_TENANT }} --output none
+      - name: Find the test cluster
+        run: az aks get-credentials -n ${{ env.TEST_CLUSTER }} -g ${{ env.TEST_RESOURCE_GROUP }}
+        shell: bash 
+
+      - name: docker login
+        if: env.TEST_CLUSTER != ''
+        run: |
+          docker login -u ${{ env.DAPR_REGISTRY }} -p ${{ env.DAPR_REGISTRY_PASS }}
+      - name: Build dapr and its docker image and push them to test registry
+        if: env.TEST_CLUSTER != ''
+        run: |
+          make build
+          make docker-push 
+      - name: Preparing ${{ env.TEST_CLUSTER }} cluster for test
+        if: env.TEST_CLUSTER != ''
+        run: |
+          make setup-helm-init
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm upgrade --install grafana grafana/grafana -n ${{ env.DAPR_NAMESPACE }}
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm upgrade --install dapr-prom prometheus-community/prometheus -n ${{ env.DAPR_NAMESPACE }}
+          kubectl get secret --namespace ${{ env.DAPR_NAMESPACE }} grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+          kubectl get pods -n ${{ env.DAPR_NAMESPACE }}
+          helm uninstall dapr --namespace ${{ env.DAPR_NAMESPACE }}
+      - name: Deploy dapr to ${{ env.TEST_CLUSTER }} cluster
+        if: env.TEST_CLUSTER != ''
+        run: make docker-deploy-k8s
+      - name: Create namespace, if it doesn't exist
+        if: env.DAPR_NAMESPACE != 'longhaul-test'
+        run: |
+          kubectl create namespace longhaul-test
+      - name: Check out test-infra code
+        uses: actions/checkout@v2
+        with:
+          repository: dapr/test-infra
+          ref: refs/heads/master
+      - name: Deploy test components
+        if: env.TEST_CLUSTER != ''
+        run: |
+          kubectl apply -f ./longhaul-test/feed-generator-deploy.yml
+          kubectl apply -f ./longhaul-test/hashtag-actor-deploy.yml
+          kubectl apply -f ./longhaul-test/hashtag-counter-deploy.yml
+          kubectl apply -f ./longhaul-test/message-analyzer-deploy.yml
+          kubectl apply -f ./longhaul-test/snapshot-deploy.yml
+          kubectl apply -f ./longhaul-test/validation-worker-deploy.yml
+      - name: Show dapr configurations
+        if: env.TEST_CLUSTER != ''
+        run: kubectl get configurations daprsystem -n ${{ env.DAPR_NAMESPACE }} -o yaml

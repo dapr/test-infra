@@ -1,8 +1,11 @@
 name: dapr-longhaul-nightly
 
 on:
-  schedule:
-   - cron: '0 0 * * *'
+  #schedule:
+   #- cron: '0 0 * * *'
+  push:
+    branches:
+      - feature/tanvi
   repository_dispatch:
     types: [longhaul-test]
 

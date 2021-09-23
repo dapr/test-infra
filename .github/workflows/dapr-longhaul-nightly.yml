@@ -105,7 +105,7 @@ jobs:
           kubectl apply -f ./longhaul-test/message-analyzer-deploy.yml -n ${{ env.DAPR_NAMESPACE }} && kubectl rollout restart deploy/message-analyzer-app -n ${{ env.DAPR_NAMESPACE }}
           kubectl apply -f ./longhaul-test/pubsub-workflow-build.yml -n ${{ env.DAPR_NAMESPACE }} && kubectl rollout restart deploy/pubsub-workflow-app -n ${{ env.DAPR_NAMESPACE }}
           kubectl apply -f ./longhaul-test/snapshot-deploy.yml -n ${{ env.DAPR_NAMESPACE }} && kubectl rollout restart deploy/snapshot-app -n ${{ env.DAPR_NAMESPACE }}
-          kubectl apply -f ./longhaul-test/validation-worker-deploy.yml - ${{ env.DAPR_NAMESPACE }} && kubectl rollout restart deploy/validation-worker-app -n ${{ env.DAPR_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/validation-worker-deploy.yml -n ${{ env.DAPR_NAMESPACE }} && kubectl rollout restart deploy/validation-worker-app -n ${{ env.DAPR_NAMESPACE }}
       - name: Show dapr configurations
         if: env.TEST_CLUSTER != ''
         run: kubectl get configurations daprsystem -n ${{ env.DAPR_NAMESPACE }} -o yaml

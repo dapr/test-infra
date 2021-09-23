@@ -24,6 +24,12 @@ services:
     build:
       context: .
       dockerfile: message-analyzer/Dockerfile
+
+  pubsub-workflow:
+    image: pubsub-workflow
+    build:
+      context: .
+      dockerfile: pubsub-workflow/Dockerfile
       
   snapshot:
     image: snapshot

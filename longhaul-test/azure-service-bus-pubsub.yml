@@ -6,13 +6,15 @@
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: receivemediapost
+  name: longhaul-sb
   namespace: longhaul-test
 spec:
-  type: pubsub.redis
+  type: pubsub.azure.servicebus
   version: v1
   metadata:
-  - name: redisHost
-    value: dapr-redis-master.dapr-components.svc.cluster.local:6379
-  - name: redisPassword
-    value: ""
+  - name: connectionString
+    secretKeyRef:
+      name: sb-conn
+      key: sb-conn
+auth:
+  secretStore: longhaul-kv

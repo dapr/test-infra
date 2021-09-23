@@ -2,7 +2,7 @@ name: dapr-longhaul-nightly
 
 on:
   schedule:
-   - cron: '0 */2 * * *'
+   - cron: '0 0 * * *'
   #push:
     #branches:
       #- feature/tanvi
@@ -99,12 +99,13 @@ jobs:
       - name: Deploy test components
         if: env.TEST_CLUSTER != ''
         run: |
-          kubectl apply -f ./longhaul-test/feed-generator-deploy.yml
-          kubectl apply -f ./longhaul-test/hashtag-actor-deploy.yml
-          kubectl apply -f ./longhaul-test/hashtag-counter-deploy.yml
-          kubectl apply -f ./longhaul-test/message-analyzer-deploy.yml
-          kubectl apply -f ./longhaul-test/snapshot-deploy.yml
-          kubectl apply -f ./longhaul-test/validation-worker-deploy.yml
+          kubectl apply -f ./longhaul-test/feed-generator-deploy.yml -n ${{ env.DAPR_NAMESPACE }} && kubectl rollout restart deploy/feed-generator-app -n ${{ env.DAPR_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/hashtag-actor-deploy.yml -n ${{ env.DAPR_NAMESPACE }} && kubectl rollout restart deploy/hashtag-actor-app -n ${{ env.DAPR_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/hashtag-counter-deploy.yml -n ${{ env.DAPR_NAMESPACE }} && kubectl rollout restart deploy/hashtag-counter-app -n ${{ env.DAPR_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/message-analyzer-deploy.yml -n ${{ env.DAPR_NAMESPACE }} && kubectl rollout restart deploy/message-analyzer-app -n ${{ env.DAPR_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/pubsub-workflow-build.yml -n ${{ env.DAPR_NAMESPACE }} && kubectl rollout restart deploy/pubsub-workflow-app -n ${{ env.DAPR_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/snapshot-deploy.yml -n ${{ env.DAPR_NAMESPACE }} && kubectl rollout restart deploy/snapshot-app -n ${{ env.DAPR_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/validation-worker-deploy.yml -n ${{ env.DAPR_NAMESPACE }} && kubectl rollout restart deploy/validation-worker-app -n ${{ env.DAPR_NAMESPACE }}
       - name: Show dapr configurations
         if: env.TEST_CLUSTER != ''
         run: kubectl get configurations daprsystem -n ${{ env.DAPR_NAMESPACE }} -o yaml

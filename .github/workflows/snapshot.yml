@@ -76,4 +76,4 @@ jobs:
           az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
       - name: Deploy apps to longhaul test environment
         run: |
-          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/snapshot-deploy.yml && kubectl rollout restart -n ${{ env.APP_NAMESPACE }} deploy/snapshot-app
+          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/snapshot-deploy.yml & kubectl rollout restart -n ${{ env.APP_NAMESPACE }} deploy/snapshot-app

@@ -87,4 +87,4 @@ jobs:
           kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/secret-access-role-binding.yml
           kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/azure-keyvault.yml
           kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/azure-service-bus-pubsub.yml
-          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/pubsub-workflow-deploy.yml && kubectl rollout restart -n ${{ env.APP_NAMESPACE }} deploy/pubsub-workflow-app
+          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/pubsub-workflow-deploy.yml & kubectl rollout restart -n ${{ env.APP_NAMESPACE }} deploy/pubsub-workflow-app

@@ -72,7 +72,7 @@ jobs:
         run: |
           make build
           make docker-push 
-       - name: check if grafana and prometheus exist already
+      - name: check if grafana and prometheus exist already
         if: env.TEST_CLUSTER != '' &&  helm list -A -n longhaul-test| grep grafana != '' &&  helm list -A -n longhaul-test| grep prometheus != ''
         run: |
           echo "GRAF_PRESENT=true" >> $GITHUB_ENV

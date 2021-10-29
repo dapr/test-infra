@@ -34,6 +34,8 @@ jobs:
       TEST_RESOURCE_GROUP: dapr-test
       CHECKOUT_REPO: dapr/dapr
       CHECKOUT_REF: refs/heads/master
+      GRAF_PRESENT: false
+      PROM_PRESENT: false
 
     steps:
       - name: Set up container log path
@@ -74,13 +76,13 @@ jobs:
           make build
           make docker-push 
       - name: Preparing ${{ env.TEST_CLUSTER }} cluster for test
-        if: env.TEST_CLUSTER != ''
+        if: env.TEST_CLUSTER != '' && env.GRAF_PRESENT != true && env.PROM_PRESENT != true
         run: |
           make setup-helm-init
           helm repo add grafana https://grafana.github.io/helm-charts
-          helm upgrade --install grafana grafana/grafana -n ${{ env.DAPR_NAMESPACE }}
+          helm upgrade --install grafana grafana/grafana -n ${{ env.DAPR_NAMESPACE }} && env.GRAF_PRESENT = true
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm upgrade --install dapr-prom prometheus-community/prometheus -n ${{ env.DAPR_NAMESPACE }}
+          helm upgrade --install dapr-prom prometheus-community/prometheus -n ${{ env.DAPR_NAMESPACE }} && env.PROM_PRESENT = true
           kubectl get secret --namespace ${{ env.DAPR_NAMESPACE }} grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
           kubectl get pods -n ${{ env.DAPR_NAMESPACE }}
           helm uninstall dapr --namespace ${{ env.DAPR_NAMESPACE }}

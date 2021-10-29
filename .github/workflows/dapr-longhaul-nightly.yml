@@ -80,7 +80,7 @@ jobs:
         run: |
           make setup-helm-init
           helm repo add grafana https://grafana.github.io/helm-charts
-          helm upgrade --install grafana grafana/grafana -n ${{ env.DAPR_NAMESPACE }} && ${{ env.GRAF_PRESENT : true }}
+          helm upgrade --install grafana grafana/grafana -n ${{ env.DAPR_NAMESPACE }} && ${{ env.GRAF_PRESENT:true }}
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm upgrade --install dapr-prom prometheus-community/prometheus -n ${{ env.DAPR_NAMESPACE }} && ${{env.PROM_PRESENT:true}}
           kubectl get secret --namespace ${{ env.DAPR_NAMESPACE }} grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo

@@ -1,0 +1,30 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: longhaul-cosmosdb-binding
+  namespace: longhaul-test
+spec:
+  type: bindings.azure.cosmosdb
+  version: v1
+  metadata:
+  - name: url
+    value: https://longhaul-cosmos.documents.azure.com:443/
+  - name: masterKey
+    secretKeyRef:
+      name: cosmos-master-key
+      key: cosmos-master-key
+  - name: database
+    value: longhauldb
+  - name: collection
+    value: longhaulcontainer
+  - name: partitionKey
+    value: pk
+auth:
+  secretStore: longhaul-kv
+scopes:
+  - binding-workflow

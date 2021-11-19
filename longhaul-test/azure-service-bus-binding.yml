@@ -1,0 +1,22 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: longhaul-invoke-binding
+  namespace: longhaul-test
+spec:
+  type: bindings.azure.servicebusqueues
+  version: v1
+  metadata:
+  - name: queueName
+    value: longhaul-queue
+  - name: connectionString
+    secretKeyRef:
+      name: sb-conn
+      key: sb-conn
+auth:
+  secretStore: longhaul-kv

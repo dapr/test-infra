@@ -11,13 +11,13 @@ on:
       - master
     paths:
       - 'pubsub-workflow/**'
-      - '.github/workflows/**'
+      - '.github/workflows/pubsub-workflow-build.yml'
   pull_request:
     branches:
       - master
     paths:
       - 'pubsub-workflow/**'
-      - '.github/workflows/**'
+      - '.github/workflows/pubsub-workflow-build.yml'
 
 jobs:
   build:

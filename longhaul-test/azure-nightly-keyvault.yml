@@ -1,0 +1,21 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: longhaul-kv
+  namespace: longhaul-test
+spec:
+  type: secretstores.azure.keyvault
+  version: v1
+  metadata:
+  - name: vaultName
+    value: nightly-keyvault
+  - name: azureTenantId
+    value: "72f988bf-86f1-41af-91ab-2d7cd011db47"
+  - name: azureClientId
+    value: "58a55e48-ccb3-4782-9429-fb36f8c59dda"
+  - name: azureClientSecret
+    secretKeyRef:
+      name: keyvault-client-secret
+      key: clientSecret
+auth:
+  secretStore: kubernetes

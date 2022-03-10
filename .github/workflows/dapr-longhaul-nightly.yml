@@ -22,7 +22,7 @@ jobs:
     name: update dapr runtime
     runs-on: ubuntu-latest
     env:
-      GOVER: 1.16
+      GOVER: 1.17
       KUBECTLVER: v1.19.3
       GOOS: linux
       GOARCH: amd64
@@ -30,7 +30,7 @@ jobs:
       DAPR_REGISTRY: ${{ secrets.DOCKER_REGISTRY_ID }}
       DAPR_TEST_REGISTRY: ${{ secrets.DOCKER_REGISTRY_ID }}
       DAPR_REGISTRY_PASS: ${{ secrets.DOCKER_REGISTRY_PASS }}
-      HELMVER: v3.4.0
+      HELMVER: v3.7.2
       MAX_TEST_TIMEOUT: 5400
       HA_MODE: true
       DAPR_TAG : dev

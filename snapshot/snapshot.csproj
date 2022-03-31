@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Dapr.Actors.AspNetCore" Version="1.6.0-rc01" />
-    <PackageReference Include="Dapr.AspNetCore" Version="1.6.0-rc01" />
+    <PackageReference Include="Dapr.AspNetCore" Version="1.7.0-rc01" />
     <PackageReference Include="prometheus-net" Version="3.5.0" />
 
   </ItemGroup>

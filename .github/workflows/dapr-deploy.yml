@@ -15,11 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/master/install/install.sh
-      DAPR_RUNTIME_VER: 1.6.0-rc.4
+      DAPR_RUNTIME_VER: 1.7.0-rc.2
       DAPR_NAMESPACE: dapr-system
       TEST_CLUSTER_NAME: dapr-seattle
       TEST_RESOURCE_GROUP: dapr-test
-      HELMVER: v3.4.0
+      HELMVER: v3.7.2
     steps:
       - name: Set up Dapr CLI
         run: wget -q ${{ env.DAPR_INSTALL_URL }} -O - | /bin/bash

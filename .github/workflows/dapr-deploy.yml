@@ -15,9 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/master/install/install.sh
-      DAPR_RUNTIME_VER: 1.7.0-rc.3
+      DAPR_RUNTIME_VER: 1.7.2
       DAPR_NAMESPACE: dapr-system
-      TEST_CLUSTER_NAME: dapr-seattle
+      TEST_CLUSTER_NAME: dapr-longhaul
       TEST_RESOURCE_GROUP: dapr-test
       HELMVER: v3.7.2
     steps:

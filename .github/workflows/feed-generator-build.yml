@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       APP_NAMESPACE: longhaul-test
-      TEST_CLUSTER_NAME: dapr-seattle
+      TEST_CLUSTER_NAME: dapr-longhaul
       TEST_RESOURCE_GROUP: dapr-test
       ARTIFACT_DIR: ./deploy_artifact
     steps:

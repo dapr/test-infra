@@ -1,0 +1,24 @@
+# Example of how to setup an ingress pointing at grafana.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana
+  namespace: dapr-monitoring
+  annotations:
+    kubernetes.io/ingress.class: addon-http-application-routing
+spec:
+  rules:
+  - host: dapr-grafana.edd1f01e07f441a480ee.westus2.aksapp.io # Id from aks service DNS zone
+    http:
+      paths:
+      - backend:
+          service:
+            name: grafana
+            port:
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
+status:
+  loadBalancer:
+    ingress:
+    - ip: 20.99.180.40 # Address for addon-http-application-routing-nginx-ingress

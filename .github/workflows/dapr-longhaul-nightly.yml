@@ -22,7 +22,7 @@ jobs:
     name: update dapr runtime
     runs-on: ubuntu-latest
     env:
-      GOVER: 1.17
+      GOVER: 1.18
       KUBECTLVER: v1.19.3
       GOOS: linux
       GOARCH: amd64

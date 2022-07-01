@@ -168,7 +168,7 @@ jobs:
           kubectl apply -f ./longhaul-test/azure-service-bus-pubsub.yml -n ${{ env.APP_NAMESPACE }}
           kubectl apply -f ./longhaul-test/binding.yaml -n ${{ env.APP_NAMESPACE }}
           kubectl apply -f ./longhaul-test/redis-pubsub.yaml -n ${{ env.APP_NAMESPACE }}
-          kubectl apply -f ./longhaul-test/redis-statestore.yaml -n ${{ env.APP_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/blob-statestore.yaml -n ${{ env.APP_NAMESPACE }}
       - name: Deploy test applications
         if: env.TEST_CLUSTER != ''
         working-directory: ./longhaul

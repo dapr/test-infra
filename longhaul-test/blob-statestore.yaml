@@ -6,23 +6,23 @@
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: messagebinding
+  name: statestore
   namespace: longhaul-test
 spec:
-  type: bindings.azure.storagequeues
+  type: state.azure.blobstorage
   version: v1
   metadata:
-    - name: storageAccount
+    - name: accountName
       secretKeyRef:
-          name: AzureStorageAccount
-          value: AzureStorageAccount
-    - name: storageAccessKey
+        name: AzureStorageAccount
+        value: AzureStorageAccount
+    - name: accountKey
       secretKeyRef:
-          name: AzureStorageAccount
-          value: AzureStorageAccessKey
-    - name: queue
+        name: AzureStorageAccount
+        value: AzureStorageAccount
+    - name: containerName
       secretKeyRef:
-          name: AzureStorageQueue
-          value: AzureStorageQueue
+        name: AzureStorageContainer
+        value: AzureStorageContainer
 auth:
   secretstore: longhaul-kv

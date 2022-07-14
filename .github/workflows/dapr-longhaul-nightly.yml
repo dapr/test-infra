@@ -93,7 +93,7 @@ jobs:
       # Setup monitoring
       - name: Create monitoring namespace if it doesn't exist
         run: |
-          kubectl get namespace | grep ${{ env.DAPR_MONITORING }} || kubectl create namespace ${{ env.DAPR_MONITORING }} -set server.retention="30d"
+          kubectl get namespace | grep ${{ env.DAPR_MONITORING }} || kubectl create namespace ${{ env.DAPR_MONITORING }}
         if: env.TEST_CLUSTER != ''
         run: |
           helm list -n ${{ env.DAPR_MONITORING }} | grep grafana && echo "GRAF_PRESENT=true" >> $GITHUB_ENV || echo "Grafana not present."

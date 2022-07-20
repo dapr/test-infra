@@ -1,0 +1,28 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: statestore
+  namespace: longhaul-test
+spec:
+  type: state.azure.blobstorage
+  version: v1
+  metadata:
+    - name: accountName
+      secretKeyRef:
+        name: AzureStorageAccount
+        value: AzureStorageAccount
+    - name: accountKey
+      secretKeyRef:
+        name: AzureStorageAccount
+        value: AzureStorageAccount
+    - name: containerName
+      secretKeyRef:
+        name: AzureStorageContainer
+        value: AzureStorageContainer
+auth:
+  secretstore: longhaul-kv

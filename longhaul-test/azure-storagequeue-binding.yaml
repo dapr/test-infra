@@ -1,0 +1,28 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: messagebinding
+  namespace: longhaul-test
+spec:
+  type: bindings.azure.storagequeues
+  version: v1
+  metadata:
+    - name: storageAccount
+      secretKeyRef:
+          name: AzureStorageAccount
+          value: AzureStorageAccount
+    - name: storageAccessKey
+      secretKeyRef:
+          name: AzureStorageAccount
+          value: AzureStorageAccessKey
+    - name: queue
+      secretKeyRef:
+          name: AzureStorageQueue
+          value: AzureStorageQueue
+auth:
+  secretstore: longhaul-kv

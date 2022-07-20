@@ -112,7 +112,7 @@ jobs:
         if: env.TEST_CLUSTER != '' && env.PROM_PRESENT != 'true'
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm upgrade --install dapr-prom prometheus-community/prometheus -n ${{ env.DAPR_MONITORING }} --version 14.12.0
+          helm upgrade --install dapr-prom prometheus-community/prometheus -n ${{ env.DAPR_MONITORING }} --version 14.12.0 --set server.retention="30d"
           kubectl get pods -n ${{ env.DAPR_MONITORING }}
       # Deploy dapr to k8s
       - name: Create dapr namespace, if it doesn't exist
@@ -166,9 +166,9 @@ jobs:
         run: |
           kubectl apply -f ./longhaul-test/azure-nightly-keyvault.yml -n ${{ env.APP_NAMESPACE }}
           kubectl apply -f ./longhaul-test/azure-service-bus-pubsub.yml -n ${{ env.APP_NAMESPACE }}
-          kubectl apply -f ./longhaul-test/binding.yaml -n ${{ env.APP_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/azure-storagequeue-binding.yaml -n ${{ env.APP_NAMESPACE }}
           kubectl apply -f ./longhaul-test/redis-pubsub.yaml -n ${{ env.APP_NAMESPACE }}
-          kubectl apply -f ./longhaul-test/redis-statestore.yaml -n ${{ env.APP_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/azure-blob-statestore.yaml -n ${{ env.APP_NAMESPACE }}
       - name: Deploy test applications
         if: env.TEST_CLUSTER != ''
         working-directory: ./longhaul

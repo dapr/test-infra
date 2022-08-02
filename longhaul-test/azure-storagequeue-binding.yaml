@@ -15,14 +15,14 @@ spec:
     - name: storageAccount
       secretKeyRef:
           name: AzureStorageAccount
-          value: AzureStorageAccount
+          key: AzureStorageAccount
     - name: storageAccessKey
       secretKeyRef:
           name: AzureStorageAccount
-          value: AzureStorageAccessKey
+          key: AzureStorageAccessKey
     - name: queue
       secretKeyRef:
           name: AzureStorageQueue
-          value: AzureStorageQueue
+          key: AzureStorageQueue
 auth:
-  secretstore: longhaul-kv
+  secretStore: longhaul-kv

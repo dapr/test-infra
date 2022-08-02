@@ -15,14 +15,14 @@ spec:
     - name: accountName
       secretKeyRef:
         name: AzureStorageAccount
-        value: AzureStorageAccount
+        key: AzureStorageAccount
     - name: accountKey
       secretKeyRef:
         name: AzureStorageAccount
-        value: AzureStorageAccount
+        key: AzureStorageAccount
     - name: containerName
       secretKeyRef:
         name: AzureStorageContainer
-        value: AzureStorageContainer
+        key: AzureStorageContainer
 auth:
-  secretstore: longhaul-kv
+  secretStore: longhaul-kv

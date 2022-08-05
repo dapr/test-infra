@@ -1,0 +1,30 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: statestore
+  namespace: longhaul-test
+spec:
+  type: state.azure.cosmosdb
+  version: v1
+  metadata:
+  - name: url
+    secretKeyRef:
+      name: CosmosUrl
+      key: CosmosUrl
+  - name: masterKey
+    secretKeyRef:
+      name: CosmosMasterKey
+      key: CosmosMasterKey
+  # Use secrets to point standard/nightly longhauls at different dbs/collections.
+  - name: database 
+    secretKeyRef:
+      name: CosmosDatabase
+      key: CosmosDatabase
+  - name: collection
+    secretKeyRef:
+      name: CosmosCollection
+      key: CosmosCollection
+  - name: actorStateStore
+    value: "true"
+auth:
+  secretStore: longhaul-kv

@@ -3,10 +3,12 @@
 # Licensed under the MIT License.
 # ------------------------------------------------------------
 
+# Not currently in use by the longhauls but kept present in case we want to switch stores.
+# Note: Cannot be used for actors!
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: statestore
+  name: blobstore
   namespace: longhaul-test
 spec:
   type: state.azure.blobstorage
@@ -18,8 +20,8 @@ spec:
         key: AzureStorageAccount
     - name: accountKey
       secretKeyRef:
-        name: AzureStorageAccount
-        key: AzureStorageAccount
+        name: AzureStorageAccountKey
+        key: AzureStorageAccountKey
     - name: containerName
       secretKeyRef:
         name: AzureStorageContainer

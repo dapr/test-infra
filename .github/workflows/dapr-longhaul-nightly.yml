@@ -43,6 +43,7 @@ jobs:
       TEST_RESOURCE_GROUP: dapr-test
       DAPR_CHECKOUT_REPO: dapr/dapr
       DAPR_CHECKOUT_REF: refs/heads/master
+      DAPR_CHECKOUT_RELEASE: refs/heads/release-*
       APP_NAMESPACE: longhaul-test
     steps:
       # Environment setup.
@@ -59,6 +60,12 @@ jobs:
         with:
           repository: ${{ env.DAPR_CHECKOUT_REPO }}
           ref: ${{ env.DAPR_CHECKOUT_REF }}
+          path: dapr
+      - name: Checkout dapr/dapr
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ env.DAPR_CHECKOUT_RELEASE }}
+          ref: ${{ env.DAPR_CHECKOUT_RELEASE }}
           path: dapr
       - name: Checkout dapr/test-infra
         uses: actions/checkout@v2

@@ -27,9 +27,8 @@ jobs:
       GOOS: linux
       GOARCH: amd64
       GOPROXY: https://proxy.golang.org
-      DAPR_REGISTRY: ${{ secrets.DOCKER_REGISTRY_ID }}
-      DAPR_TEST_REGISTRY: ${{ secrets.DOCKER_REGISTRY_ID }}
-      DAPR_REGISTRY_PASS: ${{ secrets.DOCKER_REGISTRY_PASS }}
+      DAPR_REGISTRY: daprtests.azurecr.io
+      DAPR_TEST_REGISTRY: daprtests.azurecr.io
       HELMVER: v3.7.2
       MAX_TEST_TIMEOUT: 5400
       HA_MODE: true
@@ -82,8 +81,11 @@ jobs:
         shell: bash 
       # Setup docker and build image
       - name: docker login
-        run: |
-          docker login -u ${{ env.DAPR_REGISTRY }} -p ${{ env.DAPR_REGISTRY_PASS }}
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_REGISTRY_ID }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASS }}
       - name: Build dapr and its docker image and push them to test registry
         working-directory: ./dapr
         run: |

@@ -33,7 +33,7 @@ jobs:
         run: |
           az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
       - name: Get latest release tag to run against
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
         id: vars
         run: |
           echo ::set-output name=tag::${GITHUB_REF#refs/*/}

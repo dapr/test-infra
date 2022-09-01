@@ -32,8 +32,8 @@ jobs:
       - name: Set up kubeconf for longhaul test environment
         run: |
           az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
-      - name: Get latest release tag to run against
       - uses: actions/checkout@v2
+      - name: Get latest release tag to run against
         id: vars
         run: |
           echo ::set-output name=tag::${GITHUB_REF#refs/*/}

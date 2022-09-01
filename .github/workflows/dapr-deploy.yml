@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/master/install/install.sh
-      DAPR_RUNTIME_VER: 1.8.0-rc.4
       DAPR_NAMESPACE: dapr-system
       TEST_CLUSTER_NAME: dapr-longhaul
       TEST_RESOURCE_GROUP: dapr-test
@@ -33,6 +32,13 @@ jobs:
       - name: Set up kubeconf for longhaul test environment
         run: |
           az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
+      - uses: actions/checkout@v2
+      - name: Get latest release tag to run against
+        id: vars
+        run: |
+          echo ::set-output name=tag::${GITHUB_REF#refs/*/}
       - name: Deploy new dapr version to longhaul cluster
+        env:
+          DAPR_RUNTIME_VER: ${{ steps.vars.outputs.tag }}
         run: |
           dapr upgrade -k --runtime-version ${{ env.DAPR_RUNTIME_VER }}

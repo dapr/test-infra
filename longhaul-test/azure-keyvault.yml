@@ -9,13 +9,13 @@ spec:
   metadata:
   - name: vaultName
     value: longhaul-kv
-  - name: spnTenantId
+  - name: azureTenantId
     value: "72f988bf-86f1-41af-91ab-2d7cd011db47"
-  - name: spnClientId
+  - name: azureClientId
     value: "b5a57d13-8326-40b1-939f-41384ad68781"
-  - name: spnCertificate
+  - name: azureClientSecret
     secretKeyRef:
-      name: longhaulcert
-      key: longhaulcert
+      name: longhaulclientsecret
+      key: clientsecret
 auth:
   secretStore: kubernetes

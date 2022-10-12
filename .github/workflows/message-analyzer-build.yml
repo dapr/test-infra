@@ -11,6 +11,8 @@ on:
       - master
     paths:
       - 'message-analyzer/**'
+      - '.github/workflows/message-analyzer-build.yml'
+      - '.github/workflows/dapr-deploy.yml'
   pull_request:
     branches:
       - master

@@ -11,6 +11,8 @@ on:
       - master
     paths:
       - 'hashtag-counter/**'
+      - '.github/workflows/hashtag-counter.yml'
+      - '.github/workflows/dapr-deploy.yml'
   pull_request:
     branches:
       - master

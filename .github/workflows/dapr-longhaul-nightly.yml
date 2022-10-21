@@ -16,6 +16,7 @@ name: dapr-longhaul-nightly
 on:
   schedule:
    - cron: '0 7 * * *'
+  workflow_dispatch:
 
 jobs:
   test-nightly:

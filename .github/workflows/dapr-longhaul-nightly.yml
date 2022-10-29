@@ -103,9 +103,10 @@ jobs:
           helm list -n ${{ env.DAPR_MONITORING }} | grep grafana && echo "GRAF_PRESENT=true" >> $GITHUB_ENV || echo "Grafana not present."
       - name: Preparing ${{ env.TEST_CLUSTER }} cluster for test by installing grafana if not present
         if: env.TEST_CLUSTER != '' && env.GRAF_PRESENT != 'true'
+        working-directory: ./longhaul
         run: |
           helm repo add grafana https://grafana.github.io/helm-charts
-          helm upgrade --install grafana grafana/grafana -n ${{ env.DAPR_MONITORING }} 
+          helm upgrade --install grafana grafana/grafana -n ${{ env.DAPR_MONITORING }} -f ./grafana-config/values.yaml
           kubectl get pods -n ${{ env.DAPR_MONITORING }}
       - name: check if prometheus already exists
         if: env.TEST_CLUSTER != ''

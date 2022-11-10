@@ -101,7 +101,7 @@ jobs:
         if: env.TEST_CLUSTER != ''
         run: |
           helm list -n ${{ env.DAPR_MONITORING }} | grep grafana && echo "GRAF_PRESENT=true" >> $GITHUB_ENV || echo "Grafana not present."
-      - name: Install ingress loadbalancer
+      - name: Install the loadbalancer
         if: env.TEST_CLUSTER != ''
         run: |
           helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx

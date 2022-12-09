@@ -16,6 +16,10 @@ name: dapr-longhaul-nightly
 on:
   schedule:
    - cron: '0 7 * * *'
+  push:
+    branches:
+      - tanvi/public
+
   workflow_dispatch:
 
 jobs:
@@ -101,13 +105,6 @@ jobs:
         if: env.TEST_CLUSTER != ''
         run: |
           helm list -n ${{ env.DAPR_MONITORING }} | grep grafana && echo "GRAF_PRESENT=true" >> $GITHUB_ENV || echo "Grafana not present."
-      - name: Install the loadbalancer
-        if: env.TEST_CLUSTER != ''
-        run: |
-          helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-          helm repo update
-          helm install quickstart ingress-nginx/ingress-nginx -n ${{ env.DAPR_MONITORING }}
-          kubectl get svc
       - name: Preparing ${{ env.TEST_CLUSTER }} cluster for test by installing grafana if not present
         if: env.TEST_CLUSTER != '' && env.GRAF_PRESENT != 'true'
         working-directory: ./longhaul
@@ -115,10 +112,10 @@ jobs:
           helm repo add grafana https://grafana.github.io/helm-charts
           helm upgrade --install grafana grafana/grafana -n ${{ env.DAPR_MONITORING }} -f ./grafana-config/values.yaml
           kubectl get pods -n ${{ env.DAPR_MONITORING }}
-      - name: check if prometheus already exists
-        if: env.TEST_CLUSTER != ''
-        run: |
-          helm list -n ${{ env.DAPR_MONITORING }} | grep prometheus && echo "PROM_PRESENT=true" >> $GITHUB_ENV || echo "Prometheus not present."
+      #- name: check if prometheus already exists
+      #  if: env.TEST_CLUSTER != ''
+      #  run: |
+      #    helm list -n ${{ env.DAPR_MONITORING }} | grep prometheus && echo "PROM_PRESENT=true" >> $GITHUB_ENV || echo "Prometheus not present."
       - name: Preparing ${{ env.TEST_CLUSTER }} cluster for test by installing prometheus if not present
         if: env.TEST_CLUSTER != '' && env.PROM_PRESENT != 'true'
         run: |

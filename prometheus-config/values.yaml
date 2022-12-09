@@ -1,0 +1,6 @@
+server:
+  remoteWrite:
+  - url: "https://dapr.grafana.net/"
+    basic_auth:
+      username: dapr
+      password: daprlonghaulkey

@@ -67,7 +67,7 @@ jobs:
       - name: Checkout dapr/test-infra
         uses: actions/checkout@v2
         with:
-          repository: dapr/test-infra
+          repository: tanvigour/test-infra
           ref: refs/heads/master
           path: longhaul
       - uses: azure/setup-kubectl@v1

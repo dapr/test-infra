@@ -118,6 +118,7 @@ jobs:
       #    helm list -n ${{ env.DAPR_MONITORING }} | grep prometheus && echo "PROM_PRESENT=true" >> $GITHUB_ENV || echo "Prometheus not present."
       - name: Preparing ${{ env.TEST_CLUSTER }} cluster for test by installing prometheus if not present
         if: env.TEST_CLUSTER != '' && env.PROM_PRESENT != 'true'
+        working-directory: ./longhaul
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm upgrade --install dapr-prom prometheus-community/prometheus -n ${{ env.DAPR_MONITORING }} --version 14.12.0 --set server.retention="30d" -f ./prometheus-config/values.yaml

@@ -121,7 +121,7 @@ jobs:
         working-directory: ./longhaul
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm upgrade --install dapr-prom prometheus-community/prometheus -n ${{ env.DAPR_MONITORING }} --version 14.12.0 --set server.retention="30d" -f ./prometheus-config/values.yaml
+          helm upgrade --install dapr-prom prometheus-community/prometheus -n ${{ env.DAPR_MONITORING }} -f ./prometheus-config/values.yaml --version 14.12.0 --set server.retention="30d"
           kubectl get pods -n ${{ env.DAPR_MONITORING }}
       # Deploy dapr to k8s
       - name: Create dapr namespace, if it doesn't exist

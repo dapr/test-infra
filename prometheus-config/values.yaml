@@ -3,4 +3,4 @@ server:
   - url: "https://dapr.grafana.net/"
     basic_auth:
       username: dapr
-      password: eyJrIjoiTGg4THN6WW5LWE9qZkpNWU9uSHd6VDdpMGozR3BaaDQiLCJuIjoiZGFwcmxvbmdoYXVsa2V5IiwiaWQiOjF9
+      password: daprlonghaulkey

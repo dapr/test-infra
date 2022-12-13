@@ -1,6 +1,6 @@
 server:
   remoteWrite:
-  - url: "https://dapr.grafana.net/"
+  - url: "https://prometheus-us-central2.grafana.net/api/prom"
     basic_auth:
-      username: dapr
-      password: daprlonghaulkey
+      username: 677259
+      password: configured

@@ -3,4 +3,4 @@ server:
   - url: "https://prometheus-us-central2.grafana.net/api/prom"
     basic_auth:
       username: 677259
-      password: configured
+      password: {{.Values.grafana_key}}

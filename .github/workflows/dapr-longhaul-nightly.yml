@@ -121,7 +121,8 @@ jobs:
         working-directory: ./longhaul
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm upgrade --install dapr-prom prometheus-community/prometheus -n ${{ env.DAPR_MONITORING }} -f ./prometheus-config/values.yaml --version 14.12.0 --force --set server.retention="30d" --set grafana_key=${{ secrets.GRAFANA_PROM_KEY }}
+          helm uninstall dapr-prom -n ${{ env.DAPR_MONITORING }}
+          helm upgrade --install dapr-prom prometheus-community/prometheus -n ${{ env.DAPR_MONITORING }} -f ./prometheus-config/values.yaml --version 14.12.0 --set server.retention="30d" --set grafana_key=${{ secrets.GRAFANA_PROM_KEY }}
           kubectl get pods -n ${{ env.DAPR_MONITORING }}
       # Deploy dapr to k8s
       - name: Create dapr namespace, if it doesn't exist

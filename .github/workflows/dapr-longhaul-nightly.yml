@@ -91,12 +91,12 @@ jobs:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASS }}
-      - name: Build dapr and its docker image and push them to test registry
-        working-directory: ./dapr
-        run: |
-          make build
-          make docker-build
-          make docker-push
+      #- name: Build dapr and its docker image and push them to test registry
+      #  working-directory: ./dapr
+      #  run: |
+      #    make build
+      #    make docker-build
+      #    make docker-push
       # Setup monitoring
       - name: Create monitoring namespace if it doesn't exist
         run: |
@@ -121,7 +121,7 @@ jobs:
         working-directory: ./longhaul
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm upgrade --install dapr-prom prometheus-community/prometheus -n ${{ env.DAPR_MONITORING }} -f ./prometheus-config/values.yaml --version 14.12.0 --set server.retention="30d" --set grafana_key=${{ secrets.GRAFANA_PROM_KEY }}
+          helm upgrade --install dapr-prom prometheus-community/prometheus -n ${{ env.DAPR_MONITORING }} -f ./prometheus-config/values.yaml --version 14.12.0 --force --set server.retention="30d" --set grafana_key=${{ secrets.GRAFANA_PROM_KEY }}
           kubectl get pods -n ${{ env.DAPR_MONITORING }}
       # Deploy dapr to k8s
       - name: Create dapr namespace, if it doesn't exist

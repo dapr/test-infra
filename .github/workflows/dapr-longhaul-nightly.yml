@@ -16,10 +16,6 @@ name: dapr-longhaul-nightly
 on:
   schedule:
    - cron: '0 7 * * *'
-  push:
-    branches:
-      - tanvi/public
-
   workflow_dispatch:
 
 jobs:
@@ -67,7 +63,7 @@ jobs:
       - name: Checkout dapr/test-infra
         uses: actions/checkout@v2
         with:
-          repository: tanvigour/test-infra
+          repository: dapr/test-infra
           ref: refs/heads/master
           path: longhaul
       - uses: azure/setup-kubectl@v1
@@ -91,12 +87,12 @@ jobs:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASS }}
-      #- name: Build dapr and its docker image and push them to test registry
-      #  working-directory: ./dapr
-      #  run: |
-      #    make build
-      #    make docker-build
-      #    make docker-push
+      - name: Build dapr and its docker image and push them to test registry
+        working-directory: ./dapr
+        run: |
+          make build
+          make docker-build
+          make docker-push
       # Setup monitoring
       - name: Create monitoring namespace if it doesn't exist
         run: |
@@ -112,10 +108,10 @@ jobs:
           helm repo add grafana https://grafana.github.io/helm-charts
           helm upgrade --install grafana grafana/grafana -n ${{ env.DAPR_MONITORING }} -f ./grafana-config/values.yaml
           kubectl get pods -n ${{ env.DAPR_MONITORING }}
-      #- name: check if prometheus already exists
-      #  if: env.TEST_CLUSTER != ''
-      #  run: |
-      #    helm list -n ${{ env.DAPR_MONITORING }} | grep prometheus && echo "PROM_PRESENT=true" >> $GITHUB_ENV || echo "Prometheus not present."
+      - name: check if prometheus already exists
+        if: env.TEST_CLUSTER != ''
+        run: |
+          helm list -n ${{ env.DAPR_MONITORING }} | grep prometheus && echo "PROM_PRESENT=true" >> $GITHUB_ENV || echo "Prometheus not present."
       - name: Preparing ${{ env.TEST_CLUSTER }} cluster for test by installing prometheus if not present
         if: env.TEST_CLUSTER != '' && env.PROM_PRESENT != 'true'
         working-directory: ./longhaul

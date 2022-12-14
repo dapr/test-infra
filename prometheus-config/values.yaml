@@ -1,0 +1,5 @@
+server:
+  remoteWrite:
+  - url: "https://prometheus-us-central2.grafana.net/api/prom/push"
+    basic_auth:
+      username: 677259

@@ -16,9 +16,13 @@ using System.Threading.Tasks;
 
 namespace PubsubWorkflow
 {
+    
     class PubsubWorkflow
     {
-        private static string pubsubName = "longhaul-sb";
+        private static string rapidPubsubName = "longhaul-sb-rapid";
+        private static string mediumPubsubName = "longhaul-sb-medium";
+        private static string slowPubsubName = "longhaul-sb-slow";
+        private static string glacialPubsubName = "longhaul-sb-glacial";
 
         static void Main(string[] args)
         {
@@ -29,9 +33,10 @@ namespace PubsubWorkflow
 
             var host = CreateHostBuilder(args).Build();
 
-            var rapidTimer = StartPublishingMessages(10, pubsubName, "rapidtopic");
-            var mediumTimer = StartPublishingMessages(300, pubsubName, "mediumtopic");
-            var slowTimer = StartPublishingMessages(3600, pubsubName, "slowtopic");
+            var rapidTimer = StartPublishingMessages(10, rapidPubsubName, "rapidtopic");
+            var mediumTimer = StartPublishingMessages(300, mediumPubsubName, "mediumtopic");
+            var slowTimer = StartPublishingMessages(3600, slowPubsubName, "slowtopic");
+            var glacialTimer = StartPublishingMessages(3600*12, glacialPubsubName, "glacialtopic");
             
             host.Run();
 
@@ -40,6 +45,7 @@ namespace PubsubWorkflow
             rapidTimer.Dispose();
             mediumTimer.Dispose();
             slowTimer.Dispose();
+            glacialTimer.Dispose();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

@@ -17,8 +17,9 @@ namespace PubsubWorkflow
         internal static DateTime lastRapidCall = DateTime.Now;
         internal static DateTime lastMediumCall = DateTime.Now;
         internal static DateTime lastSlowCall = DateTime.Now;
+        internal static DateTime lastGlacialCall = DateTime.Now;
 
-        [Topic("longhaul-sb", "rapidtopic")]
+        [Topic("longhaul-sb-rapid", "rapidtopic")]
         [HttpPost("rapidMessage")]
         public IActionResult RapidMessageHandler() {
             var lastHit = lastRapidCall;
@@ -27,7 +28,7 @@ namespace PubsubWorkflow
             return Ok();
         }
 
-        [Topic("longhaul-sb", "mediumtopic")]
+        [Topic("longhaul-sb-medium", "mediumtopic")]
         [HttpPost("mediumMessage")]
         public IActionResult MediumMessageHandler() {
             var lastHit = lastMediumCall;
@@ -36,12 +37,21 @@ namespace PubsubWorkflow
             return Ok();
         }
 
-        [Topic("longhaul-sb", "slowtopic")]
+        [Topic("longhaul-sb-slow", "slowtopic")]
         [HttpPost("slowMessage")]
         public IActionResult SlowMessageHandler() {
             var lastHit = lastSlowCall;
             lastSlowCall = DateTime.Now;
             Console.WriteLine($"Slow subscription hit at {lastSlowCall}, previous hit at {lastHit}");
+            return Ok();
+        }
+        
+        [Topic("longhaul-sb-glacial", "glacialtopic")]
+        [HttpPost("glacialMessage")]
+        public IActionResult GlacialMessageHandler() {
+            var lastHit = lastGlacialCall;
+            lastGlacialCall = DateTime.Now;
+            Console.WriteLine($"Glacial subscription hit at {lastGlacialCall}, previous hit at {lastHit}");
             return Ok();
         }
     }

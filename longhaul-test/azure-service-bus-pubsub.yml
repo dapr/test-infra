@@ -6,7 +6,7 @@
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: longhaul-sb
+  name: longhaul-sb-rapid
   namespace: longhaul-test
 spec:
   type: pubsub.azure.servicebus
@@ -18,3 +18,55 @@ spec:
       key: sb-conn
 auth:
   secretStore: longhaul-kv
+
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: longhaul-sb-medium
+  namespace: longhaul-test
+spec:
+  type: pubsub.azure.servicebus
+  version: v1
+  metadata:
+  - name: connectionString
+    secretKeyRef:
+      name: sb-conn
+      key: sb-conn
+auth:
+  secretStore: longhaul-kv
+
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: longhaul-sb-slow
+  namespace: longhaul-test
+spec:
+  type: pubsub.azure.servicebus
+  version: v1
+  metadata:
+  - name: connectionString
+    secretKeyRef:
+      name: sb-conn
+      key: sb-conn
+auth:
+  secretStore: longhaul-kv
+
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: longhaul-sb-glacial
+  namespace: longhaul-test
+spec:
+  type: pubsub.azure.servicebus
+  version: v1
+  metadata:
+  - name: connectionString
+    secretKeyRef:
+      name: sb-conn
+      key: sb-conn
+auth:
+  secretStore: longhaul-kv
+

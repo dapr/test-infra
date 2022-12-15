@@ -44,7 +44,7 @@ spec:
     spec:
       containers:
       - name: snapshot
-        image: dapriotest/snapshot:dev
+        image: daprtests.azurecr.io/snapshot:dev
         ports:
         - containerPort: 3000
         - containerPort: 9988

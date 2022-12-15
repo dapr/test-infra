@@ -43,7 +43,7 @@ spec:
     spec:
       containers:
       - name: validation-worker
-        image: dapriotest/validation-worker:dev
+        image: daprtests.azurecr.io/validation-worker:dev
         ports:
         - containerPort: 3000
         - containerPort: 9988

@@ -44,7 +44,7 @@ spec:
     spec:
       containers:
       - name: message-analyzer
-        image: dapriotest/message-analyzer:dev
+        image: daprtests.azurecr.io/message-analyzer:dev
         ports:
         - containerPort: 80
         - containerPort: 9988

@@ -26,7 +26,7 @@ spec:
     spec:
       containers:
       - name: hashtag-actor
-        image: dapriotest/hashtag-actor:dev
+        image: daprtests.azurecr.io/hashtag-actor:dev
         ports:
         - containerPort: 3000
         imagePullPolicy: Always

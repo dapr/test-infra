@@ -46,7 +46,7 @@ spec:
     spec:
       containers:
       - name: pubsub-workflow
-        image: dapriotest/pubsub-workflow:dev
+        image: daprtests.azurecr.io/pubsub-workflow:dev
         ports:
         - containerPort: 3000
         - containerPort: 9988

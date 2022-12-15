@@ -44,7 +44,7 @@ spec:
     spec:
       containers:
       - name: hashtag-counter
-        image: dapriotest/hashtag-counter:dev
+        image: daprtests.azurecr.io/hashtag-counter:dev
         ports:
         - containerPort: 3000
         - containerPort: 9988

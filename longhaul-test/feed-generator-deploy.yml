@@ -43,7 +43,7 @@ spec:
     spec:
       containers:
       - name: feed-generator
-        image: dapriotest/feed-generator:dev
+        image: daprtests.azurecr.io/feed-generator:dev
         ports:        
         - name: dapp
           containerPort: 3000

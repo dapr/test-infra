@@ -21,6 +21,8 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pubsub-workflow", "pubsub-workflow\pubsub-workflow.csproj", "{571AD477-1187-4E27-9ADB-CDD6E7370E8C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "binding-workflow", "binding-workflow\binding-workflow.csproj", "{F4B8E286-57E3-4750-849F-A49F62C1AA4C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{571AD477-1187-4E27-9ADB-CDD6E7370E8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{571AD477-1187-4E27-9ADB-CDD6E7370E8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{571AD477-1187-4E27-9ADB-CDD6E7370E8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4B8E286-57E3-4750-849F-A49F62C1AA4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4B8E286-57E3-4750-849F-A49F62C1AA4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4B8E286-57E3-4750-849F-A49F62C1AA4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4B8E286-57E3-4750-849F-A49F62C1AA4C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

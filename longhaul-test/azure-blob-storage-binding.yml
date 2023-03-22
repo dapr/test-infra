@@ -1,0 +1,19 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: longhaul-blob-binding
+  namespace: longhaul-test
+spec:
+  type: bindings.azure.blobstorage
+  version: v1
+  metadata:
+  - name: storageAccount
+    value: longhaulstorageaccount
+  - name: storageAccessKey
+    secretKeyRef:
+      name: storage-key
+      key: storage-key
+  - name: container
+    value: longhaul-container
+auth:
+  secretStore: longhaul-kv

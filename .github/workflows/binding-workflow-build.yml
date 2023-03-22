@@ -1,0 +1,91 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+name: build-binding-workflow
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'binding-workflow/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'binding-workflow/**'
+      - '.github/workflows/**'
+
+jobs:
+  build:
+    name: build binding-workflow
+    runs-on: ubuntu-latest
+    env:
+      APP_REGISTRY: dapriotest
+      APP_IMAGE_NAME: binding-workflow
+      # TODO: APP_VER needs to be versioned correctly
+      APP_VER: dev
+      APP_DIR: ./binding-workflow
+      ARTIFACT_DIR: ./deploy_artifact
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: docker login
+        if: github.event_name != 'pull_request'
+        run: |
+          docker login -u ${{ secrets.DOCKER_REGISTRY_ID }} -p ${{ secrets.DOCKER_REGISTRY_PASS }}
+      - name: Build binding-workflow docker image
+        run: |
+          docker-compose build ${{ env.APP_IMAGE_NAME }}
+          docker tag ${{ env.APP_IMAGE_NAME }} ${{ env.APP_REGISTRY }}/${{ env.APP_IMAGE_NAME }}:${{ env.APP_VER }}
+      - name: Push binding-workflow image to dockerhub
+        if: github.event_name != 'pull_request'
+        run: |
+          docker push ${{ env.APP_REGISTRY }}/${{ env.APP_IMAGE_NAME }}:${{ env.APP_VER }}
+      - name: Copy deployment yaml to archive
+        run: |
+          mkdir -p ${{ env.ARTIFACT_DIR }}
+          cp ./longhaul-test/*.yml ${{ env.ARTIFACT_DIR }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: longhaul-test
+          path: ${{ env.ARTIFACT_DIR }}
+  deploy:
+    name: deploy binding-workflow to test cluster
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      APP_NAMESPACE: longhaul-test
+      TEST_CLUSTER_NAME: dapr-seattle
+      TEST_RESOURCE_GROUP: dapr-test
+      ARTIFACT_DIR: ./deploy_artifact
+    steps:
+      - name: download artifacts
+        uses: actions/download-artifact@master
+        with:
+          name: longhaul-test
+          path: ${{ env.ARTIFACT_DIR }}
+      - name: Login Azure
+        run: |
+          az login --service-principal -u ${{ secrets.AZURE_LOGIN_USER }} -p ${{ secrets.AZURE_LOGIN_PASS }} --tenant ${{ secrets.AZURE_TENANT }} --output none
+      - name: Set up kubeconf for longhaul test environment
+        run: |
+          az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
+      - name: Set up azure keyvault certificate secret
+        run: |
+          az keyvault secret download --vault-name longhaul-kv --name longhaul-cert --encoding base64 --file longhaul-cert.pfx
+          kubectl delete secret longhaulcert -n longhaul-test --ignore-not-found
+          kubectl create secret generic longhaulcert -n longhaul-test --from-file=longhaulcert=./longhaul-cert.pfx
+      - name: Deploy apps to longhaul test environment
+        run: |
+          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/secret-access-role.yml
+          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/secret-access-role-binding.yml
+          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/azure-keyvault.yml
+          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/azure-service-bus-binding.yml
+          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/azure-blob-storage-binding.yml
+          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/binding-workflow-deploy.yml & kubectl rollout restart -n ${{ env.APP_NAMESPACE }} deploy/binding-workflow-app

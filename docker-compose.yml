@@ -1,6 +1,12 @@
 version: '3.3'
 
 services:
+  binding-workflow:
+    image: binding-workflow
+    build:
+      context: .
+      dockerfile: binding-workflow/Dockerfile
+
   feed-generator:
     image: feed-generator
     build:

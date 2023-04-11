@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <!--
+      Use this property for convenience to build a path starting from the root of the repository.
+    -->
+    <EnlistmentRoot>$(MSBuildThisFileDirectory.TrimEnd('\\'))</EnlistmentRoot>
+
+    <DefaultTargetFramework>net7.0</DefaultTargetFramework>
+
+  </PropertyGroup>
+</Project>

@@ -23,7 +23,6 @@ jobs:
     name: update dapr runtime
     runs-on: ubuntu-latest
     env:
-      GOVER: 1.20
       KUBECTLVER: v1.19.3
       GOOS: linux
       GOARCH: amd64
@@ -50,16 +49,16 @@ jobs:
         run: |
           echo "DAPR_CONTAINER_LOG_PATH=$GITHUB_WORKSPACE/container_logs/${{ matrix.target_os }}_${{ matrix.target_arch }}" | sed 's/\\/\//g' >> $GITHUB_ENV
         shell: bash
-      - name: Set up Go ${{ env.GOVER }}
-        uses: actions/setup-go@v2
-        with:
-          go-version: ${{ env.GOVER }}
       - name: Checkout dapr/dapr
         uses: actions/checkout@v2
         with:
           repository: ${{ env.DAPR_CHECKOUT_REPO }}
           ref: ${{ env.DAPR_CHECKOUT_REF }}
           path: dapr
+      - name: Set up Go ${{ env.GOVER }}
+        uses: actions/setup-go@v3
+        with:
+          go-version-file: "dapr/go.mod"
       - name: Checkout dapr/test-infra
         uses: actions/checkout@v2
         with:

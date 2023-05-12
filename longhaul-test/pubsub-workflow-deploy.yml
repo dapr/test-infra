@@ -42,7 +42,7 @@ spec:
         dapr.io/app-port: "3000"
         dapr.io/log-as-json: "true"
         prometheus.io/scrape: 'true'
-        prometheus.io/port: '9988'  
+        prometheus.io/port: '9988'
     spec:
       containers:
       - name: pubsub-workflow

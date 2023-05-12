@@ -169,7 +169,7 @@ jobs:
         working-directory: ./longhaul
         run: |
           kubectl apply -f ./longhaul-test/azure-nightly-keyvault.yml -n ${{ env.APP_NAMESPACE }}
-          kubectl apply -f ./longhaul-test/azure-service-bus-pubsub.yml -n ${{ env.APP_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/azure-event-hub-pubsub.yml -n ${{ env.APP_NAMESPACE }}
           kubectl apply -f ./longhaul-test/azure-storagequeue-binding.yaml -n ${{ env.APP_NAMESPACE }}
           kubectl apply -f ./longhaul-test/redis-pubsub.yaml -n ${{ env.APP_NAMESPACE }}
           kubectl apply -f ./longhaul-test/azure-cosmosdb-statestore.yaml -n ${{ env.APP_NAMESPACE }}

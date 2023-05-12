@@ -1,9 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>$(DefaultTargetFramework)</TargetFramework>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
+    <RootNamespace>PubsubWorkflow</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

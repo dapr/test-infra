@@ -1,0 +1,111 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: longhaul-eh-rapid
+  namespace: longhaul-test
+spec:
+  type: pubsub.azure.eventhubs
+  version: v1
+  metadata:
+    - name: connectionString
+      secretKeyRef:
+        name: eh-conn
+        key: eh-conn
+    - name: storageAccountName
+      secretKeyRef:
+        name: AzureStorageAccount
+        key: AzureStorageAccount
+    - name: storageAccountKey
+      secretKeyRef:
+        name: AzureStorageAccountKey
+        key: AzureStorageAccountKey
+    - name: storageContainerName
+      value: releaselonghaulrapidehcontainer
+scopes:
+  - pubsub-workflow
+auth:
+  secretStore: longhaul-kv
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: longhaul-eh-medium
+  namespace: longhaul-test
+spec:
+  type: pubsub.azure.eventhubs
+  version: v1
+  metadata:
+    - name: connectionString
+      secretKeyRef:
+        name: eh-conn
+        key: eh-conn
+    - name: storageAccountName
+      secretKeyRef:
+        name: AzureStorageAccount
+        key: AzureStorageAccount
+    - name: storageAccountKey
+      secretKeyRef:
+        name: AzureStorageAccountKey
+        key: AzureStorageAccountKey
+    - name: storageContainerName
+      value: releaselonghaulmediumehcontainer
+scopes:
+  - pubsub-workflow
+auth:
+  secretStore: longhaul-kv
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: longhaul-eh-slow
+  namespace: longhaul-test
+spec:
+  type: pubsub.azure.eventhubs
+  version: v1
+  metadata:
+    - name: connectionString
+      secretKeyRef:
+        name: eh-conn
+        key: eh-conn
+    - name: storageAccountName
+      secretKeyRef:
+        name: AzureStorageAccount
+        key: AzureStorageAccount
+    - name: storageAccountKey
+      secretKeyRef:
+        name: AzureStorageAccountKey
+        key: AzureStorageAccountKey
+    - name: storageContainerName
+      value: releaselonghaulslowehcontainer
+scopes:
+  - pubsub-workflow
+auth:
+  secretStore: longhaul-kv
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: longhaul-eh-glacial
+  namespace: longhaul-test
+spec:
+  type: pubsub.azure.eventhubs
+  version: v1
+  metadata:
+    - name: connectionString
+      secretKeyRef:
+        name: eh-conn
+        key: eh-conn
+    - name: storageAccountName
+      secretKeyRef:
+        name: AzureStorageAccount
+        key: AzureStorageAccount
+    - name: storageAccountKey
+      secretKeyRef:
+        name: AzureStorageAccountKey
+        key: AzureStorageAccountKey
+    - name: storageContainerName
+      value: releaselonghaulglacialehcontainer
+scopes:
+  - pubsub-workflow
+auth:
+  secretStore: longhaul-kv

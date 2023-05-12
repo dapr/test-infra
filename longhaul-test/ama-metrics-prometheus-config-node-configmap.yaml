@@ -1,0 +1,16 @@
+# Example of how to setup Azure prometheus for a cluster.
+kind: ConfigMap
+apiVersion: v1
+data:
+  prometheus-config: |-
+    global:
+      scrape_interval: 15s
+    scrape_configs:
+    - job_name: longhaul-apps
+      scheme: http
+      static_configs:
+      - targets: [10.244.3.58:9988, 10.244.3.58:9090]
+      metrics_path: /metrics
+metadata:
+  name: ama-metrics-prometheus-config-node
+  namespace: kube-system

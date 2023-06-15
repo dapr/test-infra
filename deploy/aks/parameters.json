@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "value": "halspang-lh-test-cluster"
+    },
+    "identityName": {
+      "value": "halspang-lh-identity"
+    },
+    "storageAccountName": {
+      "value": "halspanglhstorage"
+    },
+    "cosmosAccountName": {
+      "value": "halspanglhcosmos"
+    },
+    "serviceBusNamespace": {
+      "value": "halspanglhsb"
+    },
+    "kubernetesNamespace": {
+      "value": "longhaul-test"
+    },
+    "grafanaName": {
+      "value": "halspang-lh-grafana"
+    },
+    "amwName": {
+      "value": "halspang-lh-amw"
+    },
+    "logAnalyticsName": {
+      "value": "halspang-lh-la"
+    },
+    "userGrafanaAdminObjectId": {
+      "value": "b92bc7c4-11f0-4e38-b49f-58621e50c3e5"
+    },
+    "queueName": {
+      "value": "longhaulqueue"
+    }
+  }
+}

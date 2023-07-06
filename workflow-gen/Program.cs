@@ -23,9 +23,9 @@ namespace WorkflowGen
     /// </summary>
     public class Program
     {
-        private static readonly Gauge PublishCallTime = Metrics.CreateGauge("lh_workflow_generator_publish_call_time", "The time it takes for the workflow call to return");
+        private static readonly Gauge ExecutionCallTime = Metrics.CreateGauge("lh_workflow_generator_execution_call_time", "The time it takes for the workflow call to return");
 
-        private static readonly Counter PublishFailureCount = Metrics.CreateCounter("lh_workflow_generator_publish_failure_count", "Publich calls that throw");
+        private static readonly Counter ExecutionFailureCount = Metrics.CreateCounter("lh_workflow_generator_execution_failure_count", "Publich calls that throw");
 
         const string DaprWorkflowComponent = "dapr";
 
@@ -45,11 +45,7 @@ namespace WorkflowGen
             {
                 services.AddDaprWorkflow(options =>
                 {
-                    // Note that it's also possible to register a lambda function as the workflow
-                    // or activity implementation instead of a class.
                     options.RegisterWorkflow<OrderProcessingWorkflow>();
-
-                    // These are the activities that get invoked by the workflow(s).
                     options.RegisterActivity<NotifyActivity>();
                     options.RegisterActivity<ReserveInventoryActivity>();
                     options.RegisterActivity<ProcessPaymentActivity>();
@@ -86,7 +82,7 @@ namespace WorkflowGen
                 try
                 {
                     Console.WriteLine("Publishing");
-                    using (PublishCallTime.NewTimer())
+                    using (ExecutionCallTime.NewTimer())
                     {
 
                         await client.StartWorkflowAsync(
@@ -112,11 +108,11 @@ namespace WorkflowGen
                 catch (Exception e)
                 {
                     Console.WriteLine("Caught {0}", e.ToString());
-                    PublishFailureCount.Inc();
+                    ExecutionFailureCount.Inc();
                 }
 
                 Counter++;
-                if (Counter > 5){
+                if (Counter > 4){
                     await client.SaveStateAsync<OrderPayload>("statestore", "Cars",  new OrderPayload(Name: "Cars", TotalCost: 15000, Quantity: 100));
                     Counter = 0;
                 }

@@ -31,7 +31,7 @@ namespace WorkflowGen
 
 
         /// <summary>
-        /// Main for FeedGenerator
+        /// Main for WorkflowGen
         /// </summary>
         /// <param name="args">Arguments.</param>
         public static void Main(string[] args)

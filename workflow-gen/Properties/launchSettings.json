@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "FeedGenerator": {
+    "WorkflowGen": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {

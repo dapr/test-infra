@@ -1,0 +1,84 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+name: build-workflow-gen
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'workflow-gen/**'
+      - '.github/workflows/workflow-gen-build.yml'
+      - '.github/workflows/dapr-deploy.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'workflow-gen/**'
+
+jobs:
+  build:
+    name: build workflow-gen
+    runs-on: ubuntu-latest
+    env:
+      APP_REGISTRY: daprtests.azurecr.io
+      APP_IMAGE_NAME: workflow-gen
+      # TODO: APP_VER needs to be versioned correctly
+      APP_VER: dev
+      APP_DIR: ./workflow-gen
+      ARTIFACT_DIR: ./deploy_artifact
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: docker login
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_REGISTRY_ID }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASS }}
+      - name: Build workflow-gen app docker image
+        run: |
+          docker-compose build ${{ env.APP_IMAGE_NAME }}
+          docker tag ${{ env.APP_IMAGE_NAME }} ${{ env.APP_REGISTRY }}/${{ env.APP_IMAGE_NAME }}:${{ env.APP_VER }}
+      - name: Push workflow-gen app image to dockerhub
+        if: github.event_name != 'pull_request'
+        run: |
+          docker push ${{ env.APP_REGISTRY }}/${{ env.APP_IMAGE_NAME }}:${{ env.APP_VER }}
+      - name: Copy deployment yaml to archieve
+        run: |
+          mkdir -p ${{ env.ARTIFACT_DIR }}
+          cp ./longhaul-test/*.yml ${{ env.ARTIFACT_DIR }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: longhaul-test
+          path: ${{ env.ARTIFACT_DIR }}
+  deploy:
+    name: deploy workflow-gen to test cluster
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      APP_NAMESPACE: longhaul-test
+      TEST_CLUSTER_NAME: dapr-release-longhaul
+      TEST_RESOURCE_GROUP: dapr-test
+      ARTIFACT_DIR: ./deploy_artifact
+    steps:
+      - name: download artifacts
+        uses: actions/download-artifact@master
+        with:
+          name: longhaul-test
+          path: ${{ env.ARTIFACT_DIR }}
+      - name: Login Azure
+        run: |
+          az login --service-principal -u ${{ secrets.AZURE_LOGIN_USER }} -p ${{ secrets.AZURE_LOGIN_PASS }} --tenant ${{ secrets.AZURE_TENANT }} --output none
+      - name: Set up kubeconf for longhaul test environment
+        run: |
+          az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
+      - name: Deploy apps to longhaul test environment
+        run: |
+          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/workflow-gen-deploy.yml & kubectl rollout restart -n ${{ env.APP_NAMESPACE }} deploy/workflow-gen-app

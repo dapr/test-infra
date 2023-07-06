@@ -184,3 +184,4 @@ jobs:
           kubectl apply -f ./longhaul-test/pubsub-workflow-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/pubsub-workflow-app -n ${{ env.APP_NAMESPACE }}
           kubectl apply -f ./longhaul-test/snapshot-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/snapshot-app -n ${{ env.APP_NAMESPACE }}
           kubectl apply -f ./longhaul-test/validation-worker-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/validation-worker-app -n ${{ env.APP_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/workflow-gen-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/workflow-gen-app -n ${{ env.APP_NAMESPACE }}

@@ -42,3 +42,9 @@ services:
     build:
       context: .
       dockerfile: validation-worker/Dockerfile
+
+  workflow-gen:
+    image: workflow-gen
+    build:
+      context: .
+      dockerfile: workflow-gen/Dockerfile

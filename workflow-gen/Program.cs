@@ -81,7 +81,7 @@ namespace WorkflowGen
 
                 try
                 {
-                    Console.WriteLine("Publishing");
+                    Console.WriteLine("Executing workflow...");
                     using (ExecutionCallTime.NewTimer())
                     {
 

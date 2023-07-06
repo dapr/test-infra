@@ -11,11 +11,11 @@
 # limitations under the License.
 #
 
-name: dapr-longhaul-nightly
+name: dapr-longhaul-weekly
 
 on:
   schedule:
-   - cron: '0 7 * * *'
+   - cron: '0 7 * * 5'  # Fridays, 7am UTC
   workflow_dispatch:
 
 jobs:

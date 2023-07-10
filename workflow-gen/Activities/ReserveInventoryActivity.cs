@@ -1,11 +1,12 @@
-﻿namespace WorkflowGen.Activities
+﻿using System.Threading.Tasks;
+using Dapr.Client;
+using Dapr.Workflow;
+using Microsoft.Extensions.Logging;
+using WorkflowGen.Models;
+using System;
+
+namespace WorkflowGen.Activities
 {
-    using System.Threading.Tasks;
-    using Dapr.Client;
-    using Dapr.Workflow;
-    using Microsoft.Extensions.Logging;
-    using WorkflowGen.Models;
-    using System;
 
     class ReserveInventoryActivity : WorkflowActivity<InventoryRequest, InventoryResult>
     {
@@ -27,10 +28,8 @@
                 req.Quantity,
                 req.ItemName);
 
-            OrderPayload orderResponse;
-            string key;
 
-            (orderResponse, key) = await client.GetStateAndETagAsync<OrderPayload>(storeName, req.ItemName);
+            var orderResponse = await client.GetStateAsync<OrderPayload>(storeName, req.ItemName);
 
             if (orderResponse == null)
             {

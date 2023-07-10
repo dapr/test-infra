@@ -1,11 +1,12 @@
-﻿namespace WorkflowGen.Activities
+﻿using System.Threading.Tasks;
+using Dapr.Client;
+using Dapr.Workflow;
+using WorkflowGen.Models;
+using Microsoft.Extensions.Logging;
+using System;
+
+namespace WorkflowGen.Activities
 {
-    using System.Threading.Tasks;
-    using Dapr.Client;
-    using Dapr.Workflow;
-    using WorkflowGen.Models;
-    using Microsoft.Extensions.Logging;
-    using System;
 
     class UpdateInventoryActivity : WorkflowActivity<PaymentRequest, Object>
     {
@@ -29,9 +30,9 @@
 
             await Task.Delay(TimeSpan.FromSeconds(5));
 
-            var (original, originalETag) = await client.GetStateAndETagAsync<OrderPayload>(storeName, req.ItemBeingPruchased);
+            var original = await client.GetStateAsync<OrderPayload>(storeName, req.ItemBeingPruchased);
             int newQuantity = original.Quantity - req.Amount;
-            
+
             if (newQuantity < 0)
             {
                 this.logger.LogInformation(
@@ -40,7 +41,7 @@
                 throw new InvalidOperationException();
             }
 
-            await client.SaveStateAsync<OrderPayload>(storeName, req.ItemBeingPruchased,  new OrderPayload(Name: req.ItemBeingPruchased, TotalCost: req.Currency, Quantity: newQuantity));
+            await client.SaveStateAsync<OrderPayload>(storeName, req.ItemBeingPruchased, new OrderPayload(Name: req.ItemBeingPruchased, TotalCost: req.Currency, Quantity: newQuantity));
             this.logger.LogInformation($"There are now: {newQuantity} {original.Name} left in stock");
 
             return null;

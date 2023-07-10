@@ -4,8 +4,6 @@
     <TargetFramework>$(DefaultTargetFramework)</TargetFramework>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
-    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>

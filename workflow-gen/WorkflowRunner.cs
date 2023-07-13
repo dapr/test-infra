@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using WorkflowGen.Activities;
 using WorkflowGen.Models;
 using WorkflowGen.Workflows;
+using Microsoft.Extensions.Logging;
 
 namespace WorkflowGen
 {
@@ -26,20 +27,32 @@ namespace WorkflowGen
         private readonly DaprClient Client;
         int Counter;
 
+        private readonly ILogger<WorkflowRunner> logger;
+
+
         public WorkflowRunner([FromServices] DaprClient client, int counter)
         {
             this.Client = client;
             this.Counter = counter;
+            var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder
+                    .AddFilter("Microsoft", LogLevel.Warning)
+                    .AddFilter("System", LogLevel.Warning)
+                    .AddConsole();
+            });
+
+            this.logger = loggerFactory.CreateLogger<WorkflowRunner>();
         }
 
         internal async void Execute(Object stateInfo)
         {
             if (Counter == 0)
             {
-                Console.WriteLine("Restocking inventory...");
+                this.logger.LogInformation("Restocking inventory...");
                 await Client.SaveStateAsync<OrderPayload>("statestore", "Cars", new OrderPayload(Name: "Cars", TotalCost: 15000, Quantity: 100));
             }
-            Console.WriteLine("Executing workflow...");
+            this.logger.LogInformation("Executing workflow...");
             Random random = new Random();
             var num = random.Next(40);
             OrderPayload orderInfo = new OrderPayload("Cars", num * 1000, num);
@@ -58,18 +71,18 @@ namespace WorkflowGen
                         instanceId: orderId,
                         workflowComponent: DaprWorkflowComponent);
 
-                    Console.WriteLine("Your workflow has started. Here is the status of the workflow: {0}", state.RuntimeStatus);
+                    this.logger.LogInformation("Your workflow has started. Here is the status of the workflow: {0}", state.RuntimeStatus);
 
                     state = await Client.WaitForWorkflowCompletionAsync(
                         instanceId: orderId,
                         workflowComponent: DaprWorkflowComponent);
 
-                    Console.WriteLine("Workflow Status: {0}", state.RuntimeStatus);
+                    this.logger.LogInformation("Workflow Status: {0}", state.RuntimeStatus);
 
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Caught {0}", ex.ToString());
+                    this.logger.LogError("Caught {0}", ex.ToString());
                     ExecutionFailureCount.Inc();
                 }
             }

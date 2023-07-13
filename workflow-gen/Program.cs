@@ -52,7 +52,6 @@ namespace WorkflowGen
             using var host = builder.Build();
             host.Run();
             wTimer.Dispose();
-
         }
 
         static internal Timer StartExecutingWorkflows(int periodInSeconds)

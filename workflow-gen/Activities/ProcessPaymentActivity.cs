@@ -19,7 +19,7 @@ namespace WorkflowGen.Activities
         {
             this.logger = loggerFactory.CreateLogger<ProcessPaymentActivity>();
             this.client = client;
-            this.appSettings = appSettings = new ConfigurationBuilder()
+            this.appSettings = new ConfigurationBuilder()
                 .SetBasePath(System.IO.Directory.GetParent(System.IO.Directory.GetCurrentDirectory().ToString()).ToString())
                 .AddJsonFile($"appsettings.json", optional: true)
                 .Build();

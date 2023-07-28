@@ -13,16 +13,13 @@ namespace WorkflowGen.Activities
     {
         readonly ILogger logger;
         readonly DaprClient client;
-        IConfiguration appSettings;
+        IConfiguration _configuration;
 
-        public ProcessPaymentActivity(ILoggerFactory loggerFactory, DaprClient client)
+        public ProcessPaymentActivity(ILoggerFactory loggerFactory, DaprClient client, IConfiguration configuration)
         {
             this.logger = loggerFactory.CreateLogger<ProcessPaymentActivity>();
             this.client = client;
-            this.appSettings = new ConfigurationBuilder()
-                .SetBasePath(System.IO.Directory.GetParent(System.IO.Directory.GetCurrentDirectory().ToString()).ToString())
-                .AddJsonFile($"appsettings.json", optional: true)
-                .Build();
+            this._configuration = configuration;
         }
 
         public override async Task<object> RunAsync(WorkflowActivityContext context, PaymentRequest req)
@@ -34,7 +31,7 @@ namespace WorkflowGen.Activities
                 req.ItemBeingPruchased,
                 req.Currency);
 
-            await Task.Delay(TimeSpan.FromSeconds(Convert.ToDouble(this.appSettings["PaymentProcessingTime"])));
+            await Task.Delay(TimeSpan.FromSeconds(Convert.ToDouble(this._configuration.GetValue<string>("PaymentProcessingTime"))));
 
             this.logger.LogInformation(
                 "Payment for request ID '{requestId}' processed successfully",

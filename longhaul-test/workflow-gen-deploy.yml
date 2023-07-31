@@ -1,0 +1,53 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: workflow-gen
+  labels:
+    app: workflow-gen
+spec:
+  selector:
+    app: workflow-gen
+  ports:
+  - protocol: TCP
+    port: 9988
+    targetPort: 9988
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workflow-gen-app
+  labels:
+    app: workflow-gen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: workflow-gen
+  template:
+    metadata:
+      labels:
+        app: workflow-gen
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "workflow-gen"
+        dapr.io/log-as-json: "true"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9988'        
+    spec:
+      containers:
+      - name: workflow-gen
+        image: daprtests.azurecr.io/workflow-gen:dev
+        ports:        
+        - name: dapp
+          containerPort: 3000
+        - name: prom
+          containerPort: 9988
+          
+        imagePullPolicy: Always

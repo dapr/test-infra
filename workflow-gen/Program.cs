@@ -48,7 +48,7 @@ namespace WorkflowGen
                 });
             });
 
-            var wTimer = StartExecutingWorkflows(15);
+            var wTimer = StartExecutingWorkflows(30);
             using var host = builder.Build();
             host.Run();
             wTimer.Dispose();

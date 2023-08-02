@@ -62,6 +62,7 @@ namespace Dapr.Tests.HashTagApp.Actors
             try
             {
                 count = await this.StateManager.GetStateAsync<int>(hashtagAndSentiment);
+                Console.WriteLine($"GetCount for {hashtagAndSentiment} found and it is {count}.");
             }
             catch (KeyNotFoundException)
             {

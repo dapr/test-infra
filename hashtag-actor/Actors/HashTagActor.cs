@@ -47,13 +47,13 @@ namespace Dapr.Tests.HashTagApp.Actors
             }
             catch (KeyNotFoundException)
             {
-                Console.WriteLine($"{hashtagAndSentiment} does not exist. {hashtagAndSentiment} will be initialized to 0.");
+                this.logger.LogDebug($"{hashtagAndSentiment} does not exist. {hashtagAndSentiment} will be initialized to 0.");
             }
 
-            Console.WriteLine($"{hashtagAndSentiment} = {count}");
+            this.logger.LogDebug($"{hashtagAndSentiment} = {count}");
             count++;
             await this.StateManager.SetStateAsync<int>(hashtagAndSentiment, count);
-            Console.WriteLine($"Incremented {hashtagAndSentiment}.");
+            this.logger.LogInformation($"Incremented {hashtagAndSentiment}.");
         }
 
         public async Task<int> GetCount(string hashtagAndSentiment)
@@ -62,11 +62,11 @@ namespace Dapr.Tests.HashTagApp.Actors
             try
             {
                 count = await this.StateManager.GetStateAsync<int>(hashtagAndSentiment);
-                Console.WriteLine($"GetCount for {hashtagAndSentiment} found and it is {count}.");
+                this.logger.LogInformation($"GetCount for {hashtagAndSentiment} found and it is {count}.");
             }
             catch (KeyNotFoundException)
             {
-                Console.WriteLine($"{hashtagAndSentiment} does not exist.");
+                this.logger.LogInformation($"{hashtagAndSentiment} does not exist.");
             }
 
             return count;

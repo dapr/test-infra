@@ -1,10 +1,9 @@
 // Global parameters
 param location string = resourceGroup().location
 param clusterName string
-param agentVMSize string = 'standard_d2as_v4'
+param agentVMSize string = 'standard_d2s_v5'
 param identityName string
 param storageAccountName string
-param cosmosAccountName string
 param serviceBusNamespace string
 param kubernetesNamespace string
 param grafanaName string
@@ -12,6 +11,11 @@ param amwName string
 param logAnalyticsName string
 param queueName string
 param userGrafanaAdminObjectId string = ''
+
+@description('The unique name of the solution. This is used to ensure that resource names are unique.')
+@minLength(5)
+@maxLength(30)
+param solutionName string = 'lh${uniqueString(resourceGroup().id)}'
 
 // Identity - Not a module so we can reference the resource below.
 resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
@@ -52,6 +56,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2023-03-01' = {
 }
 
 // Dapr extension for the cluster.
+// TODO(tmacam) Doesn't this need to be a dependency of all the dapr components?
 resource daprExtension 'Microsoft.KubernetesConfiguration/extensions@2022-11-01' = {
   name: 'dapr-ext'
   scope: aks
@@ -95,8 +100,9 @@ module longhaulNamespace 'services/namespace.bicep' = {
 // Azure Services & Components
 // Blobstore
 module storageServices 'services/storage-services.bicep' = {
-  name: '${deployment().name}--storage-services'
+  name: '${deployment().name}--services--storage'
   params: {
+    //solutionName: solutionName
     accountName: storageAccountName
     principalId: managedIdentity.properties.principalId
     location: location
@@ -111,9 +117,9 @@ module storageServices 'services/storage-services.bicep' = {
 
 // CosmosDB
 module cosmos 'services/cosmos.bicep' = {
-  name: '${deployment().name}--cosmos'
+  name: '${deployment().name}--services--cosmos'
   params: {
-    cosmosAccountName: cosmosAccountName
+    solutionName: solutionName
     principalId: managedIdentity.properties.principalId
     location: location
   }
@@ -123,7 +129,7 @@ module cosmos 'services/cosmos.bicep' = {
 }
 
 module cosmosComponent 'daprComponents/cosmos-component.bicep' = {
-  name: '${deployment().name}--cosmosComponent'
+  name: '${deployment().name}--component--cosmos'
   params: {
     kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
     kubernetesNamespace: kubernetesNamespace
@@ -131,15 +137,34 @@ module cosmosComponent 'daprComponents/cosmos-component.bicep' = {
     cosmosUrl: cosmos.outputs.cosmosUrl
     cosmosContainerName: cosmos.outputs.cosmosContainerName
     cosmosDatabaseName: cosmos.outputs.cosmosDatabaseName
+    cosmosAccountPrimaryMasterKey: cosmos.outputs.cosmosAccountPrimaryMasterKey
   }
   dependsOn: [
     cosmos
   ]
 }
 
+module messageBindingComponent 'daprComponents/storage-queue-component.bicep' = {
+  name: '${deployment().name}--component--storageQueue'
+  params: {
+    kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
+    kubernetesNamespace: kubernetesNamespace
+    storageAccountKey: storageServices.outputs.storageAccountKey
+    storageAccountName: storageServices.outputs.storageAccountName
+    storageQueueName: storageServices.outputs.storageQueueName
+  }
+  dependsOn: [
+    storageServices
+  ]
+}
+
+//
+//  Longhaul test applications
+//
+
 // Servicebus
 module servicebus 'services/servicebus.bicep' = {
-  name: '${deployment().name}--servicebus'
+  name: '${deployment().name}--services--servicebus'
   params: {
     serviceBusNamespace: serviceBusNamespace
     principalId: managedIdentity.properties.principalId
@@ -148,92 +173,115 @@ module servicebus 'services/servicebus.bicep' = {
     kubernetesNamespace: kubernetesNamespace
   }
   dependsOn: [
+    daprExtension
     longhaulNamespace
   ]
 }
 
-// Apps
-module feedGenerator 'apps/feed-generator-deploy.bicep' = {
-  name: '${deployment().name}--feed-generator'
+module servicebusComponent 'daprComponents/servicebus-pubsub-component.bicep' = {
+  name: '${deployment().name}--component--servicebus'
   params: {
     kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
     kubernetesNamespace: kubernetesNamespace
+    serviceBusConnectionString: servicebus.outputs.serviceBusConnectionString
   }
   dependsOn: [
-    longhaulNamespace
     servicebus
   ]
 }
 
-module hashtagActor 'apps/hashtag-actor-deploy.bicep' = {
-  name: '${deployment().name}--hashtag-actor'
+
+// Apps
+
+// TODO(tmacam) figure out inter-app dependency and update dependsOn list
+module feedGenerator 'apps/feed-generator-deploy.bicep' = {
+  name: '${deployment().name}--app--feed-generator'
   params: {
     kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
     kubernetesNamespace: kubernetesNamespace
   }
   dependsOn: [
+    daprExtension
     longhaulNamespace
-    cosmos
+    servicebusComponent
+  ]
+}
+
+module hashtagActor 'apps/hashtag-actor-deploy.bicep' = {
+  name: '${deployment().name}--app--hashtag-actor'
+  params: {
+    kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
+    kubernetesNamespace: kubernetesNamespace
+  }
+  dependsOn: [
+    daprExtension
+    longhaulNamespace
+    cosmosComponent
   ]
 }
 
 module hashtagCounter 'apps/hashtag-counter-deploy.bicep' = {
-  name: '${deployment().name}--hashtag-counter'
+  name: '${deployment().name}--app--hashtag-counter'
   params: {
     kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
     kubernetesNamespace: kubernetesNamespace
   }
   dependsOn: [
+    daprExtension
     longhaulNamespace
     storageServices
   ]
 }
 
 module messageAnalyzer 'apps/message-analyzer-deploy.bicep' = {
-  name: '${deployment().name}--message-analyzer'
+  name: '${deployment().name}--app--message-analyzer'
   params: {
     kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
     kubernetesNamespace: kubernetesNamespace
   }
   dependsOn: [
+    daprExtension
     longhaulNamespace
-    storageServices
-    servicebus
+    messageBindingComponent
+    servicebusComponent
   ]
 }
 
 module pubsubApp 'apps/pubsub-workflow-deploy.bicep' = {
-  name: '${deployment().name}--pubsub-workflow'
+  name: '${deployment().name}--app--pubsub-workflow'
   params: {
     kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
     kubernetesNamespace: kubernetesNamespace
   }
   dependsOn: [
+    daprExtension
     longhaulNamespace
-    servicebus
+    servicebusComponent
   ]
 }
 
-module snapshot 'apps/snapshot-deploy.bicep' = {
-  name: '${deployment().name}--snapshot'
+module snapshotApp 'apps/snapshot-deploy.bicep' = {
+  name: '${deployment().name}--app--snapshot'
   params: {
     kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
     kubernetesNamespace: kubernetesNamespace
   }
   dependsOn: [
+    daprExtension
     longhaulNamespace
-    servicebus
+    servicebusComponent
   ]
 }
 
 module validationWorker 'apps/validation-worker-deploy.bicep' = {
-  name: '${deployment().name}--validation-worker'
+  name: '${deployment().name}--app--validation-worker'
   params: {
     kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
     kubernetesNamespace: kubernetesNamespace
   }
   dependsOn: [
+    daprExtension
     longhaulNamespace
-    snapshot
+    snapshotApp
   ]
 }

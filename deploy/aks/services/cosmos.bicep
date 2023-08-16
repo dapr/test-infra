@@ -1,17 +1,20 @@
+param solutionName string
 
-param cosmosAccountName string
-param cosmosDatabaseName string = 'longhauldb'
-param cosmosContainerName string = 'longhaulcontainer'
 param location string
 param principalId string
-param roleDefinitionName string = 'dataRole'
-param dataActions array = [
+
+param cosmosAccountName string = '${solutionName}-cosmos'
+param cosmosDatabaseName string = '${solutionName}-db'
+param cosmosContainerName string = '${solutionName}-container'
+
+var roleDefinitionName  = 'dataRole'
+var dataActions  = [
   'Microsoft.DocumentDB/databaseAccounts/readMetadata'
   'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/*'
 ]
 
 resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
-  name: cosmosAccountName
+  name: toLower(cosmosAccountName)
   location: location
   properties: {
     databaseAccountOfferType: 'Standard'
@@ -22,6 +25,8 @@ resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
     ]
   }
 }
+
+var cosmosAccountPrimaryMasterKey = cosmosAccount.listKeys().primaryMasterKey
 
 resource cosmosDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-10-15' = {
   parent: cosmosAccount
@@ -94,6 +99,7 @@ resource sqlRoleAssignment 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignm
 }
 
 output cosmosUrl string = cosmosAccount.properties.documentEndpoint
-output cosmosAccountName string = cosmosAccountName
-output cosmosDatabaseName string = 'longhauldb'
-output cosmosContainerName string = 'longhaulcontainer'
+output cosmosAccountName string = cosmosAccount.name
+output cosmosDatabaseName string = cosmosDatabase.name
+output cosmosContainerName string = cosmosContainer.name
+output cosmosAccountPrimaryMasterKey string = cosmosAccountPrimaryMasterKey

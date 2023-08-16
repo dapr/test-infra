@@ -3,31 +3,28 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "clusterName": {
-      "value": "halspang-lh-test-cluster"
+      "value": "tmacam-lh-test-cluster"
     },
     "identityName": {
-      "value": "halspang-lh-identity"
+      "value": "tmacam-lh-identity"
     },
     "storageAccountName": {
-      "value": "halspanglhstorage"
-    },
-    "cosmosAccountName": {
-      "value": "halspanglhcosmos"
+      "value": "tmacamlhstorage"
     },
     "serviceBusNamespace": {
-      "value": "halspanglhsb"
+      "value": "tmacamlhsb"
     },
     "kubernetesNamespace": {
       "value": "longhaul-test"
     },
     "grafanaName": {
-      "value": "halspang-lh-grafana"
+      "value": "tmacam-lh-grafana"
     },
     "amwName": {
-      "value": "halspang-lh-amw"
+      "value": "tmacam-lh-amw"
     },
     "logAnalyticsName": {
-      "value": "halspang-lh-la"
+      "value": "tmacam-lh-la"
     },
     "userGrafanaAdminObjectId": {
       "value": "b92bc7c4-11f0-4e38-b49f-58621e50c3e5"

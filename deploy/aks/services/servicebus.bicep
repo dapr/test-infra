@@ -1,6 +1,5 @@
 @secure()
 param kubeConfig string
-param kubernetesNamespace string
 param serviceBusNamespace string
 param location string
 param principalId string

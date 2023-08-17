@@ -15,4 +15,8 @@ sequenceDiagram
 FeedGenerator -->> MessageAnalyzer : publish a SocialMediaMessage async using pubsub
 MessageAnalyzer -->> HashTagCounter: invoke a binding publish message to a StorageQueue
 HashTagCounter ->> HashTagActor: increase counter in message's hashtag's actor
+
+Snapshot -->> HashTagActor: get counts from actor
 ```
+
+TODO what about Pubsub Workflow ? who is publishing to it? And validation workflow?

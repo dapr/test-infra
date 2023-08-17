@@ -5,7 +5,7 @@ param agentVMSize string = 'standard_d2s_v5'
 param identityName string
 param storageAccountName string
 param serviceBusNamespace string
-param kubernetesNamespace string
+param kubernetesNamespace string = 'longhaul-test'
 param grafanaName string
 param amwName string
 param logAnalyticsName string
@@ -133,7 +133,6 @@ module cosmosComponent 'daprComponents/cosmos-component.bicep' = {
   params: {
     kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
     kubernetesNamespace: kubernetesNamespace
-    cosmosAccountName: cosmos.outputs.cosmosAccountName
     cosmosUrl: cosmos.outputs.cosmosUrl
     cosmosContainerName: cosmos.outputs.cosmosContainerName
     cosmosDatabaseName: cosmos.outputs.cosmosDatabaseName
@@ -170,7 +169,6 @@ module servicebus 'services/servicebus.bicep' = {
     principalId: managedIdentity.properties.principalId
     location: location
     kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
-    kubernetesNamespace: kubernetesNamespace
   }
   dependsOn: [
     daprExtension
@@ -207,6 +205,20 @@ module feedGenerator 'apps/feed-generator-deploy.bicep' = {
   ]
 }
 
+module messageAnalyzer 'apps/message-analyzer-deploy.bicep' = {
+  name: '${deployment().name}--app--message-analyzer'
+  params: {
+    kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
+    kubernetesNamespace: kubernetesNamespace
+  }
+  dependsOn: [
+    daprExtension
+    longhaulNamespace
+    messageBindingComponent
+    servicebusComponent
+  ]
+}
+
 module hashtagActor 'apps/hashtag-actor-deploy.bicep' = {
   name: '${deployment().name}--app--hashtag-actor'
   params: {
@@ -230,24 +242,13 @@ module hashtagCounter 'apps/hashtag-counter-deploy.bicep' = {
     daprExtension
     longhaulNamespace
     storageServices
+    hashtagActor
   ]
 }
 
-module messageAnalyzer 'apps/message-analyzer-deploy.bicep' = {
-  name: '${deployment().name}--app--message-analyzer'
-  params: {
-    kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
-    kubernetesNamespace: kubernetesNamespace
-  }
-  dependsOn: [
-    daprExtension
-    longhaulNamespace
-    messageBindingComponent
-    servicebusComponent
-  ]
-}
 
-module pubsubApp 'apps/pubsub-workflow-deploy.bicep' = {
+
+module pubsubWorkflowApp 'apps/pubsub-workflow-deploy.bicep' = {
   name: '${deployment().name}--app--pubsub-workflow'
   params: {
     kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
@@ -270,6 +271,7 @@ module snapshotApp 'apps/snapshot-deploy.bicep' = {
     daprExtension
     longhaulNamespace
     servicebusComponent
+    hashtagActor
   ]
 }
 

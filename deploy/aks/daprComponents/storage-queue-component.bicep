@@ -12,7 +12,7 @@ import 'kubernetes@1.0.0' with {
   kubeConfig: kubeConfig
 }
 
-resource daprIoComponent_messagebinding 'dapr.io/Component@v1alpha1' = {
+resource daprIoComponentMessageBinding 'dapr.io/Component@v1alpha1' = {
   metadata: {
     name: 'messagebinding'
     namespace: kubernetesNamespace

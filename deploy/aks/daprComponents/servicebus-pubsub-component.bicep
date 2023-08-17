@@ -10,43 +10,20 @@ import 'kubernetes@1.0.0' with {
   kubeConfig: kubeConfig
 }
 
-resource daprIoComponent_longhaulSbRapid 'dapr.io/Component@v1alpha1' = {
-  metadata: {
-    name: 'longhaul-sb-rapid'
-    namespace: kubernetesNamespace
-  }
-  spec: {
-    type: 'pubsub.azure.servicebus'
-    version: 'v1'
-    metadata: [
-      {
-        name: 'connectionString'
-        value: serviceBusConnectionString
-      }
-    ]
-  }
-}
+param allPubSubTopicNames array = [
+  'receivemediapost'
+  'longhaul-sb-rapid'
+  'longhaul-sb-medium'
+  'longhaul-sb-slow'
+  'longhaul-sb-glacial'
+]
 
-resource daprIoComponent_longhaulSbMedium 'dapr.io/Component@v1alpha1' = {
-  metadata: {
-    name: 'longhaul-sb-medium'
-    namespace: kubernetesNamespace
-  }
-  spec: {
-    type: 'pubsub.azure.servicebus'
-    version: 'v1'
-    metadata: [
-      {
-        name: 'connectionString'
-        value: serviceBusConnectionString
-      }
-    ]
-  }
-}
 
-resource daprIoComponent_longhaulSbSlow 'dapr.io/Component@v1alpha1' = {
+// We need a few pubsubs for our applications. They have different purposes
+// but are functionally the same. We can use a loop to create them all at once.
+resource daprserviceBusPubSubComponents 'dapr.io/Component@v1alpha1' = [for pubsubName in allPubSubTopicNames: {
   metadata: {
-    name: 'longhaul-sb-slow'
+    name: pubsubName
     namespace: kubernetesNamespace
   }
   spec: {
@@ -59,21 +36,4 @@ resource daprIoComponent_longhaulSbSlow 'dapr.io/Component@v1alpha1' = {
       }
     ]
   }
-}
-
-resource daprIoComponent_longhaulSbGlacial 'dapr.io/Component@v1alpha1' = {
-  metadata: {
-    name: 'longhaul-sb-glacial'
-    namespace: kubernetesNamespace
-  }
-  spec: {
-    type: 'pubsub.azure.servicebus'
-    version: 'v1'
-    metadata: [
-      {
-        name: 'connectionString'
-        value: serviceBusConnectionString
-      }
-    ]
-  }
-}
+}]

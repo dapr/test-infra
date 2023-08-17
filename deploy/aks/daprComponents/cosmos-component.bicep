@@ -1,7 +1,6 @@
 @secure()
 param kubeConfig string
 param kubernetesNamespace string
-param cosmosAccountName string
 param cosmosUrl string
 param cosmosDatabaseName string
 param cosmosContainerName string
@@ -17,7 +16,7 @@ import 'kubernetes@1.0.0' with {
 //   scope: resourceGroup()
 // }
 
-resource daprIoComponent_statestore 'dapr.io/Component@v1alpha1' = {
+resource daprIoComponentStatestore 'dapr.io/Component@v1alpha1' = {
   metadata: {
     name: 'statestore'
     namespace: kubernetesNamespace

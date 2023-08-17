@@ -3,10 +3,10 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "clusterName": {
-      "value": "tmacam-lh-test-cluster"
+      "value": "longhaul-release-cluster"
     },
     "shortClusterPrefixId": {
-      "value": "tlh"
+      "value": "lr"
     }
   }
 }

@@ -1,13 +1,7 @@
-@secure()
-param kubeConfig string
 param location string
 param accountName string
 param principalId string
 
-import 'kubernetes@1.0.0' with {
-  namespace: 'default'
-  kubeConfig: kubeConfig
-}
 
 // Storage account and associated services.
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {

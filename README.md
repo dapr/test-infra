@@ -54,7 +54,7 @@ az deployment group create --resource-group ${resourceGroup} --template-file ./d
 Done! Explore your new AKS cluster with the sample applications
 
 ```bash
-az aks get-credentials --admin --name ${clusterName} --resource-group $resourceGroup
+az aks get-credentials --admin --name ${clusterName} --resource-group ${resourceGroup}
 ```
 
 ## On Azure Container Apps (ACA)

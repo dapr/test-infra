@@ -1,13 +1,7 @@
-@secure()
-param kubeConfig string
 param serviceBusNamespace string
 param location string
 param principalId string
 
-import 'kubernetes@1.0.0' with {
-  namespace: 'default'
-  kubeConfig: kubeConfig
-}
 
 resource servicebus 'Microsoft.ServiceBus/namespaces@2021-11-01' = {
   name: serviceBusNamespace

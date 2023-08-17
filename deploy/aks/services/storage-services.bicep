@@ -1,10 +1,8 @@
 @secure()
 param kubeConfig string
-param kubernetesNamespace string
 param location string
 param accountName string
 param principalId string
-param queueName string
 
 import 'kubernetes@1.0.0' with {
   namespace: 'default'
@@ -25,12 +23,12 @@ var storageAccountKey = storageAccount.listKeys(storageAccount.apiVersion).keys[
 
 
 resource storagequeue 'Microsoft.Storage/storageAccounts/queueServices@2021-09-01' = {
-  name: 'default' // TODO(tmacam) parameterize
+  name: 'default'
   parent: storageAccount
 }
 
 resource blobstore 'Microsoft.Storage/storageAccounts/blobServices@2021-09-01' = {
-  name: 'default'  // TODO(tmacam) parameterize
+  name: 'default'
   parent: storageAccount
 }
 
@@ -50,8 +48,6 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 }
 
 
-// output location string = location
-// output accountName string = storageAccount.name
 output storageAccountKey string = storageAccountKey
 output storageAccountName string = storageAccount.name
 output storageQueueName string = storagequeue.name

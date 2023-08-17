@@ -5,32 +5,8 @@
     "clusterName": {
       "value": "tmacam-lh-test-cluster"
     },
-    "identityName": {
-      "value": "tmacam-lh-identity"
-    },
-    "storageAccountName": {
-      "value": "tmacamlhstorage"
-    },
-    "serviceBusNamespace": {
-      "value": "tmacamlhsb"
-    },
-    "kubernetesNamespace": {
-      "value": "longhaul-test"
-    },
-    "grafanaName": {
-      "value": "tmacam-lh-grafana"
-    },
-    "amwName": {
-      "value": "tmacam-lh-amw"
-    },
-    "logAnalyticsName": {
-      "value": "tmacam-lh-la"
-    },
-    "userGrafanaAdminObjectId": {
-      "value": "b92bc7c4-11f0-4e38-b49f-58621e50c3e5"
-    },
-    "queueName": {
-      "value": "longhaulqueue"
+    "shortClusterPrefixId": {
+      "value": "tlh"
     }
   }
 }

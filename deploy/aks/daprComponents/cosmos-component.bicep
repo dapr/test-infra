@@ -11,11 +11,6 @@ import 'kubernetes@1.0.0' with {
   kubeConfig: kubeConfig
 }
 
-// resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' existing = {
-//   name: cosmosAccountName
-//   scope: resourceGroup()
-// }
-
 resource daprIoComponentStatestore 'dapr.io/Component@v1alpha1' = {
   metadata: {
     name: 'statestore'

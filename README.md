@@ -20,3 +20,41 @@ Snapshot -->> HashTagActor: get counts from actor
 ```
 
 TODO what about Pubsub Workflow ? who is publishing to it? And validation workflow?
+
+# Deploying this application
+
+## Locally with docker-compose or `dapr run -f`
+
+TBD -- does it even work?
+
+## On Azure Kubernetes Service (AKS)
+
+Define the resource group we in which will we create the cluster and other resources and
+the name of the cluster we will create.
+
+```bash
+export resourceGroup='myNewResourceGroup'
+export location='eastus'
+export clusterName='test-infra'
+```
+
+Create a resource group four your new cluster
+
+```bash
+az group create --name ${resourceGroup} --location ${location}
+```
+
+Deploy a cluster with test apps to this resource group:
+
+```bash
+az deployment group create --resource-group ${resourceGroup} --template-file ./deploy/aks/main.bicep --parameters "clusterName=${clusterName}"
+```
+
+
+Done! Explore your new AKS cluster with the sample applications
+
+```bash
+az aks get-credentials --admin --name ${clusterName} --resource-group $resourceGroup
+```
+
+## On Azure Container Apps (ACA)

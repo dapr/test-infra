@@ -3,6 +3,7 @@ param workspaceAzureMonitorName string
 param workspaceLogAnalyticsName string
 param location string
 param grafanaAdminObjectId string
+@description('ObjectID for an user in AAD you want to grant grafana admin rights. Default is to not provide anything: not grant this permission any individual')
 param userGrafanaAdminObjectId string = ''
 param dceName string
 param dcrName string

@@ -34,7 +34,8 @@ param logAnalyticsName string = '${solutionName}-la'
 param agentVMSize string = 'standard_d2s_v5'
 param location string = resourceGroup().location
 param kubernetesNamespace string = 'longhaul-test'
-param userGrafanaAdminObjectId string = 'b92bc7c4-11f0-4e38-b49f-58621e50c3e5'
+@description('ObjectID for an user in AAD you want to grant grafana admin rights. Default is to not provide anything: not grant this permission any individual')
+param userGrafanaAdminObjectId string = ''
 
 
 

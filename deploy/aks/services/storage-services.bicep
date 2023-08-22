@@ -28,7 +28,6 @@ resource blobstore 'Microsoft.Storage/storageAccounts/blobServices@2021-09-01' =
 
 resource storageServiceContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
   scope: subscription()
-   // TODO(tmacam) What is this value?!
   name: '17d1049b-9a84-46fb-8f53-869881c3d3ab' // GUID for storage account contributor.
 }
 

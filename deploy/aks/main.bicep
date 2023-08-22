@@ -132,7 +132,6 @@ module longhaulNamespace 'services/namespace.bicep' = {
 module blobstore 'services/storage-services.bicep' = {
   name: '${clusterName}--services--blobstore'
   params: {
-    //solutionName: solutionName
     accountName: storageAccountName
     principalId: managedIdentity.properties.principalId
     location: location
@@ -219,7 +218,6 @@ module servicebusComponent 'daprComponents/servicebus-pubsub-component.bicep' = 
 //
 
 
-// TODO(tmacam) figure out inter-app dependency and update dependsOn list
 module feedGenerator 'apps/feed-generator-deploy.bicep' = {
   name: '${clusterName}--app--feed-generator'
   params: {

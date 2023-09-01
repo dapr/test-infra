@@ -7,7 +7,7 @@ name: dapr-e2e-tests-crawler
   
 on:  
   schedule:  
-    - cron: '0 0 */3 * *'
+    - cron: '0 0 */3 * *'  # At midnight UTC, every 3 days
   push:
     branches:
       - master

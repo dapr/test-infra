@@ -3,26 +3,24 @@
 # Licensed under the MIT License.
 # ------------------------------------------------------------
 
-from global_settings import *
+from global_settings import REPO, WORKFLOW_NAME, ACCESS_TOKEN, OUTPUT_TARGET
 from workflow_scan import WorkFlowScaner
 
 
 if __name__ == "__main__":
-    work_flow_scaner = WorkFlowScaner(REPO, WORKFLOW_NAME, ACCSS_TOKEM)
+    workflow_scaner = WorkFlowScaner(REPO, WORKFLOW_NAME, ACCESS_TOKEN)
     print(
         f"Dapr E2E Tests Crawler start. \nREPO : {REPO}  WORKFLOW_NAME : {WORKFLOW_NAME}"
     )
-    work_flow_scaner.scan_workflow()
-    
-    pass_rate_string = f"Pass rate of {WORKFLOW_NAME} is "+ "{:.2%}\n".format(work_flow_scaner.get_pass_rate())
-    print("\n")
-    print(pass_rate_string)
-    
-    file = open(OUTPUT_TARGET, 'w')  
-    file.write(pass_rate_string + "\n")   
-    file.close()  
+    workflow_scaner.scan_workflow()
 
-    print("\n")
-    print("Failure Workflow crawling start:")
-    work_flow_scaner.list_failure_case()
- 
+    pass_rate_string = f"\nPass rate of {WORKFLOW_NAME} is " + "{:.2%}\n".format(
+        workflow_scaner.get_pass_rate()
+    )
+    print(pass_rate_string)
+
+    with open(OUTPUT_TARGET, "w") as file:
+        file.write(pass_rate_string + "\n")
+
+    print("\nFailure Workflow crawling start:")
+    workflow_scaner.list_failure_case()

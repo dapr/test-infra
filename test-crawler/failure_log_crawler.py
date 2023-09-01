@@ -3,6 +3,7 @@
 # Licensed under the MIT License.
 # ------------------------------------------------------------
 
+import sys
 import requests
 import json
 import xml.etree.ElementTree as ET
@@ -10,16 +11,14 @@ import zipfile
 from io import BytesIO
 from global_settings import OUTPUT_TARGET
 
-class TestCaseInfo:
-    fail_times = 1
-    os = ""
-    name = ""
-    fail_rate = 0
-    latest_url = ""
 
+class TestCaseInfo:
     def __init__(self, name, os):
         self.name = name
         self.os = os
+        self.fail_times = 1
+        self.fail_rate = 0
+        self.latest_url = ""
 
     # linux or windows or both
     def update_os(self, os):
@@ -32,8 +31,8 @@ class TestCaseInfo:
     def get_fail_rate(self, workflow_len):
         self.fail_rate = self.fail_times / workflow_len
         return self.fail_rate
-    
-    def set_latest_url(self,url):
+
+    def set_latest_url(self, url):
         self.latest_url = url
 
     def to_json(self):
@@ -41,10 +40,6 @@ class TestCaseInfo:
 
 
 class FailureLogCrawler:
-    headres = {}
-    fail_testcase_dict = {}
-    fail_testcase_dict_sorted_list = []
-
     def __init__(self, repo, access_token):
         self.repo = repo
         self.access_token = access_token
@@ -53,6 +48,8 @@ class FailureLogCrawler:
             "X-GitHub-Api-Version": "2022-11-28",
             "Authorization": f"token {access_token}",
         }
+        self.fail_testcase_dict = {}
+        self.fail_testcase_dict_sorted_list = []
 
     def crawl(self, failure_id, workflow_len):
         failure_id_len = len(failure_id)
@@ -79,11 +76,11 @@ class FailureLogCrawler:
 
         for v in self.fail_testcase_dict.values():
             v.get_fail_rate(workflow_len)
-        
+
         self.fail_testcase_dict_sorted_list = sorted(
             self.fail_testcase_dict.values(),
             key=lambda case: case.fail_rate,
-            reverse=True
+            reverse=True,
         )
 
     def parse_artifact(self, artifact, id):
@@ -96,7 +93,7 @@ class FailureLogCrawler:
             zip_file = zipfile.ZipFile(BytesIO(response.content))
             extracted_file = zip_file.extract("test_report_e2e.xml")
         except:
-            print(f"Error occurred when parse {artifact_name}, skiped")
+            sys.stderr.write(f"Error occurred when parse {artifact_name}, skiped")
             return
         tree = ET.parse(extracted_file)
 
@@ -114,17 +111,27 @@ class FailureLogCrawler:
                     else:
                         testcase_info = TestCaseInfo(name, os)
                         self.fail_testcase_dict[name] = testcase_info
-                        
+
                         latest_url = f"https://github.com/{self.repo}/actions/runs/{id}"
                         self.fail_testcase_dict[name].set_latest_url(latest_url)
-                    
 
     def list_failure_testcase(self):
-        print("\n")
-        print("Failed Test Cases:")
-        file = open(OUTPUT_TARGET, 'a')  
-        for case in self.fail_testcase_dict_sorted_list:
-            fali_rate_string ="Fail Rate: "+ "{:.2%}".format(float(case.fail_rate))+ "     "+ "Test Case: "+ str(case.name)+ "\n"+ "Operating System: "+ str(case.os)+ "     "+ "Latest URL: "+ str(case.latest_url)+ "\n"
-            print(fali_rate_string)
-            file.write(fali_rate_string + "\n")  
-        file.close()  
+        print("\nFailed Test Cases:")
+        with open(OUTPUT_TARGET, "a") as file:
+            for case in self.fail_testcase_dict_sorted_list:
+                fali_rate_string = (
+                    "Fail Rate: "
+                    + "{:.2%}".format(float(case.fail_rate))
+                    + "     "
+                    + "Test Case: "
+                    + str(case.name)
+                    + "\n"
+                    + "Operating System: "
+                    + str(case.os)
+                    + "     "
+                    + "Latest URL: "
+                    + str(case.latest_url)
+                    + "\n"
+                )
+                print(fali_rate_string)
+                file.write(fali_rate_string + "\n")

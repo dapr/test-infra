@@ -10,13 +10,6 @@ from failure_log_crawler import FailureLogCrawler
 
 
 class WorkFlowScaner:
-    headres = {}
-    runs_len = 0
-    in_progress_num = 0
-    success_num = 0
-    failure_num = 0
-    failure_id = []
-
     def __init__(self, repo, workflow_name, access_token):
         self.repo = repo
         self.workflow_name = workflow_name
@@ -24,8 +17,13 @@ class WorkFlowScaner:
         self.headers = {
             "Accept": "application/vnd.github+json",
             "X-GitHub-Api-Version": "2022-11-28",
-            "Authorization": f"token {access_token}"
+            "Authorization": f"token {access_token}",
         }
+        self.runs_len = 0
+        self.in_progress_num = 0
+        self.success_num = 0
+        self.failure_num = 0
+        self.failure_id = []
         self.crawler = FailureLogCrawler(repo, access_token)
 
     def scan_workflow(self):

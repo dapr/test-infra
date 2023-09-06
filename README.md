@@ -7,6 +7,7 @@ This repo includes test apps and infrastructure tools.
 * [HashTag Counter](./hashtag-counter) : Test app for long haul test, contains hashtag-counter.
 * [HashTag Actor](./hashtag-actor) : Test app for long haul test, hashtag-actor logic.
 * [Pubsub Workflow](./pubsub-workflow) : Test app for long haul test, azure service bus pubsub logic.
+* [Test Crawler](./test-crawler) : A Python script scrapes the Dapr E2E tests results.
 
 # Solution overview and app dependency
 

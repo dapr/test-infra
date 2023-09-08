@@ -16,7 +16,7 @@ jobs:
   run:  
     runs-on: ubuntu-latest  
     env:
-      CRAWLER_GITHUB_TOKEN: ${{ secrets.CRAWLER_GITHUB_TOKEN}}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
       OUTPUT_TARGET: "log.txt"
     steps:  
     - name: Checkout code  

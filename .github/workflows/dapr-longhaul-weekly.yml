@@ -65,7 +65,7 @@ jobs:
           repository: dapr/test-infra
           ref: refs/heads/master
           path: longhaul
-      - uses: azure/setup-kubectl@v1
+      - uses: azure/setup-kubectl@v3
         with:
           version: ${{ env.KUBECTLVER }}
         id: install

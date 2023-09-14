@@ -4,11 +4,11 @@
 // ------------------------------------------------------------
 
 using Dapr.Client;
+using Dapr.Tests.Common;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Prometheus;
 using System;
 using System.IO;
 using System.Threading;
@@ -28,8 +28,7 @@ namespace PubsubWorkflow
         {
             Console.WriteLine("Starting Pubsub Workflow");
 
-            var server = new MetricServer(port: 9988);
-            server.Start();
+            ObservabilityUtils.StartMetricsServer();
 
             var host = CreateHostBuilder(args).Build();
 

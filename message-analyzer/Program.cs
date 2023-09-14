@@ -5,10 +5,17 @@
 
 namespace MessageAnalyzer
 {
+    using Dapr.Tests.Common;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Hosting;
-    using Prometheus;
+    using Microsoft.Extensions.Logging;
     using System;
+    using System.IO;
+
+    public class AppSettings {
+        public const string DaprHTTPAppPort = "DaprHTTPAppPort";
+    }
 
     /// <summary>
     /// MessageAnalyzer - receives messages from Dapr through pub/sub, adds a 
@@ -24,8 +31,7 @@ namespace MessageAnalyzer
         {
             Console.WriteLine("Enter main");
 
-            var server = new MetricServer(port: 9988);
-            server.Start();
+            ObservabilityUtils.StartMetricsServer();
 
             CreateHostBuilder(args).Build().Run();
         }
@@ -37,9 +43,22 @@ namespace MessageAnalyzer
         /// <returns>Returns IHostbuilder.</returns>
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureLogging((hostingContext, config) =>
+                {
+                    config.ClearProviders();
+                    config.AddConsole();
+
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    var appSettings = new ConfigurationBuilder()
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile($"appsettings.json", optional: true, reloadOnChange: true)                        
+                        .AddCommandLine(args)
+                        .Build();
+
+                    var host = webBuilder.UseStartup<Startup>()
+                        .UseUrls(urls: $"http://*:{appSettings[AppSettings.DaprHTTPAppPort]}");
                 });
     }
 }

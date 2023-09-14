@@ -1,0 +1,33 @@
+version: 1
+# Hi! Unfamiliar with Dapr multi-app run capabilities? Check out the docs:
+# * https://docs.dapr.io/developing-applications/local-development/multi-app-dapr-run/multi-app-overview/
+common:
+  resourcesPath: ./components
+  appLogDestination: console
+  daprdLogDestination: console
+  env:
+    DISABLE_PROMETHEUS_METRIC_SERVER: "true"
+apps:
+  - appID: feed-generator
+    appDirPath: ../../feed-generator
+    appPort: 3000
+    command: ["dotnet","run"]  # Ideally this app should accept opts. 
+  - appID: message-analyzer
+    appDirPath: ../../message-analyzer
+    daprHTTPPort: 3512
+    appPort: 3002
+    command: ["dotnet","run", "--DaprHTTPAppPort=3002"]
+  - appID: hashtag-actor
+    appDirPath: ../../hashtag-actor
+    daprHTTPPort: 3513
+    appPort: 3003
+    command: ["dotnet","run", "--DaprHTTPAppPort=3003"]
+  - appID: hashtag-counter
+    appDirPath: ../../hashtag-counter
+    daprHTTPPort: 3514
+    appPort: 3004
+    command: ["dotnet","run", "--DaprHTTPAppPort=3004"]
+  - appID: pubsub-workflow
+    appDirPath: ../../pubsub-workflow
+    appPort: 3005
+    command: ["dotnet","run", "--DaprHTTPAppPort=3005"]

@@ -1,0 +1,32 @@
+
+
+
+POST http://localhost:3004/messagebinding HTTP/1.1
+content-type: application/json
+
+{
+    "correlationId":"0f8fad5b-d9cb-469f-a165-70867728950e",
+    "messageId":"ffffad5b-d9cb-469f-a165-7086772895ff",
+    "message": "test 1",
+    "sentiment": "positive",
+    "creationDate": "2023-09-11T17:16:40"
+}
+
+###
+
+PUT http://localhost:3513/v1.0/actors/HashTagActor/test2_positive/method/Increment HTTP/1.1
+content-type: application/json
+
+"test2_positive"
+
+###
+
+PUT http://localhost:3513/v1.0/actors/HashTagActor/test2_positive/method/GetCount HTTP/1.1
+content-type: application/json
+
+"test2_positive"
+
+
+###
+
+http://localhost:3514/v1.0/metadata

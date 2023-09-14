@@ -5,6 +5,7 @@
 
 namespace Dapr.Tests.HashTagApp
 {
+    using Dapr.Tests.Common;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Hosting;
@@ -15,6 +16,8 @@ namespace Dapr.Tests.HashTagApp
     {
         public static void Main(string[] args)
         {
+            ObservabilityUtils.StartMetricsServer();
+            
             CreateHostBuilder(args).Build().Run();
         }
 

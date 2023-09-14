@@ -1,0 +1,17 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: messagebinding
+spec:
+  type: bindings.rabbitmq
+  version: v1
+  metadata:
+  - name: queueName
+    value: "messagebindingqueue"
+  - name: host
+    value: "amqp://guest:guest@localhost:5672"

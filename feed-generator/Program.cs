@@ -6,6 +6,7 @@
 namespace FeedGenerator
 {
     using Dapr.Client;
+    using Dapr.Tests.Common;
     using Dapr.Tests.Common.Models;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
@@ -41,8 +42,7 @@ namespace FeedGenerator
                 }
             }
 
-            var server = new MetricServer(port: 9988);
-            server.Start();
+            ObservabilityUtils.StartMetricsServer();
 
             IHost host = CreateHostBuilder(args).Build();
 

@@ -5,12 +5,12 @@ using System.Globalization;
 // ------------------------------------------------------------
 
 using Dapr.Client;
+using Dapr.Tests.Common;
 using Dapr.Workflow;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Prometheus;
 using System;
 using System.IO;
 using System.Threading;
@@ -33,8 +33,7 @@ namespace WorkflowGen
         /// <param name="args">Arguments.</param>
         public static void Main(string[] args)
         {
-            var server = new MetricServer(port: 9988);
-            server.Start();
+            ObservabilityUtils.StartMetricsServer();
 
             var builder = Host.CreateDefaultBuilder(args).ConfigureServices(services =>
             {

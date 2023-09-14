@@ -5,22 +5,20 @@
 
 namespace Dapr.Tests.HashTagApp
 {
-    using System;
-    using System.IO;
+    using Dapr.Tests.Common;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
-    using Prometheus;
+    using System;
+    using System.IO;
 
     public class Program
     {
         public static void Main(string[] args)
         {
-            var server = new MetricServer(port: 9988);
-            server.Start();
+            ObservabilityUtils.StartMetricsServer();
 
-           
             CreateHostBuilder(args).Build().Run();
         }
 

@@ -8,6 +8,7 @@ namespace Dapr.Tests.Snapshot
     using Dapr.Actors;
     using Dapr.Actors.Client;
     using Dapr.Client;
+    using Dapr.Tests.Common;
     using Dapr.Tests.Common.Models;
     using Dapr.Tests.HashTagApp.Actors;
     using Microsoft.AspNetCore.Hosting;
@@ -40,8 +41,7 @@ namespace Dapr.Tests.Snapshot
 
             Console.WriteLine("Configured delayInMilliseconds={0}", delayInMilliseconds);
 
-            var server = new MetricServer(port: 9988);
-            server.Start();
+            ObservabilityUtils.StartMetricsServer();
 
             var host = CreateHostBuilder(args).Build();
 

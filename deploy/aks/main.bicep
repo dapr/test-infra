@@ -160,29 +160,40 @@ module servicebus 'services/servicebus.bicep' = {
   }
 }
 
+
+module redis 'services/redis.bicep' = {
+  name: '${clusterName}--services--redis'
+  params: {
+    solutionName: solutionName
+    location: location
+    enableNonSslPort : false // Just to be explicit here: using TLS port 6380
+    // diagnosticsEnabled: false - https://github.com/Azure/azure-quickstart-templates/issues/13566
+  }
+}
+
 //
 // Dapr Components
 //
 
-module cosmosComponent 'daprComponents/cosmos-component.bicep' = {
-  name: '${clusterName}--component--cosmos'
+module statestoreComponent 'daprComponents/statestore-component.bicep' = {
+  name: '${clusterName}--component--redis-statestore'
   params: {
     kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
     kubernetesNamespace: longhaulNamespace.outputs.kubernetesNamespace
-    cosmosUrl: cosmos.outputs.cosmosUrl
-    cosmosContainerName: cosmos.outputs.cosmosContainerName
-    cosmosDatabaseName: cosmos.outputs.cosmosDatabaseName
-    cosmosAccountPrimaryMasterKey: cosmos.outputs.cosmosAccountPrimaryMasterKey
+    
+    redisEnableTLS: redis.outputs.redisEnableTLS
+    redisHostnameAndPort: redis.outputs.redisHostnameAndPort
+    redisPassword: redis.outputs.redisPassword
   }
   dependsOn: [
-    cosmos
+    redis
     daprExtension
     longhaulNamespace
   ]
 }
 
-module messageBindingComponent 'daprComponents/storage-queue-component.bicep' = {
-  name: '${clusterName}--component--storageQueue'
+module messageBindingComponent 'daprComponents/storage-queue-binding-component.bicep' = {
+  name: '${clusterName}--component--storageQueue-bindings'
   params: {
     kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
     kubernetesNamespace: longhaulNamespace.outputs.kubernetesNamespace
@@ -199,8 +210,8 @@ module messageBindingComponent 'daprComponents/storage-queue-component.bicep' = 
 
 
 
-module servicebusComponent 'daprComponents/servicebus-pubsub-component.bicep' = {
-  name: '${clusterName}--component--servicebus'
+module pubSubComponent 'daprComponents/servicebus-pubsub-component.bicep' = {
+  name: '${clusterName}--component--servicebus-pubsub'
   params: {
     kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
     kubernetesNamespace: longhaulNamespace.outputs.kubernetesNamespace
@@ -228,7 +239,7 @@ module feedGenerator 'apps/feed-generator-deploy.bicep' = {
   dependsOn: [
     daprExtension
     longhaulNamespace
-    servicebusComponent
+    pubSubComponent
   ]
 }
 
@@ -242,7 +253,7 @@ module messageAnalyzer 'apps/message-analyzer-deploy.bicep' = {
     daprExtension
     longhaulNamespace
     messageBindingComponent
-    servicebusComponent
+    pubSubComponent
   ]
 }
 
@@ -255,7 +266,7 @@ module hashtagActor 'apps/hashtag-actor-deploy.bicep' = {
   dependsOn: [
     daprExtension
     longhaulNamespace
-    cosmosComponent
+    statestoreComponent
   ]
 }
 
@@ -284,7 +295,7 @@ module pubsubWorkflowApp 'apps/pubsub-workflow-deploy.bicep' = {
   dependsOn: [
     daprExtension
     longhaulNamespace
-    servicebusComponent
+    pubSubComponent
   ]
 }
 
@@ -297,7 +308,7 @@ module snapshotApp 'apps/snapshot-deploy.bicep' = {
   dependsOn: [
     daprExtension
     longhaulNamespace
-    servicebusComponent
+    pubSubComponent
     hashtagActor
   ]
 }

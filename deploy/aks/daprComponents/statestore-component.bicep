@@ -1,10 +1,14 @@
 @secure()
 param kubeConfig string
 param kubernetesNamespace string
-param cosmosUrl string
-param cosmosDatabaseName string
-param cosmosContainerName string
-param cosmosAccountPrimaryMasterKey string
+
+@secure()
+param redisHostnameAndPort string
+
+@secure()
+param redisPassword string
+
+param redisEnableTLS bool
 
 import 'kubernetes@1.0.0' with {
   namespace: 'default'
@@ -17,24 +21,20 @@ resource daprIoComponentStatestore 'dapr.io/Component@v1alpha1' = {
     namespace: kubernetesNamespace
   }
   spec: {
-    type: 'state.azure.cosmosdb'
+    type: 'state.redis'
     version: 'v1'
     metadata: [
       {
-        name: 'url'
-        value: cosmosUrl
+        name: 'enableTLS'
+        value: redisEnableTLS ? 'true' : 'false'
       }
       {
-        name: 'masterKey'
-        value: cosmosAccountPrimaryMasterKey
+        name: 'redisHost'
+        value: redisHostnameAndPort
       }
       {
-        name: 'database'
-        value: cosmosDatabaseName
-      }
-      {
-        name: 'collection'
-        value: cosmosContainerName
+        name: 'redisPassword'
+        value: redisPassword
       }
       {
         name: 'actorStateStore'

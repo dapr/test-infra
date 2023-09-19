@@ -284,21 +284,6 @@ module hashtagCounter 'apps/hashtag-counter-deploy.bicep' = {
   ]
 }
 
-
-
-module pubsubWorkflowApp 'apps/pubsub-workflow-deploy.bicep' = {
-  name: '${clusterName}--app--pubsub-workflow'
-  params: {
-    kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
-    kubernetesNamespace: longhaulNamespace.outputs.kubernetesNamespace
-  }
-  dependsOn: [
-    daprExtension
-    longhaulNamespace
-    pubSubComponent
-  ]
-}
-
 module snapshotApp 'apps/snapshot-deploy.bicep' = {
   name: '${clusterName}--app--snapshot'
   params: {
@@ -323,5 +308,36 @@ module validationWorker 'apps/validation-worker-deploy.bicep' = {
     daprExtension
     longhaulNamespace
     snapshotApp
+  ]
+}
+
+// The pub-sub workflow application is independent from the others
+
+module pubsubWorkflowApp 'apps/pubsub-workflow-deploy.bicep' = {
+  name: '${clusterName}--app--pubsub-workflow'
+  params: {
+    kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
+    kubernetesNamespace: longhaulNamespace.outputs.kubernetesNamespace
+  }
+  dependsOn: [
+    daprExtension
+    longhaulNamespace
+    pubSubComponent
+  ]
+}
+
+
+// The Workflow Generation application is independent from the others
+
+module workflowGenApp 'apps/workflow-gen-deploy.bicep' = {
+  name: '${clusterName}--app--workflow-gen'
+  params: {
+    kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
+    kubernetesNamespace: longhaulNamespace.outputs.kubernetesNamespace
+  }
+  dependsOn: [
+    daprExtension
+    longhaulNamespace
+    statestoreComponent
   ]
 }

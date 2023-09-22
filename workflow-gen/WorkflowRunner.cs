@@ -63,18 +63,18 @@ namespace WorkflowGen
                         instanceId: orderId,
                         workflowComponent: DaprWorkflowComponent);
 
-                    this.logger.LogInformation("Your workflow has started. Here is the status of the workflow: {0}", state.RuntimeStatus);
+                    this.logger.LogInformation("Your workflow has started. Here is the status of the workflow: {Status}", state.RuntimeStatus);
 
                     state = await Client.WaitForWorkflowCompletionAsync(
                         instanceId: orderId,
                         workflowComponent: DaprWorkflowComponent);
 
-                    this.logger.LogInformation("Workflow Status: {0}", state.RuntimeStatus);
+                    this.logger.LogInformation("Workflow Status: {Status}", state.RuntimeStatus);
 
                 }
                 catch (Exception ex)
                 {
-                    this.logger.LogError("Caught {0}", ex.ToString());
+                    this.logger.LogError(ex, "Caught {Exception}", ex);
                     ExecutionFailureCount.Inc();
                 }
             }

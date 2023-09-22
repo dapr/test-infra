@@ -23,7 +23,7 @@ namespace WorkflowGen.Activities
         public override async Task<Object> RunAsync(WorkflowActivityContext context, PaymentRequest req)
         {
             this.logger.LogInformation(
-                "Checking Inventory for: Order# {requestId} for {amount} {item}",
+                "Checking Inventory for: Order# {RequestId} for {Amount} {Item}",
                 req.RequestId,
                 req.Amount,
                 req.ItemBeingPruchased);
@@ -36,13 +36,13 @@ namespace WorkflowGen.Activities
             if (newQuantity < 0)
             {
                 this.logger.LogInformation(
-                    "Payment for request ID '{requestId}' could not be processed. Insufficient inventory.",
+                    "Payment for request ID '{RequestId}' could not be processed. Insufficient inventory.",
                     req.RequestId);
                 throw new InvalidOperationException();
             }
 
             await client.SaveStateAsync<OrderPayload>(storeName, req.ItemBeingPruchased, new OrderPayload(Name: req.ItemBeingPruchased, TotalCost: req.Currency, Quantity: newQuantity));
-            this.logger.LogInformation($"There are now: {newQuantity} {original.Name} left in stock");
+            this.logger.LogInformation("There are now: {NewQuantity} {OriginalName} left in stock", newQuantity, original.Name);
 
             return null;
         }

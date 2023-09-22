@@ -29,8 +29,6 @@ namespace MessageAnalyzer
         /// <param name="args">Arguments.</param>
         public static void Main(string[] args)
         {
-            Console.WriteLine("Enter main");
-
             ObservabilityUtils.StartMetricsServer();
 
             CreateHostBuilder(args).Build().Run();

@@ -14,6 +14,7 @@ namespace MessageAnalyzer
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
     using Prometheus;
     using System;
     using System.Text.Json;
@@ -108,9 +109,9 @@ namespace MessageAnalyzer
             });
 
             // Receive a "Post" object from the previous app in the pipeline.
-            async Task ReceiveMediaPost(HttpContext context)
+            async Task ReceiveMediaPost(HttpContext context, ILogger<Startup> logger)
             {
-                Console.WriteLine("Enter ReceiveMediaPost");
+                logger.LogDebug("Enter ReceiveMediaPost");
                 var client = context.RequestServices.GetRequiredService<DaprClient>();
 
                 var message = await JsonSerializer.DeserializeAsync<SocialMediaMessage>(context.Request.Body, serializerOptions);
@@ -121,7 +122,7 @@ namespace MessageAnalyzer
 
                 // update with a sentiment
                 message.Sentiment = GenerateRandomSentiment();
-                Console.WriteLine($"....Invoking binding {BindingName} with message {message.Message} and sentiment {message.Sentiment}");
+                logger.LogInformation("....Invoking binding {BindingName} with message {Message} and sentiment {Sentiment}", BindingName, message.Message, message.Sentiment);
 
                 // overwrite the timestamp so the next app can use it
                 message.PreviousAppTimestamp = DateTime.UtcNow;
@@ -131,12 +132,12 @@ namespace MessageAnalyzer
                     using (OutputBindingCallTime.NewTimer())
                     {
                         await client.InvokeBindingAsync<SocialMediaMessage>(BindingName, "create", message);
-                        Console.WriteLine("Invoke binding \"create\" completed successfully");
+                        logger.LogInformation("Invoke binding \"create\" completed successfully");
                     }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Caught {0}", e);
+                    logger.LogError(e, "Caught {Exception}", e);
                     BindingApiFailureCount.Inc();
                 }
             }

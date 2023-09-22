@@ -14,6 +14,7 @@ namespace FeedGenerator
     using Microsoft.Extensions.Logging;
     using Prometheus;
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -80,6 +81,14 @@ namespace FeedGenerator
             DaprClientBuilder daprClientBuilder = new DaprClientBuilder();
 
             DaprClient client = daprClientBuilder.Build();
+
+            // When ran in k8s, this app might start before Dapr sidecar is ready
+            // and this will lead to errors. Let's wait a bit for the sidecar to
+            // be ready before we start publishing.
+            logger.LogInformation("Waiting for Dapr sidecar to be ready...");
+            CancellationToken timeout = new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token;
+            await client.WaitForSidecarAsync(timeout);
+
             while (true)
             {
                 SocialMediaMessage message = GeneratePost();

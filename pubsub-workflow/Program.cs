@@ -33,6 +33,14 @@ namespace PubsubWorkflow
 
             var logger = host.Services.GetRequiredService<ILogger<PubsubWorkflow>>();
 
+            // When ran in k8s, this app might start before Dapr sidecar is ready
+            // and this will lead to errors. Let's wait a bit for the sidecar to
+            // be ready before we start publishing.
+            logger.LogInformation("Waiting for Dapr sidecar to be ready...");
+            CancellationToken timeout = new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token;
+            var client = new DaprClientBuilder().Build();
+            client.WaitForSidecarAsync(timeout).Wait();
+            
             logger.LogInformation("Starting Pubsub Workflow");
 
             var rapidTimer = StartPublishingMessages(10, rapidPubsubName, "rapidtopic");

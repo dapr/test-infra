@@ -20,20 +20,10 @@ namespace Dapr.Tests.HashTagApp.Actors
         /// Initializes a new instance of the <see cref="HashTagActor"/> class.
         /// </summary>
         /// <param name="host">Actor Service hosting the actor.</param>
-        public HashTagActor(ActorHost host)
+        public HashTagActor(ActorHost host, ILogger<HashTagActor> logger)
             : base(host)
         {
-            // TODO: ActorHost may need to have IHostBuilder reference to allow user to interact web host.
-            // For example, getting logger factory given by WebHost
-            var loggerFactory = LoggerFactory.Create(builder =>
-            {
-                builder
-                    .AddFilter("Microsoft", LogLevel.Warning)
-                    .AddFilter("System", LogLevel.Warning)
-                    .AddConsole();
-            });
-
-            this.logger = loggerFactory.CreateLogger<HashTagActor>();
+            this.logger = logger;
         }
 
         /// <inheritdoc/>
@@ -47,13 +37,13 @@ namespace Dapr.Tests.HashTagApp.Actors
             }
             catch (KeyNotFoundException)
             {
-                this.logger.LogDebug($"{hashtagAndSentiment} does not exist. {hashtagAndSentiment} will be initialized to 0.");
+                this.logger.LogDebug("{HashtagAndSentiment} does not exist. {HashtagAndSentiment} will be initialized to 0.", hashtagAndSentiment);
             }
 
-            this.logger.LogDebug($"{hashtagAndSentiment} = {count}");
+            this.logger.LogDebug("{HashtagAndSentiment} = {Count}", hashtagAndSentiment, count);
             count++;
             await this.StateManager.SetStateAsync<int>(hashtagAndSentiment, count);
-            this.logger.LogInformation($"Incremented {hashtagAndSentiment}.");
+            this.logger.LogInformation("Incremented {HashtagAndSentiment}.", hashtagAndSentiment);
         }
 
         public async Task<int> GetCount(string hashtagAndSentiment)
@@ -62,11 +52,11 @@ namespace Dapr.Tests.HashTagApp.Actors
             try
             {
                 count = await this.StateManager.GetStateAsync<int>(hashtagAndSentiment);
-                this.logger.LogInformation($"GetCount for {hashtagAndSentiment} found and it is {count}.");
+                this.logger.LogInformation("GetCount for {HashtagAndSentiment} found and it is {Count}.", hashtagAndSentiment, count);
             }
             catch (KeyNotFoundException)
             {
-                this.logger.LogInformation($"{hashtagAndSentiment} does not exist.");
+                this.logger.LogInformation("{HashtagAndSentiment} does not exist.", hashtagAndSentiment);
             }
 
             return count;

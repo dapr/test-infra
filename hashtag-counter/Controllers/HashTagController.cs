@@ -28,21 +28,23 @@ namespace Dapr.Tests.HashTagApp.Controllers
 
         private readonly IConfiguration configuration;
 
-        public HashTagController(IConfiguration config)
+        private readonly ILogger<HashTagController> logger;
+
+        public HashTagController(IConfiguration config, ILogger<HashTagController> logger)
         {
-            Console.WriteLine("ctor.");
             this.configuration = config;
+            this.logger = logger;
         }
 
         [HttpPost("messagebinding")]
         public async Task<IActionResult> PostMessageBinding([FromBody]SocialMediaMessage message)
         {
-            Console.WriteLine("enter messagebinding");
+            this.logger.LogDebug("enter messagebinding");
 
             var duration = DateTime.UtcNow - message.PreviousAppTimestamp;
             BindingDuration.Set(duration.TotalSeconds);
 
-            Console.WriteLine($"{message.CreationDate}, {message.CorrelationId}, {message.MessageId}, {message.Message}, {message.Sentiment}");
+            this.logger.LogInformation("{CreationDate}, {CorrelationId}, {MessageId}, {Message}, {Sentiment}", message.CreationDate, message.CorrelationId, message.MessageId, message.Message, message.Sentiment);
 
             int indexOfHash = message.Message.LastIndexOf('#');
             string hashTag = message.Message.Substring(indexOfHash + 1);
@@ -51,16 +53,16 @@ namespace Dapr.Tests.HashTagApp.Controllers
             var actorId = new ActorId(key);
             var proxy = ActorProxy.Create<IHashTagActor>(actorId, "HashTagActor");
 
-            Console.WriteLine($"Increasing {key}.");
+            this.logger.LogInformation("Increasing {Key}.", key);
             Exception ex = null;
             try
             {
                 await proxy.Increment(key);
-                Console.WriteLine($"Increasing {key} successful.");
+                this.logger.LogInformation("Increasing {Key} successful.", key);
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Increasing {key} failed with {e}");
+                this.logger.LogError(e, "Increasing {Key} failed with {Exception}", key, e);
                 ex = e;
                 ActorMethodFailureCount.Inc();
             }

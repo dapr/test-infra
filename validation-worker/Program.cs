@@ -7,7 +7,9 @@ namespace ValidationWorker
 {
     using Dapr.Client;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
     using Prometheus;
     using System;
     using System.Collections.Generic;
@@ -43,7 +45,9 @@ namespace ValidationWorker
 
             IHost host = CreateHostBuilder(args).Build();
 
-            Task.Run(() => StartValidationLoopAsync(delayInSeconds));
+            var logger = host.Services.GetRequiredService<ILogger<Program>>();
+
+            Task.Run(() => StartValidationLoopAsync(delayInSeconds, logger));
 
             host.Run();
         }
@@ -60,7 +64,7 @@ namespace ValidationWorker
                     webBuilder.UseStartup<Startup>();
                 });
 
-        static internal async void StartValidationLoopAsync(int delayInSeconds)
+        static internal async void StartValidationLoopAsync(int delayInSeconds, ILogger<Program> logger)
         {
             const string SnapshotAppName = "snapshot";
             TimeSpan delay = TimeSpan.FromSeconds(delayInSeconds);
@@ -73,7 +77,7 @@ namespace ValidationWorker
 
             while (true)
             {
-                Console.WriteLine("Checking stats in {0} seconds", delayInSeconds);
+                logger.LogInformation("Checking stats in {DelayInSeconds} seconds", delayInSeconds);
                 await Task.Delay(delay);
 
                 try
@@ -88,7 +92,7 @@ namespace ValidationWorker
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Caught {0}", e.ToString());
+                    logger.LogError(e, "Caught {Exception}", e);
                     ServiceInvocationFailureCount.Inc();
                     continue;
                 }
@@ -106,10 +110,10 @@ namespace ValidationWorker
                         }
                     }
 
-                    Console.WriteLine("Number changed is {0}", changed);
+                    logger.LogInformation("Number changed is {Changed}", changed);
                     if (changed == 0)
                     {
-                        LogStats(prevStats, stats);
+                        LogStats(prevStats, stats, logger);
                         UnchangedStatsMetric.IncTo(1);
                     }
                     else
@@ -122,19 +126,19 @@ namespace ValidationWorker
             }
         }
 
-        static internal void LogStats(Dictionary<string, int> prevStats, Dictionary<string, int> stats)
+        static internal void LogStats(Dictionary<string, int> prevStats, Dictionary<string, int> stats, ILogger<Program> logger)
         {
-            Console.WriteLine("The stats from the snapshot app did not change reporting error metric, logging previous and current:");
-            Console.WriteLine("Previous:");
+            logger.LogInformation("The stats from the snapshot app did not change reporting error metric, logging previous and current:");
+            logger.LogInformation("Previous:");
             foreach (var kv in prevStats)
             {
-                Console.WriteLine("{0} - {1}", kv.Key, kv.Value);
+                logger.LogInformation("{Key} - {Value}", kv.Key, kv.Value);
             }
 
-            Console.WriteLine("Current:");
+            logger.LogInformation("Current:");
             foreach (var kv in stats)
             {
-                Console.WriteLine("{0} - {1}", kv.Key, kv.Value);
+                logger.LogInformation("{Key} - {Value}", kv.Key, kv.Value);
             }
         }
     }

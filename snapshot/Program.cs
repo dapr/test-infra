@@ -13,6 +13,7 @@ namespace Dapr.Tests.Snapshot
     using Dapr.Tests.HashTagApp.Actors;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Prometheus;
@@ -32,6 +33,12 @@ namespace Dapr.Tests.Snapshot
 
         public static void Main(string[] args)
         {
+            ObservabilityUtils.StartMetricsServer();
+
+            var host = CreateHostBuilder(args).Build();
+
+            var logger = host.Services.GetRequiredService<ILogger<Program>>();
+
             int delayInMilliseconds = 5000;
             var delay = Environment.GetEnvironmentVariable("DELAY_IN_MS");
             if (delay != null)
@@ -39,11 +46,7 @@ namespace Dapr.Tests.Snapshot
                 delayInMilliseconds = int.Parse(delay);
             }
 
-            Console.WriteLine("Configured delayInMilliseconds={0}", delayInMilliseconds);
-
-            ObservabilityUtils.StartMetricsServer();
-
-            var host = CreateHostBuilder(args).Build();
+            logger.LogDebug("Configured delayInMilliseconds={DelayInMilliseconds}", delayInMilliseconds, logger);
 
             Task.Run(() => StartQueryLoopAsync(delayInMilliseconds));
 
@@ -74,9 +77,9 @@ namespace Dapr.Tests.Snapshot
             return hostBuilder;
         }
 
-        static internal async void StartQueryLoopAsync(int delayInMilliseconds)
+        static internal async void StartQueryLoopAsync(int delayInMilliseconds, ILogger<Program> logger)
         {
-            Console.WriteLine("Starting query loop");
+            logger.LogDebug("Starting query loop");
 
             TimeSpan delay = TimeSpan.FromMilliseconds(delayInMilliseconds);
 
@@ -86,7 +89,7 @@ namespace Dapr.Tests.Snapshot
             DateTime lastSnapshotTime = DateTime.MinValue;
             while (true)
             {
-                Console.WriteLine("Sleeping '{0}' ms", delayInMilliseconds);
+                logger.LogInformation("Sleeping '{DelayInMilliseconds}' ms", delayInMilliseconds);
                 await Task.Delay(delay);
                 Dictionary<string, int> stats = new Dictionary<string, int>();
 
@@ -103,7 +106,7 @@ namespace Dapr.Tests.Snapshot
                         var actorId = new ActorId(key);
                         var proxy = ActorProxy.Create<IHashTagActor>(actorId, "HashTagActor");
 
-                        Console.WriteLine($"GetCount on {key}.");
+                        logger.LogInformation("GetCount on {Key}.", key);
                         int count = -1;
                         try
                         {
@@ -113,11 +116,11 @@ namespace Dapr.Tests.Snapshot
                             }
 
                             stats.Add(key, count);
-                            Console.WriteLine($"key={key}, value={count}.");
+                            logger.LogInformation("key={Key}, value={Count}.", key, count);
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine($"{e}");
+                            logger.LogError(e, "{Exception}", e);
                             ActorMethodFailureCount.Inc();
                             throw;
                         }

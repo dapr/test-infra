@@ -43,7 +43,14 @@ namespace ValidationWorker
             var server = new MetricServer(port: 9988);
             server.Start();
 
-            IHost host = CreateHostBuilder(args).Build();
+            IHost host = CreateHostBuilder(args)
+                .ConfigureLogging((hostingContext, config) =>
+                {
+                    config.ClearProviders();
+                    config.AddJsonConsole();
+
+                })
+                .Build();
 
             var logger = host.Services.GetRequiredService<ILogger<Program>>();
 

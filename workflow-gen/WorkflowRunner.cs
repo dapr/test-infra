@@ -30,19 +30,11 @@ namespace WorkflowGen
         private readonly ILogger<WorkflowRunner> logger;
 
 
-        public WorkflowRunner([FromServices] DaprClient client, int counter)
+        public WorkflowRunner([FromServices] DaprClient client, int counter, ILogger<WorkflowRunner> logger)
         {
             this.Client = client;
             this.Counter = counter;
-            var loggerFactory = LoggerFactory.Create(builder =>
-            {
-                builder
-                    .AddFilter("Microsoft", LogLevel.Warning)
-                    .AddFilter("System", LogLevel.Warning)
-                    .AddConsole();
-            });
-
-            this.logger = loggerFactory.CreateLogger<WorkflowRunner>();
+            this.logger = logger;
         }
 
         internal async void Execute(Object stateInfo)

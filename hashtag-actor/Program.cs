@@ -27,7 +27,7 @@ namespace Dapr.Tests.HashTagApp
                 .ConfigureLogging((hostingContext, config) =>
                 {
                     config.ClearProviders();
-                    config.AddConsole();
+                    config.AddJsonConsole();
 
                 })
                 .ConfigureWebHostDefaults(webBuilder =>

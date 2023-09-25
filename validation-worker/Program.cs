@@ -6,6 +6,7 @@
 namespace ValidationWorker
 {
     using Dapr.Client;
+    using Dapr.Tests.Common;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
@@ -44,12 +45,7 @@ namespace ValidationWorker
             server.Start();
 
             IHost host = CreateHostBuilder(args)
-                .ConfigureLogging((hostingContext, config) =>
-                {
-                    config.ClearProviders();
-                    config.AddJsonConsole();
-
-                })
+                .ConfigureTestInfraLogging()
                 .Build();
 
             var logger = host.Services.GetRequiredService<ILogger<Program>>();

@@ -37,11 +37,7 @@ namespace WorkflowGen
             ObservabilityUtils.StartMetricsServer();
 
             var builder = Host.CreateDefaultBuilder(args)
-                .ConfigureLogging((hostingContext, config) =>
-                {
-                    config.ClearProviders();
-                    config.AddJsonConsole();
-                })
+                .ConfigureTestInfraLogging()
                 .ConfigureServices(services =>
                 {
                     services.AddDaprWorkflow(options =>

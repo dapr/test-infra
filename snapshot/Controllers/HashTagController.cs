@@ -8,6 +8,7 @@ namespace Dapr.Tests.Snapshot.Controllers
     using Dapr.Client;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Logging;
     using System;
     using System.Collections.Generic;
     using System.Net.Mime;
@@ -20,7 +21,7 @@ namespace Dapr.Tests.Snapshot.Controllers
         private readonly IConfiguration configuration;
         private readonly ILogger<HashTagController> logger;
 
-        public HashTagController(IConfiguration config), ILogger<HashTagController> logger)
+        public HashTagController(IConfiguration config, ILogger<HashTagController> logger)
         {
             this.configuration = config;
             this.logger = logger;

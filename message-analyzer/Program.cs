@@ -41,12 +41,7 @@ namespace MessageAnalyzer
         /// <returns>Returns IHostbuilder.</returns>
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureLogging((hostingContext, config) =>
-                {
-                    config.ClearProviders();
-                    config.AddJsonConsole();
-
-                })
+                .ConfigureTestInfraLogging()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     var appSettings = new ConfigurationBuilder()

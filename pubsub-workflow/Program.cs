@@ -52,23 +52,18 @@ namespace PubsubWorkflow
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureLogging((hostingContext, config) =>
-                    {
-                        config.ClearProviders();
-                        config.AddJsonConsole();
+                .ConfigureTestInfraLogging()
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    var appSettings = new ConfigurationBuilder()
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile($"appsettings.json", optional: true, reloadOnChange: true)                        
+                        .AddCommandLine(args)
+                        .Build();
 
-                    })
-                    .ConfigureWebHostDefaults(webBuilder =>
-                    {
-                        var appSettings = new ConfigurationBuilder()
-                            .SetBasePath(Directory.GetCurrentDirectory())
-                            .AddJsonFile($"appsettings.json", optional: true, reloadOnChange: true)                        
-                            .AddCommandLine(args)
-                            .Build();
-
-                        webBuilder.UseStartup<Startup>()
-                            .UseUrls(urls: $"http://*:{appSettings["DaprHTTPAppPort"]}");
-                    });
+                    webBuilder.UseStartup<Startup>()
+                        .UseUrls(urls: $"http://*:{appSettings["DaprHTTPAppPort"]}");
+                });
 
         static internal Timer StartPublishingMessages(int periodInSeconds, string pubsubName, string topic)
         {

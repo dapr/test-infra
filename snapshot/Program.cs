@@ -46,9 +46,9 @@ namespace Dapr.Tests.Snapshot
                 delayInMilliseconds = int.Parse(delay);
             }
 
-            logger.LogDebug("Configured delayInMilliseconds={DelayInMilliseconds}", delayInMilliseconds, logger);
+            logger.LogDebug("Configured delayInMilliseconds={DelayInMilliseconds}", delayInMilliseconds);
 
-            Task.Run(() => StartQueryLoopAsync(delayInMilliseconds));
+            Task.Run(() => StartQueryLoopAsync(delayInMilliseconds, logger));
 
             host.Run();
         }
@@ -56,12 +56,7 @@ namespace Dapr.Tests.Snapshot
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
             var hostBuilder = Host.CreateDefaultBuilder(args)
-                .ConfigureLogging((hostingContext, config) =>
-                {
-                    config.ClearProviders();
-                    config.AddJsonConsole();
-
-                })
+                .ConfigureTestInfraLogging()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     var appSettings = new ConfigurationBuilder()

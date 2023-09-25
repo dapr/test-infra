@@ -36,12 +36,7 @@ namespace FeedGenerator
             ObservabilityUtils.StartMetricsServer();
 
             IHost host = CreateHostBuilder(args)
-                .ConfigureLogging((hostingContext, config) =>
-                {
-                    config.ClearProviders();
-                    config.AddJsonConsole();
-
-                })
+                .ConfigureTestInfraLogging()
                 .Build();
 
             var logger = host.Services.GetRequiredService<ILogger<Program>>();

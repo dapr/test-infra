@@ -24,12 +24,7 @@ namespace Dapr.Tests.HashTagApp
 
         public static IHostBuilder CreateHostBuilder(string[] args) {
             var hostBuilder = Host.CreateDefaultBuilder(args)
-                .ConfigureLogging((hostingContext, config) =>
-                {
-                    config.ClearProviders();
-                    config.AddConsole();
-
-                })
+                .ConfigureTestInfraLogging()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     var appSettings = new ConfigurationBuilder()

@@ -23,7 +23,6 @@ namespace Dapr.Tests.Snapshot
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            Console.WriteLine("ConfigureServices()");
             services.AddDaprClient();
             services.AddControllers();
         }
@@ -31,7 +30,6 @@ namespace Dapr.Tests.Snapshot
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            Console.WriteLine("Configure");
             if (env.EnvironmentName.Contains(".dev"))
             {
                 app.UseDeveloperExceptionPage();

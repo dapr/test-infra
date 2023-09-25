@@ -9,6 +9,7 @@ using Dapr.Tests.Common;
 using Dapr.Workflow;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -35,34 +36,38 @@ namespace WorkflowGen
         {
             ObservabilityUtils.StartMetricsServer();
 
-            var builder = Host.CreateDefaultBuilder(args).ConfigureServices(services =>
-            {
-                services.AddDaprWorkflow(options =>
+            var builder = Host.CreateDefaultBuilder(args)
+                .ConfigureTestInfraLogging()
+                .ConfigureServices(services =>
                 {
-                    options.RegisterWorkflow<OrderProcessingWorkflow>();
-                    options.RegisterActivity<NotifyActivity>();
-                    options.RegisterActivity<ReserveInventoryActivity>();
-                    options.RegisterActivity<ProcessPaymentActivity>();
-                    options.RegisterActivity<UpdateInventoryActivity>();
+                    services.AddDaprWorkflow(options =>
+                    {
+                        options.RegisterWorkflow<OrderProcessingWorkflow>();
+                        options.RegisterActivity<NotifyActivity>();
+                        options.RegisterActivity<ReserveInventoryActivity>();
+                        options.RegisterActivity<ProcessPaymentActivity>();
+                        options.RegisterActivity<UpdateInventoryActivity>();
+                    });
                 });
-            });
 
-            var wTimer = StartExecutingWorkflows(30);
             using var host = builder.Build();
+
+            var logger = host.Services.GetRequiredService<ILogger<WorkflowRunner>>();
+
+            var wTimer = StartExecutingWorkflows(30, logger);
             host.Run();
             wTimer.Dispose();
         }
 
-        static internal Timer StartExecutingWorkflows(int periodInSeconds)
+        static internal Timer StartExecutingWorkflows(int periodInSeconds, ILogger<WorkflowRunner> logger)
         {
             DaprClientBuilder daprClientBuilder = new DaprClientBuilder();
             var client = new DaprClientBuilder().Build();
             var counter = 0;
-            var workflowRunner = new WorkflowRunner(client, counter);
+            var workflowRunner = new WorkflowRunner(client, counter, logger);
 
             return new Timer(workflowRunner.Execute, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(periodInSeconds));
         }
-
     }
 }
 

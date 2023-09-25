@@ -7,6 +7,7 @@ using Dapr.Client;
 using Dapr.Tests.Common;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -26,11 +27,13 @@ namespace PubsubWorkflow
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Starting Pubsub Workflow");
-
             ObservabilityUtils.StartMetricsServer();
 
             var host = CreateHostBuilder(args).Build();
+
+            var logger = host.Services.GetRequiredService<ILogger<PubsubWorkflow>>();
+
+            logger.LogInformation("Starting Pubsub Workflow");
 
             var rapidTimer = StartPublishingMessages(10, rapidPubsubName, "rapidtopic");
             var mediumTimer = StartPublishingMessages(300, mediumPubsubName, "mediumtopic");
@@ -39,7 +42,7 @@ namespace PubsubWorkflow
             
             host.Run();
 
-            Console.WriteLine("Exiting Pubsub Workflow");
+            logger.LogInformation("Exiting Pubsub Workflow");
 
             rapidTimer.Dispose();
             mediumTimer.Dispose();
@@ -49,23 +52,18 @@ namespace PubsubWorkflow
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureLogging((hostingContext, config) =>
-                    {
-                        config.ClearProviders();
-                        config.AddConsole();
+                .ConfigureTestInfraLogging()
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    var appSettings = new ConfigurationBuilder()
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile($"appsettings.json", optional: true, reloadOnChange: true)                        
+                        .AddCommandLine(args)
+                        .Build();
 
-                    })
-                    .ConfigureWebHostDefaults(webBuilder =>
-                    {
-                        var appSettings = new ConfigurationBuilder()
-                            .SetBasePath(Directory.GetCurrentDirectory())
-                            .AddJsonFile($"appsettings.json", optional: true, reloadOnChange: true)                        
-                            .AddCommandLine(args)
-                            .Build();
-
-                        webBuilder.UseStartup<Startup>()
-                            .UseUrls(urls: $"http://*:{appSettings["DaprHTTPAppPort"]}");
-                    });
+                    webBuilder.UseStartup<Startup>()
+                        .UseUrls(urls: $"http://*:{appSettings["DaprHTTPAppPort"]}");
+                });
 
         static internal Timer StartPublishingMessages(int periodInSeconds, string pubsubName, string topic)
         {

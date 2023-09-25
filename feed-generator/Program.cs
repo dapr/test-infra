@@ -9,7 +9,9 @@ namespace FeedGenerator
     using Dapr.Tests.Common;
     using Dapr.Tests.Common.Models;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
     using Prometheus;
     using System;
     using System.Threading.Tasks;
@@ -31,22 +33,26 @@ namespace FeedGenerator
         /// <param name="args">Arguments.</param>
         public static void Main(string[] args)
         {
+            ObservabilityUtils.StartMetricsServer();
+
+            IHost host = CreateHostBuilder(args)
+                .ConfigureTestInfraLogging()
+                .Build();
+
+            var logger = host.Services.GetRequiredService<ILogger<Program>>();
+
             int delayInMilliseconds = 10000;
             if (args.Length != 0 && args[0] != "%LAUNCHER_ARGS%")
             {
                 if (int.TryParse(args[0], out delayInMilliseconds) == false)
                 {
                     string msg = "Could not parse delay";
-                    Console.WriteLine(msg);
+                    logger.LogError(msg);
                     throw new InvalidOperationException(msg);
                 }
             }
 
-            ObservabilityUtils.StartMetricsServer();
-
-            IHost host = CreateHostBuilder(args).Build();
-
-            Task.Run(() => StartMessageGeneratorAsync(delayInMilliseconds));
+            Task.Run(() => StartMessageGeneratorAsync(delayInMilliseconds, logger));
 
             host.Run();
         }
@@ -63,7 +69,7 @@ namespace FeedGenerator
                     webBuilder.UseStartup<Startup>();
                 });
 
-        static internal async void StartMessageGeneratorAsync(int delayInMilliseconds)
+        static internal async void StartMessageGeneratorAsync(int delayInMilliseconds, ILogger<Program> logger)
         {
             // the name of the component and the topic happen to be the same here...
             const string PubsubComponentName = "receivemediapost";
@@ -80,7 +86,7 @@ namespace FeedGenerator
 
                 try
                 {
-                    Console.WriteLine("Publishing");
+                    logger.LogInformation("Publishing");
                     using (PublishCallTime.NewTimer())
                     {
                         await client.PublishEventAsync<SocialMediaMessage>(PubsubComponentName, PubsubTopicName, message);
@@ -88,7 +94,7 @@ namespace FeedGenerator
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Caught {0}", e.ToString());
+                    logger.LogError(e, "Caught {Exception}", e);
                     PublishFailureCount.Inc();
                 }
 

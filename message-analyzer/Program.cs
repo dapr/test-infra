@@ -29,8 +29,6 @@ namespace MessageAnalyzer
         /// <param name="args">Arguments.</param>
         public static void Main(string[] args)
         {
-            Console.WriteLine("Enter main");
-
             ObservabilityUtils.StartMetricsServer();
 
             CreateHostBuilder(args).Build().Run();
@@ -43,12 +41,7 @@ namespace MessageAnalyzer
         /// <returns>Returns IHostbuilder.</returns>
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureLogging((hostingContext, config) =>
-                {
-                    config.ClearProviders();
-                    config.AddConsole();
-
-                })
+                .ConfigureTestInfraLogging()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     var appSettings = new ConfigurationBuilder()

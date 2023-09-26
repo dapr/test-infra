@@ -31,6 +31,7 @@ resource appsDeployment_hashtagActorApp 'apps/Deployment@v1' = {
           'dapr.io/enabled': 'true'
           'dapr.io/app-id': 'hashtag-actor'
           'dapr.io/app-port': '3000'
+          'dapr.io/enable-profiling': 'true'
           'dapr.io/log-as-json': 'true'
         }
       }

@@ -37,6 +37,7 @@ spec:
       annotations:
         dapr.io/enabled: "true"
         dapr.io/app-id: "workflow-gen"
+        dapr.io/enable-profiling: "true"
         dapr.io/log-as-json: "true"
         prometheus.io/scrape: 'true'
         prometheus.io/port: '9988'        

@@ -53,6 +53,7 @@ resource appsDeployment_validationWorkerApp 'apps/Deployment@v1' = {
         annotations: {
           'dapr.io/enabled': 'true'
           'dapr.io/app-id': 'validation-worker'
+          'dapr.io/enable-profiling': 'true'
           'dapr.io/log-as-json': 'true'
           'prometheus.io/scrape': 'true'
           'prometheus.io/port': '9988'

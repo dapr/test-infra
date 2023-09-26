@@ -54,6 +54,7 @@ resource appsDeployment_messageAnalyzerApp 'apps/Deployment@v1' = {
           'dapr.io/enabled': 'true'
           'dapr.io/app-id': 'message-analyzer'
           'dapr.io/app-port': '80'
+          'dapr.io/enable-profiling': 'true'
           'dapr.io/log-as-json': 'true'
           'prometheus.io/scrape': 'true'
           'prometheus.io/port': '9988'

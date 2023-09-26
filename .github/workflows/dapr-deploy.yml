@@ -11,7 +11,7 @@ on:
       - master
 jobs:
   deploy:
-    name: update dapr runtime
+    name: update dapr runtime on release longhaul cluster
     runs-on: ubuntu-latest
     env:
       DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/master/install/install.sh
@@ -20,6 +20,9 @@ jobs:
       TEST_CLUSTER_NAME: dapr-release-longhaul
       TEST_RESOURCE_GROUP: dapr-test
       HELMVER: v3.7.2
+      # Test applications-specific settings
+      APP_NAMESPACE: longhaul-test
+      KUBECTLVER: v1.19.3
     steps:
       - name: Set up Dapr CLI
         run: wget -q ${{ env.DAPR_INSTALL_URL }} -O - | /bin/bash
@@ -30,9 +33,32 @@ jobs:
       - name: Login Azure
         run: |
           az login --service-principal -u ${{ secrets.AZURE_LOGIN_USER }} -p ${{ secrets.AZURE_LOGIN_PASS }} --tenant ${{ secrets.AZURE_TENANT }} --output none
-      - name: Set up kubeconf for longhaul test environment
+      - name: Set up kubeconf for longhaul cluster ${{ env.TEST_CLUSTER_NAME }}
         run: |
           az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
-      - name: Deploy new dapr version to longhaul cluster
+      - name: Deploy dapr version ${{ env.DAPR_RUNTIME_VER }} to longhaul cluster
         run: |
           dapr upgrade -k --runtime-version ${{ env.DAPR_RUNTIME_VER }}
+      # Bounce apps so they pick up a new dapr version
+      - name: Checkout dapr/test-infra
+        uses: actions/checkout@v2
+        with:
+          repository: dapr/test-infra
+          ref: refs/heads/master
+          path: longhaul
+      - name: Setup kubectl ${{ env.KUBECTLVER }}
+        uses: azure/setup-kubectl@v3
+        with:
+          version: ${{ env.KUBECTLVER }}
+        id: install      
+      - name: Deploy test applications
+        working-directory: ./longhaul
+        run: |
+          kubectl apply -f ./longhaul-test/feed-generator-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/feed-generator-app -n ${{ env.APP_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/hashtag-actor-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/hashtag-actor-app -n ${{ env.APP_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/hashtag-counter-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/hashtag-counter-app -n ${{ env.APP_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/message-analyzer-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/message-analyzer-app -n ${{ env.APP_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/pubsub-workflow-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/pubsub-workflow-app -n ${{ env.APP_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/snapshot-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/snapshot-app -n ${{ env.APP_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/validation-worker-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/validation-worker-app -n ${{ env.APP_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/workflow-gen-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/workflow-gen-app -n ${{ env.APP_NAMESPACE }}

@@ -54,6 +54,7 @@ resource appsDeployment_pubsubWorkflowApp 'apps/Deployment@v1' = {
           'dapr.io/enabled': 'true'
           'dapr.io/app-id': 'pubsub-workflow'
           'dapr.io/app-port': '3000'
+          'dapr.io/enable-profiling': 'true'
           'dapr.io/log-as-json': 'true'
           'prometheus.io/scrape': 'true'
           'prometheus.io/port': '9988'

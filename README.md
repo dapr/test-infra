@@ -85,7 +85,7 @@ Using Helm or `dapr init -k` directly to manage, upgrade or uninstall Dapr on yo
 If you want to fully control Dapr setup on your cluster, you need to uninstall the extension first:
 
 ```bash
-az k8s-extension delete --resource-group ${resourceGroup} --cluster-name ${clusterName} --cluster-type managedClusters --name ${clusterName}-dapr-ext
+az k8s-extension delete --yes --resource-group ${resourceGroup} --cluster-name ${clusterName} --cluster-type managedClusters --name ${clusterName}-dapr-ext
 ```
 
 

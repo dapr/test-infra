@@ -71,4 +71,42 @@ Done! Explore your new AKS cluster with the sample applications
 az aks get-credentials --admin --name ${clusterName} --resource-group ${resourceGroup}
 ```
 
+### Regaining control of your AKS cluster's Dapr setup.
+
+
+Our AKS Bicep templates offer a convenient way to quickly start up an
+AKS cluster running our longhaul applications for E2E testing.
+In this setup, Dapr is installed on the AKS cluster by means of an AKS extension.
+Using this extension is great if you want a fully managed Dapr setup on your AKS cluster.
+However, its use puts some constraints on the user's ability to control
+the installed Dapr setup.
+Using Helm or `dapr init -k` directly to manage, upgrade or uninstall Dapr on your AKS cluster won't work.
+
+If you want to fully control Dapr setup on your cluster, you need to uninstall the extension first:
+
+```bash
+az k8s-extension delete --resource-group ${resourceGroup} --cluster-name ${clusterName} --cluster-type managedClusters --name ${clusterName}-dapr-ext
+```
+
+
+Then you can re-install Dapr using Helm or `dapr init -k`:
+
+```bash
+export DAPR_VERSION_TO_INSTALL='1.11.3'
+helm upgrade --install dapr dapr/dapr \
+    --version=${DAPR_VERSION_TO_INSTALL} \
+    --namespace dapr-system \
+    --create-namespace \
+    --wait
+``` 
+
+Don't forget to do a rolling restart in all apps to pick up the new manually-installed Dapr version: 😉
+
+```bash
+for app in "feed-generator-app" "hashtag-actor-app" "hashtag-counter-app" "message-analyzer-app" "pubsub-workflow-app" "snapshot-app" "validation-worker-app" "workflow-gen-app"; do
+    kubectl rollout restart deploy/${app} -n longhaul-test || break
+done 
+```
+
+
 ## On Azure Container Apps (ACA)

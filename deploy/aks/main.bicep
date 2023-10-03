@@ -160,14 +160,15 @@ module servicebus 'services/servicebus.bicep' = {
   }
 }
 
-
-module redis 'services/redis.bicep' = {
-  name: '${clusterName}--services--redis'
+// Postgresql
+module postgresql 'services/postgresql.bicep' = {
+  name: '${clusterName}--services--postgres'
   params: {
     solutionName: solutionName
+    aadAdminName: managedIdentity.name
+    aadAdminObjectid: managedIdentity.properties.principalId
     location: location
-    enableNonSslPort : false // Just to be explicit here: using TLS port 6380
-    // diagnosticsEnabled: false - https://github.com/Azure/azure-quickstart-templates/issues/13566
+    allowAzureIPsFirewall: true
   }
 }
 
@@ -175,18 +176,15 @@ module redis 'services/redis.bicep' = {
 // Dapr Components
 //
 
-module statestoreComponent 'daprComponents/statestore-component.bicep' = {
+module statestoreComponent 'daprComponents/statestore-postgresql-component.bicep' = {
   name: '${clusterName}--component--redis-statestore'
   params: {
     kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
     kubernetesNamespace: longhaulNamespace.outputs.kubernetesNamespace
-    
-    redisEnableTLS: redis.outputs.redisEnableTLS
-    redisHostnameAndPort: redis.outputs.redisHostnameAndPort
-    redisPassword: redis.outputs.redisPassword
+    connectionString: postgresql.outputs.connectionString
   }
   dependsOn: [
-    redis
+    postgresql
     daprExtension
     longhaulNamespace
   ]

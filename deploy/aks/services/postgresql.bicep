@@ -1,7 +1,7 @@
-@description('Used to create a unique name for this redis instance')
+@description('Used to create a unique name for this postgres instance')
 param solutionName string
 
-@description('Server Name for Azure database for PostgreSQL Flexible Server')
+@description('Server Name for Azure Database for PostgreSQL Flexible Server instance')
 param serverName string = '${solutionName}-postgres'
 
 @description('Database administrator login name')

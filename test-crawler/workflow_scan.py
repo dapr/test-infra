@@ -142,5 +142,3 @@ class WorkFlowScaner:
 
         for k, _ in self.components_tests_dict.items():
             self.components_tests_dict[k] = sorted(set(self.components_tests_dict[k]))
-
-        print("test")

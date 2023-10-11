@@ -104,29 +104,13 @@ class FailureLogCrawler:
             sys.stderr.write(f"Error occurred when parse {artifact_name}, skiped")
             return
         tree = ET.parse(extracted_file)
-
         root = tree.getroot()
 
-        # failures occur in TestMain
-        if root.attrib["failures"] == "1":
-            os = artifact["name"].split("_")[0]
-            name = "TestMain"
-
-            if name in self.fail_testcase_dict:
-                self.fail_testcase_dict[name].update_os(os)
-                self.fail_testcase_dict[name].increase_fail_times()
-            else:
-                testcase_info = TestCaseInfo(name, os)
-                self.fail_testcase_dict[name] = testcase_info
-
-                latest_url = f"https://github.com/{self.repo}/actions/runs/{id}"
-                self.fail_testcase_dict[name].set_latest_url(latest_url)
-
-            return
-
+        failures_count = 0
         for testsuite in root:
             failures = int(testsuite.attrib["failures"])
             if failures:
+                failures_count += failures
                 fail_testcases = testsuite.findall("testcase")
                 for fail_testcase in fail_testcases[:failures]:
                     os = artifact["name"].split("_")[0]
@@ -140,6 +124,21 @@ class FailureLogCrawler:
 
                         latest_url = f"https://github.com/{self.repo}/actions/runs/{id}"
                         self.fail_testcase_dict[name].set_latest_url(latest_url)
+
+        # failures occur in TestMain
+        if root.attrib["failures"] == "1" and failures_count== 0:
+            os = artifact["name"].split("_")[0]
+            name = "TestMain"
+
+            if name in self.fail_testcase_dict:
+                self.fail_testcase_dict[name].update_os(os)
+                self.fail_testcase_dict[name].increase_fail_times()
+            else:
+                testcase_info = TestCaseInfo(name, os)
+                self.fail_testcase_dict[name] = testcase_info
+
+                latest_url = f"https://github.com/{self.repo}/actions/runs/{id}"
+                self.fail_testcase_dict[name].set_latest_url(latest_url)
 
     def list_failure_testcase(self):
         with open(TESTS_OUTPUT_TARGET, "a") as file:
@@ -160,9 +159,10 @@ class FailureLogCrawler:
                 )
                 file.write(fali_rate_string + "\n")
 
-            file.write("\nWorkflows without any artifact: \n")
-            for idx, id in enumerate(self.workflow_with_no_artifact):
-                file.write(f"{idx}: https://github.com/{self.repo}/actions/runs/{id}\n")
+            if len(self.workflow_with_no_artifact):
+                file.write("\nWorkflows without any artifact: \n")
+                for idx, id in enumerate(self.workflow_with_no_artifact):
+                    file.write(f"{idx}: https://github.com/{self.repo}/actions/runs/{id}\n")
 
         print("tests result output completed")
 

@@ -17,7 +17,6 @@ jobs:
     runs-on: ubuntu-latest  
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
-      OUTPUT_TARGET: "log.txt"
     steps:  
     - name: Checkout code  
       uses: actions/checkout@v3
@@ -33,9 +32,14 @@ jobs:
     - name: Run Script
       run: python3 test-crawler/__init__.py
 
+    - name: Compress logs
+      if: always()
+      run: |
+        tar -cvf test-crawler/result.tar test-crawler/tests.txt test-crawler/components.txt
+
     - name: Upload results
       if: always()
       uses: actions/upload-artifact@master
       with:
         name: "result" 
-        path: ${{ env.OUTPUT_TARGET }}
+        path: "test-crawler/result.tar"

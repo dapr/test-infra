@@ -9,7 +9,7 @@ import json
 import xml.etree.ElementTree as ET
 import zipfile
 from io import BytesIO
-from global_settings import OUTPUT_TARGET
+from global_settings import TESTS_OUTPUT_TARGET, COMPONENTS_OUTPUT_TARGET
 
 
 class TestCaseInfo:
@@ -50,14 +50,17 @@ class FailureLogCrawler:
         }
         self.fail_testcase_dict = {}
         self.fail_testcase_dict_sorted_list = []
+        self.workflow_with_no_artifact = []
 
-    def crawl(self, failure_id, workflow_len):
+    def crawl_failure_workflow(self, failure_id, workflow_len):
         failure_id_len = len(failure_id)
         for index, id in enumerate(failure_id):
             print(
-                f"({index+1}/{failure_id_len}) crawling failure workflow... workflow id is "
+                f"({index+1}/{failure_id_len}) crawling failure workflow "
                 + str(id)
+                + "..."
             )
+
             url = (
                 f"https://api.github.com/repos/{self.repo}/actions/runs/{id}/artifacts"
             )
@@ -67,12 +70,17 @@ class FailureLogCrawler:
             except:
                 print("JSON decode error occured when get artifacts.")
                 continue
-            for artifact in artifacts:
-                if (
-                    artifact["name"] == "linux_amd64_e2e.json"
-                    or artifact["name"] == "windows_amd64_e2e.json"
-                ):
-                    self.parse_artifact(artifact, id)
+
+            if len(artifacts) == 0:
+                print("workflow " + str(id) + " does not upload any artifacts, skip.")
+                self.workflow_with_no_artifact.append(id)
+            else:
+                for artifact in artifacts:
+                    if (
+                        artifact["name"] == "linux_amd64_e2e.json"
+                        or artifact["name"] == "windows_amd64_e2e.json"
+                    ):
+                        self.parse_artifact(artifact, id)
 
         for v in self.fail_testcase_dict.values():
             v.get_fail_rate(workflow_len)
@@ -96,11 +104,13 @@ class FailureLogCrawler:
             sys.stderr.write(f"Error occurred when parse {artifact_name}, skiped")
             return
         tree = ET.parse(extracted_file)
-
         root = tree.getroot()
+
+        failures_count = 0
         for testsuite in root:
             failures = int(testsuite.attrib["failures"])
             if failures:
+                failures_count += failures
                 fail_testcases = testsuite.findall("testcase")
                 for fail_testcase in fail_testcases[:failures]:
                     os = artifact["name"].split("_")[0]
@@ -115,9 +125,23 @@ class FailureLogCrawler:
                         latest_url = f"https://github.com/{self.repo}/actions/runs/{id}"
                         self.fail_testcase_dict[name].set_latest_url(latest_url)
 
+        # failures occur in TestMain
+        if root.attrib["failures"] == "1" and failures_count== 0:
+            os = artifact["name"].split("_")[0]
+            name = "TestMain"
+
+            if name in self.fail_testcase_dict:
+                self.fail_testcase_dict[name].update_os(os)
+                self.fail_testcase_dict[name].increase_fail_times()
+            else:
+                testcase_info = TestCaseInfo(name, os)
+                self.fail_testcase_dict[name] = testcase_info
+
+                latest_url = f"https://github.com/{self.repo}/actions/runs/{id}"
+                self.fail_testcase_dict[name].set_latest_url(latest_url)
+
     def list_failure_testcase(self):
-        print("\nFailed Test Cases:")
-        with open(OUTPUT_TARGET, "a") as file:
+        with open(TESTS_OUTPUT_TARGET, "a") as file:
             for case in self.fail_testcase_dict_sorted_list:
                 fali_rate_string = (
                     "Fail Rate: "
@@ -133,5 +157,31 @@ class FailureLogCrawler:
                     + str(case.latest_url)
                     + "\n"
                 )
-                print(fali_rate_string)
                 file.write(fali_rate_string + "\n")
+
+            if len(self.workflow_with_no_artifact):
+                file.write("\nWorkflows without any artifact: \n")
+                for idx, id in enumerate(self.workflow_with_no_artifact):
+                    file.write(f"{idx}: https://github.com/{self.repo}/actions/runs/{id}\n")
+
+        print("tests result output completed")
+
+    def list_failure_components(self, components_tests_dict):
+        with open(COMPONENTS_OUTPUT_TARGET, "w") as file:
+            for component, tests in components_tests_dict.items():
+                file.write(component + ":\n")
+                for test in tests:
+                    if test in self.fail_testcase_dict:
+                        pass_rate = 1 - self.fail_testcase_dict[test].fail_rate
+                    else:
+                        pass_rate = 1
+                    file.write(
+                        "Pass Rate: "
+                        + "{:.2%}".format(float(pass_rate))
+                        + "     "
+                        + "Test Case: "
+                        + test
+                        + "\n"
+                    )
+                file.write("\n")
+        print("components result output completed.")

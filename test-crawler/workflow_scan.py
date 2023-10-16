@@ -66,6 +66,8 @@ class WorkFlowScaner:
         )
 
         with open(TESTS_OUTPUT_TARGET, "w") as file:
+            file.write(f"Successfully get {self.runs_len} scheduled runs" + "\n")
+            file.write(f"{self.in_progress_num} runs are still in progress, {self.success_num} runs success and {self.failure_num} runs fail"+ "\n")
             file.write(pass_rate_string + "\n")
         print(pass_rate_string)
 

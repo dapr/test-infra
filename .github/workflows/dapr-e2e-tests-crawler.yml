@@ -35,7 +35,7 @@ jobs:
     - name: Compress logs
       if: always()
       run: |
-        tar -cvf test-crawler/result.tar test-crawler/tests.txt test-crawler/components.txt
+        tar -cvf test-crawler/result.tar tests.txt components.txt
 
     - name: Upload results
       if: always()

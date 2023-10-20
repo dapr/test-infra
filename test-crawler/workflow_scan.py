@@ -25,7 +25,6 @@ class WorkFlowScaner:
             "Authorization": f"token {access_token}",
         }
         self.runs_len = 0
-        self.in_progress_num = 0
         self.success_num = 0
         self.failure_num = 0
         self.failure_id = []
@@ -35,30 +34,25 @@ class WorkFlowScaner:
         self.components_tests_dict = {}
 
     def scan_workflow(self):
-        url = f"https://api.github.com/repos/{self.repo}/actions/workflows/{self.workflow_name}/runs"
+        url = f"https://api.github.com/repos/{self.repo}/actions/workflows/{self.workflow_name}/runs?branch=master&event=schedule&status=completed"
         response = requests.get(url, headers=self.headers, params=GITHUB_API_PARAMETER)
         runs = json.loads(response.text)["workflow_runs"]
 
-        # ingore the workflows triggered manually
-        scheduled_runs = [r for r in runs if r["event"] == "schedule"]
-        self.runs_len = len(scheduled_runs)
-        print(f"Successfully get {self.runs_len} scheduled runs")
+        self.runs_len = len(runs)
+        print(f"Successfully get {self.runs_len} scheduled runs.")
 
-        for run in scheduled_runs:
-            if run["status"] == "in_progress":
-                self.in_progress_num += 1
-            else:
-                if run["conclusion"] == "success":
-                    self.success_num += 1
-                    # get all components of each test in first success workflow
-                    if self.success_num == 1:
-                        self.get_components_tests_dict(run["id"])
-                elif run["conclusion"] == "failure":
-                    self.failure_num += 1
-                    self.failure_id.append(run["id"])
+        for run in runs:
+            if run["conclusion"] == "success":
+                self.success_num += 1
+                # get all components of each test in first success workflow
+                if self.success_num == 1:
+                    self.get_components_tests_dict(run["id"])
+            elif run["conclusion"] == "failure":
+                self.failure_num += 1
+                self.failure_id.append(run["id"])
 
         print(
-            f"{self.in_progress_num} runs are still in progress, {self.success_num} runs success and {self.failure_num} runs fail"
+            f"{self.success_num} runs success and {self.failure_num} runs fail"
         )
 
         pass_rate_string = f"Pass rate of {self.workflow_name} is " + "{:.2%}\n".format(
@@ -67,7 +61,7 @@ class WorkFlowScaner:
 
         with open(TESTS_OUTPUT_TARGET, "w") as file:
             file.write(f"Successfully get {self.runs_len} scheduled runs" + "\n")
-            file.write(f"{self.in_progress_num} runs are still in progress, {self.success_num} runs success and {self.failure_num} runs fail"+ "\n")
+            file.write(f"{self.success_num} runs success and {self.failure_num} runs fail"+ "\n")
             file.write(pass_rate_string + "\n")
         print(pass_rate_string)
 

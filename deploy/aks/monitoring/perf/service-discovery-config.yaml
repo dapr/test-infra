@@ -1,0 +1,15 @@
+kind: ConfigMap
+apiVersion: v1
+data:
+  prometheus-config: |-
+    global:
+      scrape_interval: 5s
+    scrape_configs:
+    - job_name: pushgateway
+      scheme: http
+      metrics_path: /metrics
+      static_configs:
+      - targets: ['prometheus-pushgateway.dapr-perf-metrics.svc.cluster.local:9091']
+metadata:
+  name: ama-metrics-prometheus-config
+  namespace: kube-system

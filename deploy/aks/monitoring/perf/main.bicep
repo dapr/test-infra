@@ -11,7 +11,7 @@ param clusterName string
 @minLength(1)
 @maxLength(3)
 @description('Short, up to 3 letters prefix to help identify cluster resources. Lowercase and numbers only')
-param shortClusterPrefixId string = 'lh'
+param shortClusterPrefixId string = 'pt'
 
 
 @description('The unique discriminator of the solution. This is used to ensure that resource names are unique.')
@@ -22,9 +22,9 @@ param solutionName string = toLower('${shortClusterPrefixId}${uniqueString(resou
 // Per cluster resources
 param identityName string = '${solutionName}-identity'
 @minLength(2)
-@maxLength(23)
-param grafanaName string = 'dapr-perf-test-grafana1'
-param amwName string = 'dapr-perf-test--amw1'
+@maxLength(24)
+param grafanaName string = '${solutionName}-grafana'
+param amwName string = '${solutionName}-amw'
 param logAnalyticsName string = '${solutionName}-la'
 
 // Safe defaults
@@ -88,7 +88,7 @@ module daprPerfNamespace '../../services/namespace.bicep' = {
   }
 }
 
-module monitoring './azure-resources.bicep' = {
+module monitoring '../monitoring.bicep' = {
   name: '${clusterName}--monitoring'
   params: {
     location: location

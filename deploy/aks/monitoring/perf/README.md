@@ -1,33 +1,39 @@
-Step 1: Login to Azure
+## Performance Test Dashboard Setup
+
+This document serves as a guideline for setting up a performance test dashboard using Azure managed Prometheus and Grafana. We will be creating an AKS (Azure Kubernetes Service) cluster and installing Prometheus Pushgateway and Azure Monitoring Agent (AMA) to scrape performance test metrics and push them to Azure managed Prometheus. Additionally, we will set up an ingress controller with authentication to act as a proxy for Prometheus Pushgateway. Finally, we will create a Grafana dashboard by importing a predefined JSON model.
+
+Below are step-by-step instructions to set up a performance test dashboard using Azure managed Prometheus and Grafana. Follow these steps to configure your performance monitoring environment.
+
+#### Step 1: Login to Azure
 
 ```bash
 az login
 ```
 
-step 2 : Create resource group
+#### Step 2: Create Resource Group
 ```bash
-az group create --name perf-test-resource-rg-1 --location eastus
+az group create --name {resourceGroup} --location {region}
 ```
 
-step 3 : Execute main.bicep
+#### Step 3: Execute main.bicep
 
 ```bash
-az deployment group create --resource-group perf-test-resource-rg-1 --template-file perf-test-dashboard.bicep
+az deployment group create --resource-group {resourceGroup} --template-file perf-test-dashboard.bicep
 ```
 
-step 4 : Merge newly created cluster username password to 
+#### Step 4: Merge Newly Created Cluster Username and Password
 
 ```bash
-az aks get-credentials --resource-group perf-test-resource-rg-1 --name pt-cluster-1
+az aks get-credentials --resource-group {resourceGroup} --name {clusterName}
 ```
 
-step 5: switch context
+#### Step 5: Switch AKS Cluster Context
 
 ```bash
-kubectl config use-context pt-cluster-1
+kubectl config use-context {clusterName}
 ```
 
-step 5 : install prometheus-pushgateway
+#### Step 6: Install Prometheus Pushgateway
 
 ```bash
 DAPR_PERF_METRICS_NAMESPACE=dapr-perf-metrics
@@ -36,7 +42,9 @@ helm repo update
 helm install --namespace $DAPR_PERF_METRICS_NAMESPACE prometheus-pushgateway prometheus-community/prometheus-pushgateway
 ```
 
-step 5 : Install ingress controller. Follow this [linke](https://learn.microsoft.com/en-us/azure/aks/ingress-basic?tabs=azure-cli#basic-configuration) for more details
+#### Step 7: Install Ingress Controller. 
+
+Follow this [linke](https://learn.microsoft.com/en-us/azure/aks/ingress-basic?tabs=azure-cli#basic-configuration) for more details on setting up nginx ingress controller.
 
 ```bash
 DAPR_PERF_METRICS_NAMESPACE=dapr-perf-metrics
@@ -49,26 +57,32 @@ helm install ingress-nginx ingress-nginx/ingress-nginx \
   --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz
 ```
 
-step 6: Create [username and password](https://kubernetes.github.io/ingress-nginx/examples/auth/basic/) for authentication, below command will create an auth file and ask you to provide username and password
+#### Step 8: Create Username and Password for Authentication
+
+To create a basic authentication [username and password](https://kubernetes.github.io/ingress-nginx/examples/auth/basic/), use the following command, which will create an auth file and prompt you to provide a username and password.
 
 ```bash
-htpasswd -c auth foo
+htpasswd -c auth {userName}
 ```
 
-step 7 : create secret in k8s
+#### Step 9: Create a Secret in Kubernetes
 
 ```bash
 k create secret generic basic-auth --from-file=auth -n dapr-perf-metrics
 ```
 
-step 8 : create ingress for prometheus-pushgateway
+#### Step 10: Create Ingress for Prometheus Pushgateway
 
 ```bash
 k apply -f ./prometheus-pushgateway-ingress.yaml
 ```
 
-step 9: create a config map for service discovery for ama agen
+#### Step 11: Create a Config Map for Service Discovery for AMA Agent
 
 ```bash
 k apply -f ./service-discovery-config.yaml
 ```
+
+#### Step 12: Create Grafana Dashboard
+
+Grab the granfa link from azure portal and create a Grafana dashboard by importing the [JSON model](https://github.com/dapr/dapr/blob/master/tests/grafana/grafana-perf-test-dashboard.json). Ensure to update the `uid` in the JSON to match your configuration.

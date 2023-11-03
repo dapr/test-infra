@@ -23,8 +23,8 @@ param solutionName string = toLower('${shortClusterPrefixId}${uniqueString(resou
 param identityName string = '${solutionName}-identity'
 @minLength(2)
 @maxLength(23)
-param grafanaName string = '${solutionName}-grafan'
-param amwName string = '${solutionName}-amw'
+param grafanaName string = 'dapr-perf-test-grafana1'
+param amwName string = 'dapr-perf-test--amw1'
 param logAnalyticsName string = '${solutionName}-la'
 
 // Safe defaults
@@ -79,8 +79,8 @@ resource aks 'Microsoft.ContainerService/managedClusters@2023-03-01' = {
   }
 }
 
-// Apply the k8s namespace - applications and CRDs live here
-module longhaulNamespace '../../services/namespace.bicep' = {
+// Apply the k8s namespace - applications live here
+module daprPerfNamespace '../../services/namespace.bicep' = {
   name: '${clusterName}--namespace'
   params: {
     kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
@@ -101,5 +101,4 @@ module monitoring './azure-resources.bicep' = {
     grafanaAdminObjectId: managedIdentity.properties.principalId
     userGrafanaAdminObjectId: userGrafanaAdminObjectId
   }
-  // Interestingly, this can be deployed in parallel to AKS cluster and it works just fine. Go figure.
 }

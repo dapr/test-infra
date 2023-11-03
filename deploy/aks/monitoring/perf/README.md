@@ -8,23 +8,26 @@ Below are step-by-step instructions to set up a performance test dashboard using
 
 ```bash
 az login
+DAPR_PERF_RG=perf-test-resource-rg-2
+DAPR_PERF_LOCATION=centralus
+DAPR_PERF_METRICS_NAMESPACE=dapr-perf-metrics
 ```
 
 #### Step 2: Create Resource Group
 ```bash
-az group create --name {resourceGroup} --location {region}
+az group create --name $DAPR_PERF_RG --location $DAPR_PERF_LOCATION
 ```
 
 #### Step 3: Execute main.bicep
 
 ```bash
-az deployment group create --resource-group {resourceGroup} --template-file perf-test-dashboard.bicep
+az deployment group create --resource-group $DAPR_PERF_RG --template-file main.bicep
 ```
 
 #### Step 4: Merge Newly Created Cluster Username and Password
 
 ```bash
-az aks get-credentials --resource-group {resourceGroup} --name {clusterName}
+az aks get-credentials --resource-group $DAPR_PERF_RG --name {clusterName}
 ```
 
 #### Step 5: Switch AKS Cluster Context
@@ -36,7 +39,6 @@ kubectl config use-context {clusterName}
 #### Step 6: Install Prometheus Pushgateway
 
 ```bash
-DAPR_PERF_METRICS_NAMESPACE=dapr-perf-metrics
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 helm install --namespace $DAPR_PERF_METRICS_NAMESPACE prometheus-pushgateway prometheus-community/prometheus-pushgateway
@@ -47,8 +49,6 @@ helm install --namespace $DAPR_PERF_METRICS_NAMESPACE prometheus-pushgateway pro
 Follow this [linke](https://learn.microsoft.com/en-us/azure/aks/ingress-basic?tabs=azure-cli#basic-configuration) for more details on setting up nginx ingress controller.
 
 ```bash
-DAPR_PERF_METRICS_NAMESPACE=dapr-perf-metrics
-
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 

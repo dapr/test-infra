@@ -11,7 +11,7 @@
 # limitations under the License.
 #
 
-name: dapr-longhaul-weekly
+name: deploy-longhaul-weekly
 
 on:
   schedule:
@@ -20,7 +20,7 @@ on:
 
 jobs:
   test-nightly:
-    name: update dapr runtime
+    name: update dapr runtime with the head of master and run longhaul tests
     runs-on: ubuntu-latest
     env:
       KUBECTLVER: v1.19.3
@@ -38,8 +38,8 @@ jobs:
       DAPR_NAMESPACE: dapr-system
       DAPR_MONITORING: dapr-monitoring
       DAPR_COMPONENTS: dapr-components
-      TEST_CLUSTER: daprnightly
-      TEST_RESOURCE_GROUP: dapr-test
+      TEST_CLUSTER: aks-longhaul-weekly
+      TEST_RESOURCE_GROUP: aks-longhaul-weekly
       DAPR_CHECKOUT_REPO: dapr/dapr
       DAPR_CHECKOUT_REF: refs/heads/master
       APP_NAMESPACE: longhaul-test
@@ -132,47 +132,10 @@ jobs:
       - name: Create component namespace, if it doesn't exist
         run: |
           kubectl get namespace | grep ${{ env.DAPR_COMPONENTS }} || kubectl create namespace ${{ env.DAPR_COMPONENTS }}
-      - name: Check for redis
-        if: env.TEST_CLUSTER != ''
-        run: |
-          helm list -n ${{ env.DAPR_COMPONENTS }} | grep dapr-redis && echo "REDIS_PRESENT=true" >> $GITHUB_ENV || echo "Redis not present."
-      - name: Start redis if not present
-        if: env.REDIS_PRESENT != 'true'
-        run: |
-          helm repo add bitnami https://charts.bitnami.com/bitnami
-          helm repo update
-          helm install dapr-redis bitnami/redis --namespace ${{ env.DAPR_COMPONENTS }} --wait
-          kubectl delete secret dapr-redis -n ${{ env.APP_NAMESPACE }} --ignore-not-found
-          kubectl get secret dapr-redis -n ${{ env.DAPR_COMPONENTS }} -o yaml | grep -v 'namespace:' | kubectl apply -f - -n ${{ env.APP_NAMESPACE }}
-      - name: Check for kafka
-        if: env.TEST_CLUSTER != ''
-        run: |
-          helm list -n ${{ env.DAPR_COMPONENTS }} | grep dapr-kafka && echo "KAFKA_PRESENT=true" >> $GITHUB_ENV || echo "Kafka not present."
-      - name: Start kafka if not present
-        if: env.KAFKA_PRESENT != 'true'
-        run: |
-          helm repo add bitnami https://charts.bitnami.com/bitnami
-          helm repo update
-          helm install dapr-kafka bitnami/kafka --wait --namespace ${{ env.DAPR_COMPONENTS }}
       # Deploy all longhaul tests/components
       - name: Create app namespace, if it doesn't exist
         run: |
           kubectl get namespace | grep ${{ env.APP_NAMESPACE }} || kubectl create namespace ${{ env.APP_NAMESPACE }}
-      - name: Apply secret access roles # Required to access k8s in the non-standard namespace.
-        if: env.TEST_CLUSTER != ''
-        working-directory: ./longhaul
-        run: |
-          kubectl apply -f ./longhaul-test/secret-access-role.yml -n ${{ env.APP_NAMESPACE }}
-          kubectl apply -f ./longhaul-test/secret-access-role-binding.yml -n ${{ env.APP_NAMESPACE }}
-      - name: Deploy components
-        if: env.TEST_CLUSTER != ''
-        working-directory: ./longhaul
-        run: |
-          kubectl apply -f ./longhaul-test/azure-nightly-keyvault.yml -n ${{ env.APP_NAMESPACE }}
-          kubectl apply -f ./longhaul-test/azure-service-bus-pubsub.yml -n ${{ env.APP_NAMESPACE }}
-          kubectl apply -f ./longhaul-test/azure-storagequeue-binding.yaml -n ${{ env.APP_NAMESPACE }}
-          kubectl apply -f ./longhaul-test/redis-pubsub.yaml -n ${{ env.APP_NAMESPACE }}
-          kubectl apply -f ./longhaul-test/azure-cosmosdb-statestore.yaml -n ${{ env.APP_NAMESPACE }}
       - name: Deploy test applications
         if: env.TEST_CLUSTER != ''
         working-directory: ./longhaul

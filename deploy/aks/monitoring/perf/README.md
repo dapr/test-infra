@@ -77,7 +77,7 @@ helm install ingress-nginx ingress-nginx/ingress-nginx \
 To create a basic authentication [username and password](https://kubernetes.github.io/ingress-nginx/examples/auth/basic/), use the following command, which will create an auth file and prompt you to provide a username and password.
 
 ```bash
-htpasswd -c auth {userName}
+htpasswd -c auth <user name for prometheus pushgateway>
 ```
 
 #### Step 11: Create a Secret in Kubernetes

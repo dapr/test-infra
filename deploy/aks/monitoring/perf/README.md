@@ -11,7 +11,7 @@ git clone https://github.com/dapr/test-infra.git
 cd deploy/aks/monitoring/perf
 ```
 
-#### Step 2: Login to Azure
+#### Step 2: Login to Azure and set your subscription
 
 ```bash
 az login
@@ -19,14 +19,13 @@ export SUBSCRIPTION_ID=<SUBSCRIPTION UUID TO BE USED FOR THE COMMANDS BELLOW>
 az account set --subscription "${SUBSCRIPTION_ID}"
 ```
 
-### Step 3: Set resource group name, location and use the same namespace (dapr-perf-metrics)
+### Step 3: Set resource group name, location, cluster name and use the same namespace (dapr-perf-metrics)
 
 ```bash
 DAPR_PERF_RG=<resource group to be used>  
 DAPR_PERF_LOCATION=<insert region>  
-DAPR_PERF_METRICS_NAMESPACE=dapr-perf-metrics
-SUBSCRIPTION_ID=<subscription UUID to be used>
 CLUSTER_NAME=<cluster name>
+DAPR_PERF_METRICS_NAMESPACE=dapr-perf-metrics
 ```
 
 #### Step 4: Create Resource Group
@@ -37,7 +36,7 @@ az group create --name $DAPR_PERF_RG --location $DAPR_PERF_LOCATION
 #### Step 5: Execute main.bicep and provide AKS cluster name on prompt
 
 ```bash
-az deployment group create --resource-group $DAPR_PERF_RG --template-file main.bicep
+az deployment group create --resource-group $DAPR_PERF_RG --template-file main.bicep --parameters clusterName="${CLUSTER_NAME}"
 ```
 
 #### Step 6: Merge Newly Created Cluster Username and Password

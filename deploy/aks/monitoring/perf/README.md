@@ -15,14 +15,18 @@ cd deploy/aks/monitoring/perf
 
 ```bash
 az login
+export SUBSCRIPTION_ID=<SUBSCRIPTION UUID TO BE USED FOR THE COMMANDS BELLOW>
+az account set --subscription "${SUBSCRIPTION_ID}"
 ```
 
 ### Step 3: Set resource group name, location and use the same namespace (dapr-perf-metrics)
 
 ```bash
-DAPR_PERF_RG={reosuceGroup}
-DAPR_PERF_LOCATION={region}
+DAPR_PERF_RG=<resource group to be used>  
+DAPR_PERF_LOCATION=<insert region>  
 DAPR_PERF_METRICS_NAMESPACE=dapr-perf-metrics
+SUBSCRIPTION_ID=<subscription UUID to be used>
+CLUSTER_NAME=<cluster name>
 ```
 
 #### Step 4: Create Resource Group
@@ -39,13 +43,13 @@ az deployment group create --resource-group $DAPR_PERF_RG --template-file main.b
 #### Step 6: Merge Newly Created Cluster Username and Password
 
 ```bash
-az aks get-credentials --resource-group $DAPR_PERF_RG --name {clusterName}
+az aks get-credentials --resource-group $DAPR_PERF_RG --name "${CLUSTER_NAME}"
 ```
 
 #### Step 7: Switch AKS Cluster Context
 
 ```bash
-kubectl config use-context {clusterName}
+kubectl config use-context "${CLUSTER_NAME}"
 ```
 
 #### Step 8: Install Prometheus Pushgateway
@@ -80,19 +84,19 @@ htpasswd -c auth {userName}
 #### Step 11: Create a Secret in Kubernetes
 
 ```bash
-k create secret generic basic-auth --from-file=auth -n dapr-perf-metrics
+kubectl create secret generic basic-auth --from-file=auth -n dapr-perf-metrics
 ```
 
 #### Step 12: Create Ingress for Prometheus Pushgateway
 
 ```bash
-k apply -f ./prometheus-pushgateway-ingress.yaml
+kubectl apply -f ./prometheus-pushgateway-ingress.yaml
 ```
 
 #### Step 13: Create a Config Map for Service Discovery for AMA Agent
 
 ```bash
-k apply -f ./prometheus-pushgateway-configmap.yaml
+kubectl apply -f ./prometheus-pushgateway-configmap.yaml
 ```
 
 #### Step 14: Add user to grafana
@@ -106,4 +110,4 @@ k apply -f ./prometheus-pushgateway-configmap.yaml
 
 #### Step 15: Create Grafana Dashboard
 
-Grab the granfa link from azure portal and create a Grafana dashboard by importing the [JSON model](https://github.com/dapr/dapr/blob/master/tests/grafana/grafana-perf-test-dashboard.json). Ensure to update the `uid` in the JSON to match your configuration.
+Grab the granfa link from azure portal and create a Grafana dashboard by importing the [JSON model](https://github.com/dapr/dapr/blob/78b7271f015fa935fd59299357787f3e86861300/tests/grafana/grafana-perf-test-dashboard.json). Ensure to update [`uid` of `datasource`](https://github.com/dapr/dapr/blob/78b7271f015fa935fd59299357787f3e86861300/tests/grafana/grafana-perf-test-dashboard.json#L41) objects present in the JSON file to match your configuration.

@@ -59,7 +59,6 @@ helm repo update
 helm upgrade --install \
     prometheus-pushgateway prometheus-community/prometheus-pushgateway \
     --namespace $DAPR_PERF_METRICS_NAMESPACE \
-    --create-namespace \
     --wait
 ```
 

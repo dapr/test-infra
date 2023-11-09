@@ -3,22 +3,24 @@
 # Licensed under the MIT License.
 # ------------------------------------------------------------
 
-name: deploy-dapr-runtime
+name: deploy-longhaul-release
 
 on:
   push:
     branches:
       - master
+  workflow_dispatch:
+
 jobs:
   deploy:
     name: update dapr runtime on release longhaul cluster
     runs-on: ubuntu-latest
     env:
       DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/master/install/install.sh
-      DAPR_RUNTIME_VER: 1.12.0-rc.6
+      DAPR_RUNTIME_VER: 1.12.0
       DAPR_NAMESPACE: dapr-system
-      TEST_CLUSTER_NAME: dapr-release-longhaul
-      TEST_RESOURCE_GROUP: dapr-test
+      TEST_CLUSTER_NAME: aks-longhaul-release
+      TEST_RESOURCE_GROUP: aks-longhaul-release
       HELMVER: v3.7.2
       # Test applications-specific settings
       APP_NAMESPACE: longhaul-test

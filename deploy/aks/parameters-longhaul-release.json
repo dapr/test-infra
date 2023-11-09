@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "clusterName": {
-      "value": "aks-release-longhaul"
+      "value": "aks-longhaul-release"
     },
     "shortClusterPrefixId": {
       "value": "rel"

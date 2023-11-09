@@ -71,7 +71,8 @@ Follow this [link](https://learn.microsoft.com/en-us/azure/aks/ingress-basic?tab
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 
-helm install ingress-nginx ingress-nginx/ingress-nginx \
+helm upgrade --install \
+    ingress-nginx ingress-nginx/ingress-nginx \
   --namespace $DAPR_PERF_METRICS_NAMESPACE \
   --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz
 ```

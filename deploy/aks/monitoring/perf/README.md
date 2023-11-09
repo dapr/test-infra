@@ -25,6 +25,7 @@ az account set --subscription "${SUBSCRIPTION_ID}"
 DAPR_PERF_RG=<resource group to be used>  
 DAPR_PERF_LOCATION=<insert region>  
 CLUSTER_NAME=<cluster name>
+PROMETHEUS_PUSHGATEWAY_USER_NAME=<user name for prometheus pushgateway>
 DAPR_PERF_METRICS_NAMESPACE=dapr-perf-metrics
 ```
 
@@ -81,7 +82,7 @@ helm upgrade --install \
 To create a basic authentication [username and password](https://kubernetes.github.io/ingress-nginx/examples/auth/basic/), use the following command, which will create an auth file and prompt you to provide a username and password.
 
 ```bash
-htpasswd -c auth <user name for prometheus pushgateway>
+htpasswd -c auth ${PROMETHEUS_PUSHGATEWAY_USER_NAME}
 ```
 
 #### Step 11: Create a Secret in Kubernetes

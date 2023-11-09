@@ -65,7 +65,7 @@ helm upgrade --install \
 
 #### Step 9: Install Ingress Controller. 
 
-Follow this [linke](https://learn.microsoft.com/en-us/azure/aks/ingress-basic?tabs=azure-cli#basic-configuration) for more details on setting up nginx ingress controller.
+Follow this [link](https://learn.microsoft.com/en-us/azure/aks/ingress-basic?tabs=azure-cli#basic-configuration) for more details on setting up nginx ingress controller.
 
 ```bash
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx

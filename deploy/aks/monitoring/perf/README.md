@@ -56,7 +56,11 @@ kubectl config use-context "${CLUSTER_NAME}"
 ```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm install --namespace $DAPR_PERF_METRICS_NAMESPACE prometheus-pushgateway prometheus-community/prometheus-pushgateway
+helm upgrade --install \
+    prometheus-pushgateway prometheus-community/prometheus-pushgateway \
+    --namespace $DAPR_PERF_METRICS_NAMESPACE \
+    --create-namespace \
+    --wait
 ```
 
 #### Step 9: Install Ingress Controller. 

@@ -26,7 +26,8 @@ DAPR_PERF_RG=<resource group to be used>
 DAPR_PERF_LOCATION=<insert region>  
 CLUSTER_NAME=<cluster name>
 PROMETHEUS_PUSHGATEWAY_USER_NAME=<user name for prometheus pushgateway>
-DAPR_PERF_ACR_NAME=<container registry name> 
+DAPR_PERF_ACR_NAME=<container registry name>
+DNSLABEL=<"Name to associate with public IP address">
 DAPR_PERF_METRICS_NAMESPACE=dapr-perf-metrics
 ```
 
@@ -104,10 +105,7 @@ az acr import --name $DAPR_PERF_ACR_NAME --source $CERT_MANAGER_REGISTRY/$CERT_M
 #### Step 13: Configure an FQDN for ingress controller
 ```bash
 # Public IP address of your ingress controller
-IP=<"MY_EXTERNAL_IP">
-
-# Name to associate with public IP address
-DNSLABEL=<"DNS_LABEL">
+IP=$(kubectl get service ingress-nginx-controller -n $DAPR_PERF_METRICS_NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 
 # Get the resource-id of the public IP
 PUBLICIPID=$(az network public-ip list --query "[?ipAddress!=null]|[?contains(ipAddress, '$IP')].[id]" --output tsv)
@@ -130,7 +128,7 @@ helm upgrade ingress-nginx ingress-nginx/ingress-nginx \
 #### Step 15: Install cert-manager
 ```bash
 # Set variable for ACR location to use for pulling images
-ACR_URL=<REGISTRY_URL>
+ACR_URL=$(az acr show --name ${DAPR_PERF_ACR_NAME} --resource-group ${DAPR_PERF_RG} --query "loginServer" --output tsv)
 
 # Label the $DAPR_PERF_METRICS_NAMESPACE namespace to disable resource validation
 kubectl label namespace $DAPR_PERF_METRICS_NAMESPACE cert-manager.io/disable-validation=true
@@ -174,7 +172,7 @@ htpasswd -c auth ${PROMETHEUS_PUSHGATEWAY_USER_NAME}
 kubectl create secret generic basic-auth --from-file=auth -n ${DAPR_PERF_METRICS_NAMESPACE}
 ```
 
-#### Step 19: Create Ingress for Prometheus Pushgateway. Do not forget to replace `hello-world-ingress.MY_CUSTOM_DOMAIN` with your FQDN [here](./prometheus-pushgateway-ingress.yaml).
+#### Step 19: Create Ingress for Prometheus Pushgateway. Do not forget to replace `hello-world-ingress.MY_CUSTOM_DOMAIN` with your FQDN [here](./prometheus-pushgateway-ingress.yaml). Your FQDN should follow this form: `<CUSTOM DNS LABEL>.<AZURE REGION NAME>.cloudapp.azure.com`.
 
 ```bash
 kubectl apply -f ./prometheus-pushgateway-ingress.yaml

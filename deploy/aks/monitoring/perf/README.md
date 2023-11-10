@@ -26,6 +26,7 @@ DAPR_PERF_RG=<resource group to be used>
 DAPR_PERF_LOCATION=<insert region>  
 CLUSTER_NAME=<cluster name>
 PROMETHEUS_PUSHGATEWAY_USER_NAME=<user name for prometheus pushgateway>
+DAPR_PERF_ACR_NAME=<container registry name> 
 DAPR_PERF_METRICS_NAMESPACE=dapr-perf-metrics
 ```
 
@@ -63,7 +64,17 @@ helm upgrade --install \
     --wait
 ```
 
-#### Step 9: Install Ingress Controller. 
+#### Step 9: Create ACR
+```bash
+az acr create -n ${DAPR_PERF_ACR_NAME} -g ${DAPR_PERF_RG} --sku basic
+```
+
+#### Step 10: Attach using acr-name
+```bash
+az aks update -n ${CLUSTER_NAME} -g ${DAPR_PERF_RG} --attach-acr ${DAPR_PERF_ACR_NAME}
+```
+
+#### Step 11: Install Ingress Controller. 
 
 Follow this [link](https://learn.microsoft.com/en-us/azure/aks/ingress-basic?tabs=azure-cli#basic-configuration) for more details on setting up nginx ingress controller.
 
@@ -77,7 +88,79 @@ helm upgrade --install \
   --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz
 ```
 
-#### Step 10: Create Username and Password for Authentication
+#### Step 12: Import the cert-manager images used by the Helm chart into your ACR
+```bash
+CERT_MANAGER_REGISTRY=quay.io
+CERT_MANAGER_TAG=v1.8.0
+CERT_MANAGER_IMAGE_CONTROLLER=jetstack/cert-manager-controller
+CERT_MANAGER_IMAGE_WEBHOOK=jetstack/cert-manager-webhook
+CERT_MANAGER_IMAGE_CAINJECTOR=jetstack/cert-manager-cainjector
+
+az acr import --name $DAPR_PERF_ACR_NAME --source $CERT_MANAGER_REGISTRY/$CERT_MANAGER_IMAGE_CONTROLLER:$CERT_MANAGER_TAG --image $CERT_MANAGER_IMAGE_CONTROLLER:$CERT_MANAGER_TAG
+az acr import --name $DAPR_PERF_ACR_NAME --source $CERT_MANAGER_REGISTRY/$CERT_MANAGER_IMAGE_WEBHOOK:$CERT_MANAGER_TAG --image $CERT_MANAGER_IMAGE_WEBHOOK:$CERT_MANAGER_TAG
+az acr import --name $DAPR_PERF_ACR_NAME --source $CERT_MANAGER_REGISTRY/$CERT_MANAGER_IMAGE_CAINJECTOR:$CERT_MANAGER_TAG --image $CERT_MANAGER_IMAGE_CAINJECTOR:$CERT_MANAGER_TAG
+```
+
+#### Step 13: Configure an FQDN for ingress controller
+```bash
+# Public IP address of your ingress controller
+IP=<"MY_EXTERNAL_IP">
+
+# Name to associate with public IP address
+DNSLABEL=<"DNS_LABEL">
+
+# Get the resource-id of the public IP
+PUBLICIPID=$(az network public-ip list --query "[?ipAddress!=null]|[?contains(ipAddress, '$IP')].[id]" --output tsv)
+
+# Update public IP address with DNS name
+az network public-ip update --ids $PUBLICIPID --dns-name $DNSLABEL
+
+# Display the FQDN
+az network public-ip show --ids $PUBLICIPID --query "[dnsSettings.fqdn]" --output tsv
+```
+
+#### Step 14: Set the DNS label using Helm chart settings
+```bash
+helm upgrade ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace $DAPR_PERF_METRICS_NAMESPACE \
+  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$DNSLABEL \
+  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz
+```
+
+#### Step 15: Install cert-manager
+```bash
+# Set variable for ACR location to use for pulling images
+ACR_URL=<REGISTRY_URL>
+
+# Label the $DAPR_PERF_METRICS_NAMESPACE namespace to disable resource validation
+kubectl label namespace $DAPR_PERF_METRICS_NAMESPACE cert-manager.io/disable-validation=true
+
+# Add the Jetstack Helm repository
+helm repo add jetstack https://charts.jetstack.io
+
+# Update your local Helm chart repository cache
+helm repo update
+
+# Install the cert-manager Helm chart
+helm install cert-manager jetstack/cert-manager \
+  --namespace $DAPR_PERF_METRICS_NAMESPACE \
+  --version=$CERT_MANAGER_TAG \
+  --set installCRDs=true \
+  --set nodeSelector."kubernetes\.io/os"=linux \
+  --set image.repository=$ACR_URL/$CERT_MANAGER_IMAGE_CONTROLLER \
+  --set image.tag=$CERT_MANAGER_TAG \
+  --set webhook.image.repository=$ACR_URL/$CERT_MANAGER_IMAGE_WEBHOOK \
+  --set webhook.image.tag=$CERT_MANAGER_TAG \
+  --set cainjector.image.repository=$ACR_URL/$CERT_MANAGER_IMAGE_CAINJECTOR \
+  --set cainjector.image.tag=$CERT_MANAGER_TAG
+```
+
+#### Step 16: Create a CA cluster issuer - Do not forget to provide email address in [cluster-issuer.yaml](./cluster-issuer.yaml)
+```bash
+kubectl apply -f cluster-issuer.yaml --namespace $DAPR_PERF_METRICS_NAMESPACE
+```
+
+#### Step 17: Create Username and Password for Authentication
 
 To create a basic authentication [username and password](https://kubernetes.github.io/ingress-nginx/examples/auth/basic/), use the following command, which will create an auth file and prompt you to provide a username and password.
 
@@ -85,25 +168,25 @@ To create a basic authentication [username and password](https://kubernetes.gith
 htpasswd -c auth ${PROMETHEUS_PUSHGATEWAY_USER_NAME}
 ```
 
-#### Step 11: Create a Secret in Kubernetes
+#### Step 18: Create a Secret in Kubernetes
 
 ```bash
-kubectl create secret generic basic-auth --from-file=auth -n dapr-perf-metrics
+kubectl create secret generic basic-auth --from-file=auth -n ${DAPR_PERF_METRICS_NAMESPACE}
 ```
 
-#### Step 12: Create Ingress for Prometheus Pushgateway
+#### Step 19: Create Ingress for Prometheus Pushgateway. Do not forget to replace `hello-world-ingress.MY_CUSTOM_DOMAIN` with your FQDN [here](./prometheus-pushgateway-ingress.yaml).
 
 ```bash
 kubectl apply -f ./prometheus-pushgateway-ingress.yaml
 ```
 
-#### Step 13: Create a Config Map for Service Discovery for AMA Agent
+#### Step 20: Create a Config Map for Service Discovery for AMA Agent
 
 ```bash
 kubectl apply -f ./prometheus-pushgateway-configmap.yaml
 ```
 
-#### Step 14: Add user to grafana
+#### Step 21: Add user to grafana
 
 - Go to grafana resource in Azure portal
 - Select Access control (IAM) on left menu
@@ -112,6 +195,6 @@ kubectl apply -f ./prometheus-pushgateway-configmap.yaml
 - In the Member tab, click on `+ Select Member` and type their email in search box
 - Select user and click on `Review + assign`
 
-#### Step 15: Create Grafana Dashboard
+#### Step 22: Create Grafana Dashboard
 
 Grab the granfa link from azure portal and create a Grafana dashboard by importing the [JSON model](https://github.com/dapr/dapr/blob/78b7271f015fa935fd59299357787f3e86861300/tests/grafana/grafana-perf-test-dashboard.json). Ensure to update all [`uid` of `datasource`](https://github.com/dapr/dapr/blob/78b7271f015fa935fd59299357787f3e86861300/tests/grafana/grafana-perf-test-dashboard.json#L41) objects present in the JSON file to match your configuration.

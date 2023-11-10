@@ -4,6 +4,9 @@ metadata:
   name: prometheus-pushgateway-ingress
   namespace: dapr-perf-metrics
   annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    cert-manager.io/cluster-issuer: letsencrypt
     # type of authentication
     nginx.ingress.kubernetes.io/auth-type: basic
     # name of the secret that contains the user/password definitions
@@ -12,8 +15,15 @@ metadata:
     nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required to push metrics to prometheus-pushgateway'
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    #TODO - replace hello-world-ingress.MY_CUSTOM_DOMAIN with your custom domain
+    - hello-world-ingress.MY_CUSTOM_DOMAIN
+    secretName: tls-secret
   rules:
-  - http:
+  #TODO - replace hello-world-ingress.MY_CUSTOM_DOMAIN with your custom domain
+  - host: hello-world-ingress.MY_CUSTOM_DOMAIN
+    http:
       paths:
       - pathType: Prefix
         path: "/"

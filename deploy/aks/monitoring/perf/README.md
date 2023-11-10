@@ -4,6 +4,10 @@ This document serves as a guideline for setting up a performance test dashboard 
 
 Below are step-by-step instructions to set up a performance test dashboard using Azure managed Prometheus and Grafana. Follow these steps to configure your performance monitoring environment.
 
+Below official docs were followed to
+  - [Create authentication for ingress controller](https://kubernetes.github.io/ingress-nginx/examples/auth/basic/)
+  - [Use TLS with an ingress controller](https://learn.microsoft.com/en-us/azure/aks/ingress-tls?tabs=azure-cli#configure-an-fqdn-for-your-ingress-controller)
+
 #### Step 1: Clone the test-infra repo
 
 ```bash

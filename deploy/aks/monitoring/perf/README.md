@@ -40,7 +40,7 @@ DAPR_PERF_METRICS_NAMESPACE=dapr-perf-metrics
 az group create --name $DAPR_PERF_RG --location $DAPR_PERF_LOCATION
 ```
 
-#### Step 5: Execute main.bicep and provide AKS cluster name on prompt
+#### Step 5: Execute main.bicep
 
 ```bash
 az deployment group create --resource-group $DAPR_PERF_RG --template-file main.bicep --parameters clusterName="${CLUSTER_NAME}"
@@ -76,7 +76,8 @@ az acr create -n ${DAPR_PERF_ACR_NAME} -g ${DAPR_PERF_RG} --sku basic
 
 #### Step 10: Attach using acr-name
 ```bash
-az aks update -n ${CLUSTER_NAME} -g ${DAPR_PERF_RG} --attach-acr ${DAPR_PERF_ACR_NAME}
+ACR_ID=$(az acr show --name ${DAPR_PERF_ACR_NAME} -g ${DAPR_PERF_RG} --query id -o tsv)
+az aks update -n ${CLUSTER_NAME} -g ${DAPR_PERF_RG} --attach-acr ${ACR_ID}
 ```
 
 #### Step 11: Install Ingress Controller. 
@@ -100,7 +101,7 @@ CERT_MANAGER_TAG=v1.8.0
 CERT_MANAGER_IMAGE_CONTROLLER=jetstack/cert-manager-controller
 CERT_MANAGER_IMAGE_WEBHOOK=jetstack/cert-manager-webhook
 CERT_MANAGER_IMAGE_CAINJECTOR=jetstack/cert-manager-cainjector
-
+az configure --defaults acr=$DAPR_PERF_ACR_NAME
 az acr import --name $DAPR_PERF_ACR_NAME --source $CERT_MANAGER_REGISTRY/$CERT_MANAGER_IMAGE_CONTROLLER:$CERT_MANAGER_TAG --image $CERT_MANAGER_IMAGE_CONTROLLER:$CERT_MANAGER_TAG
 az acr import --name $DAPR_PERF_ACR_NAME --source $CERT_MANAGER_REGISTRY/$CERT_MANAGER_IMAGE_WEBHOOK:$CERT_MANAGER_TAG --image $CERT_MANAGER_IMAGE_WEBHOOK:$CERT_MANAGER_TAG
 az acr import --name $DAPR_PERF_ACR_NAME --source $CERT_MANAGER_REGISTRY/$CERT_MANAGER_IMAGE_CAINJECTOR:$CERT_MANAGER_TAG --image $CERT_MANAGER_IMAGE_CAINJECTOR:$CERT_MANAGER_TAG

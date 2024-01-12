@@ -1,4 +1,4 @@
-param environmentName string = 'dapr-longhaul-env'
+param environmentName string = toLower('dapr-env-${uniqueString(resourceGroup().id)}')
 param appInsightsName string = '${environmentName}-ai'
 param logAnalyticsWorkspaceName string = '${environmentName}-la'
 param location string

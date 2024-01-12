@@ -1,4 +1,4 @@
-param cosmosAccountName string = 'dapr-longhaul-cosmosdb'
+param cosmosAccountName string = toLower('cosmosdb${uniqueString(resourceGroup().id)}')
 param cosmosDatabaseName string = 'longhauldb'
 param cosmosContainerName string = 'longhaulcontainer'
 param location string

@@ -11,5 +11,5 @@ az group create -n $RESOURCE_GROUP -l $LOCATION
 
 ### Deploy via Deployment Groups and Bicep
 ```bash
-az deployment group create -g $RESOURCE_GROUP -f ./deploy/main.bicep
+az deployment group create -g $RESOURCE_GROUP -f ./deploy/containerapps/main.bicep
 ```

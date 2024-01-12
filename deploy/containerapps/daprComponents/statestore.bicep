@@ -1,4 +1,4 @@
-param componentName string = 'statestore'
+param componentName string = 'statestore-cosmos'
 param environmentName string
 param databaseName string
 param collectionName string

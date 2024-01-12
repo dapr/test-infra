@@ -1,5 +1,5 @@
 param location string
-param accountName string = 'testlonghaulstorage'
+param accountName string = toLower('storage${uniqueString(resourceGroup().id)}')
 
 
 // Storage account and associated services.

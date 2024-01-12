@@ -1,4 +1,4 @@
-param serviceBusNamespace string = 'dapr-longhaul-capps-servicebus'
+param serviceBusNamespace string = toLower('servicebus${uniqueString(resourceGroup().id)}')
 param location string
 
 resource servicebus 'Microsoft.ServiceBus/namespaces@2021-11-01' = {

@@ -1,7 +1,21 @@
 // Global parameters
 param location string = resourceGroup().location
 
+@description('The unique discriminator of the solution. This is used to ensure that resource names are unique.')
+@minLength(3)
+@maxLength(16)
+param solutionName string = uniqueString(resourceGroup().id)
+
+param identityName string = '${solutionName}-identity'
+
 // === Azure Setup ===
+
+// Identity - Not a module so we can reference the resource below.
+resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: identityName
+  location: location
+}
+
 // Container Apps Environment 
 module environment 'azure/environment.bicep' = {
   name: '${deployment().name}--environment'
@@ -18,11 +32,15 @@ module storageServices 'azure/storage-services.bicep' = {
   }
 }
 
-// CosmosDB
-module cosmos 'azure/cosmos.bicep' = {
-  name: '${deployment().name}--cosmos'
+// PostgreSQL
+module postgresql '../aks/services/postgresql.bicep' = {
+  name: '${deployment().name}--postgresql'
   params: {
+    solutionName: solutionName
     location: location
+    allowAzureIPsFirewall: true
+    aadAdminName: managedIdentity.name
+    aadAdminObjectid: managedIdentity.properties.principalId
   }
 }
 
@@ -36,17 +54,15 @@ module servicebus 'azure/servicebus.bicep' = {
 
 // === Component Setup ===
 // Statestore (actors) component
-module statestore 'daprComponents/statestore.bicep' = {
+module statestore 'daprComponents/statestore-postgresql.bicep' = {
   name: '${deployment().name}--statestore-component'
   dependsOn: [
-    cosmos
+    postgresql
     environment
   ]
   params: {
     environmentName: environment.outputs.environmentName
-    cosmosAccountName: cosmos.outputs.cosmosAccountName
-    databaseName: cosmos.outputs.cosmosDatabaseName
-    collectionName: cosmos.outputs.cosmosContainerName
+    connectionString: postgresql.outputs.connectionString
   }
 }
 
@@ -80,8 +96,6 @@ module binding 'daprComponents/storagebinding.bicep' = {
 module pubsubWorkflow 'apps/pubsub-workflow.bicep' = {
   name: '${deployment().name}--pubsub-workflow'
   dependsOn: [
-    environment
-    servicebus
     pubsub
   ]
   params: {
@@ -93,8 +107,6 @@ module pubsubWorkflow 'apps/pubsub-workflow.bicep' = {
 module feedGenerator 'apps/feed-generator.bicep' = {
   name: '${deployment().name}--feed-generator'
   dependsOn: [
-    environment
-    servicebus
     pubsub
   ]
   params: {
@@ -106,8 +118,6 @@ module feedGenerator 'apps/feed-generator.bicep' = {
 module hashtagActor 'apps/hashtag-actor.bicep' = {
   name: '${deployment().name}--hashtag-actor'
   dependsOn: [
-    environment
-    cosmos
     statestore
   ]
   params: {
@@ -119,9 +129,8 @@ module hashtagActor 'apps/hashtag-actor.bicep' = {
 module hashtagCounter 'apps/hashtag-counter.bicep' = {
   name: '${deployment().name}--hashtag-counter'
   dependsOn: [
-    environment
-    storageServices
     binding
+    hashtagActor
   ]
   params: {
     environmentName: environment.outputs.environmentName
@@ -132,9 +141,6 @@ module hashtagCounter 'apps/hashtag-counter.bicep' = {
 module messageAnalyzer 'apps/message-analyzer.bicep' = {
   name: '${deployment().name}--message-analyzer'
   dependsOn: [
-    environment
-    servicebus
-    storageServices
     binding
     pubsub
   ]
@@ -147,8 +153,6 @@ module messageAnalyzer 'apps/message-analyzer.bicep' = {
 module snapshot 'apps/snapshot.bicep' = {
   name: '${deployment().name}--snapshot'
   dependsOn: [
-    environment
-    cosmos
     statestore
   ]
   params: {
@@ -160,7 +164,6 @@ module snapshot 'apps/snapshot.bicep' = {
 module validationWorker 'apps/validation-worker.bicep' = {
   name: '${deployment().name}--validation-worker'
   dependsOn: [
-    environment
     snapshot
   ]
   params: {

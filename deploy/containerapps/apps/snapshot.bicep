@@ -32,7 +32,7 @@ resource snapshot 'Microsoft.App/containerApps@2022-03-01' = {
     }
     configuration: {
       ingress: {
-        external: true
+        external: false
         targetPort: containerPort
       }
       dapr: {

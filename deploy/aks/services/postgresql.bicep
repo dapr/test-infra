@@ -16,7 +16,6 @@ param administratorLoginPassword string = 'pgpass-${uniqueString(resourceGroup()
 @description('Azure database for PostgreSQL pricing tier')
 @allowed([
   'Burstable'
-  'Basic'
   'GeneralPurpose'
   'MemoryOptimized'
 ])
@@ -124,7 +123,7 @@ resource server 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01' = {
 // AAD support requires Dapr 1.12.0 or later
 resource addAddUser 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2022-12-01' = {
   parent: server
-  name: '${aadAdminObjectid}'
+  name: aadAdminObjectid
   dependsOn: [
     server
   ]

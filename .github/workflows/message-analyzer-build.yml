@@ -64,8 +64,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       APP_NAMESPACE: longhaul-test
-      TEST_CLUSTER_NAME: dapr-release-longhaul
-      TEST_RESOURCE_GROUP: dapr-test
+      TEST_CLUSTER_NAME: aks-longhaul-release
+      TEST_RESOURCE_GROUP: aks-longhaul-release
       ARTIFACT_DIR: ./deploy_artifact
     steps:
       - name: download artifacts

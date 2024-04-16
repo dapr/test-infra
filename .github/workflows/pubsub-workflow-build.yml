@@ -80,15 +80,6 @@ jobs:
       - name: Set up kubeconf for longhaul test environment
         run: |
           az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
-      - name: Set up azure keyvault certificate secret
+       - name: Deploy apps to longhaul test environment
         run: |
-          az keyvault secret download --vault-name longhaul-kv --name longhaul-cert --encoding base64 --file longhaul-cert.pfx
-          kubectl delete secret longhaulcert -n longhaul-test --ignore-not-found
-          kubectl create secret generic longhaulcert -n longhaul-test --from-file=longhaulcert=./longhaul-cert.pfx
-      - name: Deploy apps to longhaul test environment
-        run: |
-          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/secret-access-role.yml
-          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/secret-access-role-binding.yml
-          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/azure-keyvault.yml
-          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/azure-service-bus-pubsub.yml
           kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/pubsub-workflow-deploy.yml & kubectl rollout restart -n ${{ env.APP_NAMESPACE }} deploy/pubsub-workflow-app

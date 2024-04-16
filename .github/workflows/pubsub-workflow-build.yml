@@ -80,6 +80,6 @@ jobs:
       - name: Set up kubeconf for longhaul test environment
         run: |
           az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
-       - name: Deploy apps to longhaul test environment
+      - name: Deploy apps to longhaul test environment
         run: |
           kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/pubsub-workflow-deploy.yml & kubectl rollout restart -n ${{ env.APP_NAMESPACE }} deploy/pubsub-workflow-app

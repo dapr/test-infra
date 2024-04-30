@@ -113,13 +113,13 @@ There's currently a managed Grafana in the resource group in Azure, but it is no
 
 For longhaul release:
 ```bash
- az aks get-credentials --admin --name aks-longhaul-release --resource-group aks-longhaul-release
+ az aks get-credentials --name aks-longhaul-release --resource-group aks-longhaul-release
  kubectl port-forward svc/grafana 8080:80 --namespace dapr-monitoring
 ```
 
 For longhaul weekly:
 ```bash
-az aks get-credentials --admin --name aks-longhaul-weekly --resource-group aks-longhaul-weekly
+az aks get-credentials --name aks-longhaul-weekly --resource-group aks-longhaul-weekly
 kubectl port-forward svc/grafana 8081:80 --namespace dapr-monitoring
 ```
 

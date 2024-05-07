@@ -123,7 +123,7 @@ az aks get-credentials --name aks-longhaul-weekly --resource-group aks-longhaul-
 kubectl port-forward svc/grafana 8081:80 --namespace dapr-monitoring
 ```
 
-To get the credentials for the grafana dashboard:
+The username for the Grafana dashboard is "admin" and you can get the password by running:
 ```bash
 kubectl get secret --namespace dapr-monitoring grafana -o jsonpath={.data.admin-password} | base64 --decode
 ```

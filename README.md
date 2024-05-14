@@ -108,5 +108,24 @@ for app in "feed-generator-app" "hashtag-actor-app" "hashtag-counter-app" "messa
 done 
 ```
 
+### Accessing the Grafana dashboards
+There's currently a managed Grafana in the resource group in Azure, but it is not set up. The actual  Grafana dashboards are running inside of the AKS cluster. You can access them by port-forwarding the Grafana service to your local machine:
+
+For longhaul release:
+```bash
+ az aks get-credentials --name aks-longhaul-release --resource-group aks-longhaul-release
+ kubectl port-forward svc/grafana 8080:80 --namespace dapr-monitoring
+```
+
+For longhaul weekly:
+```bash
+az aks get-credentials --name aks-longhaul-weekly --resource-group aks-longhaul-weekly
+kubectl port-forward svc/grafana 8081:80 --namespace dapr-monitoring
+```
+
+The username for the Grafana dashboard is "admin" and you can get the password by running:
+```bash
+kubectl get secret --namespace dapr-monitoring grafana -o jsonpath={.data.admin-password} | base64 --decode
+```
 
 ## On Azure Container Apps (ACA)

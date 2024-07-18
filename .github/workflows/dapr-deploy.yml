@@ -18,6 +18,7 @@ jobs:
     env:
       DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/master/install/install.sh
       DAPR_RUNTIME_VER: v1.14.0-rc.3
+      DAPR_CLI_VER: 1.14.0-rc.4
       DAPR_NAMESPACE: dapr-system
       TEST_CLUSTER_NAME: aks-longhaul-release
       TEST_RESOURCE_GROUP: aks-longhaul-release
@@ -27,7 +28,7 @@ jobs:
       KUBECTLVER: v1.19.3
     steps:
       - name: Set up Dapr CLI
-        run: wget -q ${{ env.DAPR_INSTALL_URL }} -O - | /bin/bash
+        run: wget -q ${{ env.DAPR_INSTALL_URL }} -O - | /bin/bash -s ${{ env.DAPR_CLI_VER }}
       - name: Set up Helm ${{ env.HELMVER }}
         uses: azure/setup-helm@v1
         with:

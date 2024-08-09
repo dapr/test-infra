@@ -42,7 +42,7 @@ jobs:
           password: ${{ secrets.DOCKER_REGISTRY_PASS }}
       - name: Build workflow-gen app docker image
         run: |
-          docker-compose build ${{ env.APP_IMAGE_NAME }}
+          docker compose build ${{ env.APP_IMAGE_NAME }}
           docker tag ${{ env.APP_IMAGE_NAME }} ${{ env.APP_REGISTRY }}/${{ env.APP_IMAGE_NAME }}:${{ env.APP_VER }}
       - name: Push workflow-gen app image to dockerhub
         if: github.event_name != 'pull_request'

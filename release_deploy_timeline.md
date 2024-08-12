@@ -1,5 +1,6 @@
 # deploy-longhaul-release timeline
 
+- 2024-08-08 - Updated dapr version to 1.14.0-rc.8
 - 2024-07-29 - Updated dapr version to 1.14.0-rc.7
 - 2024-07-19 - Updated dapr version to 1.14.0-rc.3 (from 1.13.3), dapr cli to 1.14.0-rc.5 (from master) and updated apps version to use sdk version 1.14.0-rc01 (from 1.13.0)
 - 2024-07-18 Error while updating dapr version to 1.14.0-rc.3 (from 1.13.3), dapr cli to 1.14.0-rc.5 (from master) and updated apps version to use sdk version 1.14.0-rc01 (from 1.13.0)

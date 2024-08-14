@@ -17,8 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/master/install/install.sh
-      DAPR_RUNTIME_VER: 1.14.0-rc.11
-      DAPR_CLI_VER: 1.14.0-rc.8
+      DAPR_RUNTIME_VER: 1.14.0
+      DAPR_CLI_VER: 1.14.0
       DAPR_NAMESPACE: dapr-system
       TEST_CLUSTER_NAME: aks-longhaul-release
       TEST_RESOURCE_GROUP: aks-longhaul-release

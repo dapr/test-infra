@@ -9,6 +9,8 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'config/dapr_runtime.version'
   workflow_dispatch:
 
 jobs:
@@ -17,8 +19,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/master/install/install.sh
-      DAPR_RUNTIME_VER: 1.14.0-rc.8
-      DAPR_CLI_VER: 1.14.0-rc.8
       DAPR_NAMESPACE: dapr-system
       TEST_CLUSTER_NAME: aks-longhaul-release
       TEST_RESOURCE_GROUP: aks-longhaul-release
@@ -27,6 +27,17 @@ jobs:
       APP_NAMESPACE: longhaul-test
       KUBECTLVER: v1.19.3
     steps:
+      - name: Checkout dapr/test-infra
+        uses: actions/checkout@v2
+        with:
+          repository: dapr/test-infra
+          ref: refs/heads/master
+          path: longhaul
+      - name: Read versions from files
+        id: read_version
+        run: |
+          echo "DAPR_RUNTIME_VER=$(cat config/dapr_runtime.version)" >> $GITHUB_ENV
+          echo "DAPR_CLI_VER=$(cat config/dapr_cli.version)" >> $GITHUB_ENV
       - name: Set up Dapr CLI
         run: wget -q ${{ env.DAPR_INSTALL_URL }} -O - | /bin/bash -s ${{ env.DAPR_CLI_VER }}
       - name: Set up Helm ${{ env.HELMVER }}
@@ -42,18 +53,12 @@ jobs:
       - name: Deploy dapr version ${{ env.DAPR_RUNTIME_VER }} to longhaul cluster
         run: |
           dapr upgrade -k --runtime-version ${{ env.DAPR_RUNTIME_VER }}
-      # Bounce apps so they pick up a new dapr version
-      - name: Checkout dapr/test-infra
-        uses: actions/checkout@v2
-        with:
-          repository: dapr/test-infra
-          ref: refs/heads/master
-          path: longhaul
       - name: Setup kubectl ${{ env.KUBECTLVER }}
         uses: azure/setup-kubectl@v3
         with:
           version: ${{ env.KUBECTLVER }}
         id: install
+      # Bounce apps so they pick up a new dapr version
       - name: Deploy test applications
         working-directory: ./longhaul
         run: |

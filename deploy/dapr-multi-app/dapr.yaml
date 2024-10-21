@@ -31,3 +31,7 @@ apps:
     appDirPath: ../../pubsub-workflow
     appPort: 3005
     command: ["dotnet","run", "--DaprHTTPAppPort=3005"]
+  - appID: scheduler-jobs
+    appDirPath: ../../scheduler-jobs
+    appPort: 3006
+    command: [ "go","run", "scheduler-jobs.go"]

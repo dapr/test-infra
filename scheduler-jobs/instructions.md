@@ -1,6 +1,6 @@
 # How-To Run Locally:
 
-To run locally as a process: `go run scheduler-app.go`
+To run locally as a process: `go run scheduler-jobs.go`
 
 Run Scheduler:
 ![scheduler_debugger_config.png](scheduler_debugger_config.png)

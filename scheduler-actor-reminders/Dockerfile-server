@@ -1,0 +1,25 @@
+FROM golang:1.23 as builder
+
+# Set the working directory inside the container
+WORKDIR /server
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+# Build the server app binary
+RUN CGO_ENABLED=0 go build -o player-actor ./server/player-actor.go
+
+# Final stage
+FROM alpine:latest
+
+WORKDIR /server
+
+# Copy binary from the builder stage
+COPY --from=builder /server/player-actor .
+
+EXPOSE 3007
+
+# Start the server
+CMD ["/server/player-actor"]

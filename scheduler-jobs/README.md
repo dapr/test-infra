@@ -11,7 +11,7 @@ Run Dapr sidecar:
 To run locally as a container:
 ```shell
 docker build -t scheduler-jobs .
-docker run -p 8383:8383 --name scheduler-jobs scheduler-jobs # optionally add -d to run in background
+docker run -p 3006:3006 --name scheduler-jobs scheduler-jobs # optionally add -d to run in background
 # check container is running
 docker ps
 ```

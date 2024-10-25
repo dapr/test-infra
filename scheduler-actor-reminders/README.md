@@ -25,12 +25,12 @@ This tests the Scheduler for the underlying storage for Actor Reminders.
 ## How To Run the Code:
 Run the server with:
 ```shell
-dapr run --app-id player-actor --app-port 8383 --dapr-http-port 3500 --log-level debug  --config ../dapr/config.yaml -- go run player-actor.go
+dapr run --app-id player-actor --app-port 3007 --dapr-http-port 3500 --log-level debug  --config ../dapr/config.yaml -- go run player-actor.go
 ```
 
 Run the client with:
 ```shell
-dapr run --app-id player-actor --app-port 50051 --dapr-http-port 3501 --dapr-grpc-port 50001 --log-level debug --config ../dapr/config.yaml -- go run player-actor-client.go
+dapr run --app-id player-actor --app-port 3008 --dapr-http-port 3501 --dapr-grpc-port 50001 --log-level debug --config ../dapr/config.yaml -- go run player-actor-client.go
 ```
 
 Note the config is using `SchedulerReminders`
@@ -46,6 +46,6 @@ docker build -t player-actor-client -f Dockerfile-client .
 Run app containers:
 ```shell
 # optionally add -d to both commands to run in background
-docker run --name player-actor-server -p 8383:8383 player-actor-server
-docker run --name player-actor-client -p 50051:50051 player-actor-client
+docker run --name player-actor-server -p 3007:3007 player-actor-server
+docker run --name player-actor-client -p 3008:3008 player-actor-client
 ```

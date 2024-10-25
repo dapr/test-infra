@@ -31,7 +31,7 @@ func main() {
 	_, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	daprService := http.NewService(":50051")
+	daprService := http.NewService(":3007")
 	// Register actor factory, meaning register actor methods to be called by client
 	daprService.RegisterActorImplFactoryContext(playerActorFactory)
 

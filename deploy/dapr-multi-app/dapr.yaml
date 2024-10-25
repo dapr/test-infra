@@ -35,3 +35,11 @@ apps:
     appDirPath: ../../scheduler-jobs
     appPort: 3006
     command: [ "go","run", "scheduler-jobs.go"]
+  - appID: scheduler-jobs
+    appDirPath: ../../scheduler-actor-reminders/server
+    appPort: 3007
+    command: [ "go","run", "player-actor.go"]
+  - appID: scheduler-actor-reminders-client
+    appDirPath: ../../scheduler-actor-reminders/client
+    appPort: 3008
+    command: [ "go","run", "player-actor-client.go"]

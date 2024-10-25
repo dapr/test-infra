@@ -1,6 +1,6 @@
 # How-To Run Locally:
 
-To run locally as a process: `go run scheduler-jobs.go`
+To run locally as a process: `go run scheduler-jobs.go`, assuming you have a scheduler and dapr running accordingly (see below).
 
 Run Scheduler:
 ![scheduler_debugger_config.png](scheduler_debugger_config.png)

@@ -66,3 +66,9 @@ services:
     build:
       context: .
       dockerfile: scheduler-actor-reminders/Dockerfile-client
+
+  scheduler-workflow:
+    image: scheduler-workflow
+    build:
+      context: .
+      dockerfile: scheduler-workflow/Dockerfile

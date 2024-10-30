@@ -35,7 +35,7 @@ apps:
     appDirPath: ../../scheduler-jobs
     appPort: 3006
     command: [ "go","run", "scheduler-jobs.go"]
-  - appID: scheduler-jobs
+  - appID: scheduler-actor-reminders-server
     appDirPath: ../../scheduler-actor-reminders/server
     appPort: 3007
     command: [ "go","run", "player-actor.go"]
@@ -43,3 +43,7 @@ apps:
     appDirPath: ../../scheduler-actor-reminders/client
     appPort: 3008
     command: [ "go","run", "player-actor-client.go"]
+  - appID: scheduler-workflow
+    appDirPath: ../../scheduler-workflow
+    appPort: 3009
+    command: [ "go","run", "scheduler-workflow.go"]

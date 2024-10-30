@@ -1,0 +1,84 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+name: build-scheduler-actor-reminders-client
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'scheduler-actor-reminders-client/**'
+      - '.github/workflows/scheduler-actor-reminders-client-build.yml'
+      - '.github/workflows/dapr-deploy.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'scheduler-actor-reminders-client/**'
+
+jobs:
+  build:
+    name: build scheduler-actor-reminders-client
+    runs-on: ubuntu-latest
+    env:
+      APP_REGISTRY: daprtests.azurecr.io
+      APP_IMAGE_NAME: scheduler-actor-reminders-client
+      # TODO: APP_VER needs to be versioned correctly
+      APP_VER: dev
+      APP_DIR: ./scheduler-actor-reminders-client
+      ARTIFACT_DIR: ./deploy_artifact
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: docker login
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_REGISTRY_ID }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASS }}
+      - name: Build scheduler-actor-reminders-client app docker image
+        run: |
+          docker compose build ${{ env.APP_IMAGE_NAME }}
+          docker tag ${{ env.APP_IMAGE_NAME }} ${{ env.APP_REGISTRY }}/${{ env.APP_IMAGE_NAME }}:${{ env.APP_VER }}
+      - name: Push scheduler-actor-reminders-client app image to dockerhub
+        if: github.event_name != 'pull_request'
+        run: |
+          docker push ${{ env.APP_REGISTRY }}/${{ env.APP_IMAGE_NAME }}:${{ env.APP_VER }}
+      - name: Copy deployment yaml to archieve
+        run: |
+          mkdir -p ${{ env.ARTIFACT_DIR }}
+          cp ./longhaul-test/*.yml ${{ env.ARTIFACT_DIR }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: longhaul-test
+          path: ${{ env.ARTIFACT_DIR }}
+  deploy:
+    name: deploy scheduler-actor-reminders-client to test cluster
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      APP_NAMESPACE: longhaul-test
+      TEST_CLUSTER_NAME: aks-longhaul-release
+      TEST_RESOURCE_GROUP: aks-longhaul-release
+      ARTIFACT_DIR: ./deploy_artifact
+    steps:
+      - name: download artifacts
+        uses: actions/download-artifact@master
+        with:
+          name: longhaul-test
+          path: ${{ env.ARTIFACT_DIR }}
+      - name: Login Azure
+        run: |
+          az login --service-principal -u ${{ secrets.AZURE_LOGIN_USER }} -p ${{ secrets.AZURE_LOGIN_PASS }} --tenant ${{ secrets.AZURE_TENANT }} --output none
+      - name: Set up kubeconf for longhaul test environment
+        run: |
+          az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
+      - name: Deploy apps to longhaul test environment
+        run: |
+          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/scheduler-actor-reminders-client-deploy.yml & kubectl rollout restart -n ${{ env.APP_NAMESPACE }} deploy/scheduler-actor-reminders-client-app

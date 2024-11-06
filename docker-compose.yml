@@ -52,23 +52,23 @@ services:
   scheduler-jobs:
     image: scheduler-jobs
     build:
-      context: .
-      dockerfile: scheduler-jobs/Dockerfile
+      context: ./scheduler-jobs
+      dockerfile: Dockerfile
 
   scheduler-actor-reminders-server:
     image: player-actor-server
     build:
-      context: .
-      dockerfile: scheduler-actor-reminders/Dockerfile-server
+      context: ./scheduler-actor-reminders
+      dockerfile: Dockerfile-server
 
   scheduler-actor-reminders-client:
     image: player-actor-client
     build:
-      context: .
-      dockerfile: scheduler-actor-reminders/Dockerfile-client
+      context: ./scheduler-actor-reminders
+      dockerfile: Dockerfile-client
 
   scheduler-workflow:
     image: scheduler-workflow
     build:
-      context: .
-      dockerfile: scheduler-workflow/Dockerfile
+      context: ./scheduler-workflow
+      dockerfile: Dockerfile

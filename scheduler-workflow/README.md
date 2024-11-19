@@ -37,11 +37,3 @@ Run the server with:
 ```shell
 dapr run --app-id scheduler-workflow --app-port 8484 --dapr-http-port 3502 --log-level debug  --config dapr/config.yaml  -- go run workflow.go
 ```
-
-To run locally as a container, assuming scheduler + dapr are running as well:
-```shell
-docker build -t scheduler-workflow .
-docker run -p 8383:8383 --name scheduler-jobs scheduler-workflow # optionally add -d to run in background
-# check container is running
-docker ps
-```

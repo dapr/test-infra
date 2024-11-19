@@ -18,11 +18,3 @@ dapr run \
   --dapr-http-port 3500 --scheduler-host-address=127.0.0.1:50006 --app-channel-address=127.0.0.1 \
   -- go run scheduler-jobs.go
 ```
-
-To run locally as a container:
-```shell
-docker build -t scheduler-jobs .
-docker run -p 8383:8383 --name scheduler-jobs scheduler-jobs # optionally add -d to run in background
-# check container is running
-docker ps
-```

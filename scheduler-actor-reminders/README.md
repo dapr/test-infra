@@ -34,18 +34,3 @@ dapr run --app-id player-actor --app-port 3008 --dapr-http-port 3501 --dapr-grpc
 ```
 
 Note the config is using `SchedulerReminders`
-
-Or
-
-Build app images from `scheduler-actor-reminders` directory:
-```shell
-docker build -t player-actor-server -f Dockerfile-server .
-docker build -t player-actor-client -f Dockerfile-client .
-```
-
-Run app containers:
-```shell
-# optionally add -d to both commands to run in background
-docker run --name player-actor-server -p 3007:3007 player-actor-server
-docker run --name player-actor-client -p 3008:3008 player-actor-client
-```

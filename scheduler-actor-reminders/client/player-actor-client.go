@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -32,8 +31,10 @@ func main() {
 	// Start monitoring actor player's health
 	go monitorPlayerHealth(ctx, client, actorID, deathSignal)
 
+	incReminderCtx, incReminderCancel := context.WithTimeout(ctx, 5*time.Second)
+	defer incReminderCancel()
 	// Start player actor health increase reminder
-	err = client.RegisterActorReminder(ctx, &dapr.RegisterActorReminderRequest{
+	err = client.RegisterActorReminder(incReminderCtx, &dapr.RegisterActorReminderRequest{
 		ActorType: "playerActorType",
 		ActorID:   actorID,
 		Name:      "healthReminder",
@@ -42,12 +43,14 @@ func main() {
 		Data:      []byte(`"Health increase reminder"`),
 	})
 	if err != nil {
-		log.Fatalf("error starting health increase reminder: %v", err)
+		log.Printf("error starting health increase reminder: %v", err)
 	}
-	fmt.Println("Started healthReminder for actor:", actorID)
+	log.Println("Started healthReminder for actor:", actorID)
 
+	decReminderCtx, decReminderCancel := context.WithTimeout(ctx, 5*time.Second)
+	defer decReminderCancel()
 	// Start player actor  health decay reminder
-	err = client.RegisterActorReminder(ctx, &dapr.RegisterActorReminderRequest{
+	err = client.RegisterActorReminder(decReminderCtx, &dapr.RegisterActorReminderRequest{
 		ActorType: "playerActorType",
 		ActorID:   actorID,
 		Name:      "healthDecayReminder",
@@ -56,52 +59,59 @@ func main() {
 		Data:      []byte(`"Health decay reminder"`),
 	})
 	if err != nil {
-		log.Fatalf("failed to start health decay reminder: %w", err)
+		log.Printf("failed to start health decay reminder: %w", err)
 	}
 
-	go func() {
+	go func(ctx context.Context) {
 		for {
 			select {
 			case <-ctx.Done():
 				return
 			case <-deathSignal:
-				fmt.Println("Player is dead. Unregistering reminders...")
+				log.Println("Player is dead. Unregistering reminders...")
 
-				fmt.Println("Unregistering health increase reminder for actor...")
-				err = client.UnregisterActorReminder(ctx, &dapr.UnregisterActorReminderRequest{
+				log.Println("Unregistering health increase reminder for actor...")
+				unregIncReminderCtx, unregIncReminderCancel := context.WithTimeout(ctx, 5*time.Second)
+				err = client.UnregisterActorReminder(unregIncReminderCtx, &dapr.UnregisterActorReminderRequest{
 					ActorType: "playerActorType",
 					ActorID:   actorID,
 					Name:      "healthReminder",
 				})
+				unregIncReminderCancel()
 				if err != nil {
-					log.Fatalf("error unregistering actor reminder: %v", err)
+					log.Printf("error unregistering actor reminder: %v", err)
 				}
 
-				fmt.Println("Unregistering health decay reminder for actor...")
-				err = client.UnregisterActorReminder(ctx, &dapr.UnregisterActorReminderRequest{
+				log.Println("Unregistering health decay reminder for actor...")
+				unregDecReminderCtx, unregDecReminderCancel := context.WithTimeout(ctx, 5*time.Second)
+				err = client.UnregisterActorReminder(unregDecReminderCtx, &dapr.UnregisterActorReminderRequest{
 					ActorType: "playerActorType",
 					ActorID:   actorID,
 					Name:      "healthDecayReminder",
 				})
+				unregDecReminderCancel()
 				if err != nil {
-					log.Fatalf("error unregistering actor reminder: %v", err)
+					log.Printf("error unregistering actor reminder: %v", err)
 				}
 
-				fmt.Println("Player reminders unregistered. Reviving player...")
+				log.Println("Player reminders unregistered. Reviving player...")
 				req := &dapr.InvokeActorRequest{
 					ActorType: "playerActorType",
 					ActorID:   actorID,
 					Method:    "RevivePlayer",
 					Data:      []byte(`"player-1"`),
 				}
-				_, err = client.InvokeActor(ctx, req)
+				invokeCtx, invokeCancel := context.WithTimeout(ctx, 5*time.Second)
+				_, err = client.InvokeActor(invokeCtx, req)
+				invokeCancel()
 				if err != nil {
-					log.Fatalf("error invoking actor method RevivePlayer: %v", err)
+					log.Printf("error invoking actor method RevivePlayer: %v", err)
 				}
-				fmt.Println("Player revived, health reset to 100. Restarting reminders...")
+				log.Println("Player revived, health reset to 100. Restarting reminders...")
 
+				incRemCtx, incRemCancel := context.WithTimeout(ctx, 5*time.Second)
 				// Restart reminders
-				err = client.RegisterActorReminder(ctx, &dapr.RegisterActorReminderRequest{
+				err = client.RegisterActorReminder(incRemCtx, &dapr.RegisterActorReminderRequest{
 					ActorType: "playerActorType",
 					ActorID:   actorID,
 					Name:      "healthReminder",
@@ -109,12 +119,13 @@ func main() {
 					Period:    "20s",
 					Data:      []byte(`"Health increase reminder"`),
 				})
+				incRemCancel()
 				if err != nil {
-					log.Fatalf("error starting actor reminder: %v", err)
+					log.Printf("error starting actor reminder: %v", err)
 				}
-				fmt.Println("Started health increase reminder for actor:", actorID)
-
-				err = client.RegisterActorReminder(ctx, &dapr.RegisterActorReminderRequest{
+				log.Println("Started health increase reminder for actor:", actorID)
+				decRemCtx, decRemCancel := context.WithTimeout(ctx, 5*time.Second)
+				err = client.RegisterActorReminder(decRemCtx, &dapr.RegisterActorReminderRequest{
 					ActorType: "playerActorType",
 					ActorID:   actorID,
 					Name:      "healthDecayReminder",
@@ -122,19 +133,20 @@ func main() {
 					Period:    "2s", // Every 5 seconds, decay health
 					Data:      []byte(`"Health decay reminder"`),
 				})
+				decRemCancel()
 				if err != nil {
-					log.Fatalf("error starting health decay reminder: %v", err)
+					log.Printf("error starting health decay reminder: %v", err)
 				}
-				fmt.Println("Started health decay reminder for actor:", actorID)
+				log.Println("Started health decay reminder for actor:", actorID)
 			}
 		}
-	}()
+	}(ctx)
 
 	// Graceful shutdown on Ctrl+C or SIGTERM (for Docker/K8s graceful shutdown)
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 	<-signalChan
-	fmt.Println("Shutting down...")
+	log.Println("Shutting down...")
 }
 
 // monitorPlayerHealth continuously checks the player's health every 5 seconds
@@ -149,7 +161,7 @@ func monitorPlayerHealth(ctx context.Context, client dapr.Client, actorID string
 			getPlayerRequest := &api.GetPlayerRequest{ActorID: actorID}
 			requestData, err := json.Marshal(getPlayerRequest)
 			if err != nil {
-				log.Fatalf("error marshaling request data: %v", err)
+				log.Printf("error marshaling request data: %v", err)
 			}
 
 			req := &dapr.InvokeActorRequest{
@@ -158,23 +170,25 @@ func monitorPlayerHealth(ctx context.Context, client dapr.Client, actorID string
 				Method:    "GetUser",
 				Data:      requestData,
 			}
-			resp, err := client.InvokeActor(ctx, req)
+			invokeCtx, invokeCancel := context.WithTimeout(ctx, 5*time.Second)
+			resp, err := client.InvokeActor(invokeCtx, req)
+			invokeCancel()
 			if err != nil {
-				log.Fatalf("error invoking actor method GetUser: %v", err)
+				log.Printf("error invoking actor method GetUser: %v", err)
 			}
 
 			playerResp := &api.GetPlayerResponse{}
 			err = json.Unmarshal(resp.Data, playerResp)
 			if err != nil {
-				log.Fatalf("error unmarshaling player state: %v", err)
+				log.Printf("error unmarshaling player state: %v", err)
 			}
-			fmt.Printf("Player health: %v\n", playerResp.Health)
+			log.Printf("Player health: %v\n", playerResp.Health)
 
 			// If health is zero or below, signal player death
 			if playerResp.Health <= 0 {
 				deathSignal <- true
 			} else {
-				fmt.Printf("Player is alive with health: %d\n", playerResp.Health)
+				log.Printf("Player is alive with health: %d\n", playerResp.Health)
 			}
 
 			// Sleep for 5 seconds before checking health again

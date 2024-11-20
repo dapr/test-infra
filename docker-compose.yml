@@ -56,13 +56,13 @@ services:
       dockerfile: Dockerfile
 
   scheduler-actor-reminders-server:
-    image: player-actor-server
+    image: scheduler-actor-reminders-server
     build:
       context: ./scheduler-actor-reminders
       dockerfile: Dockerfile-server
 
   scheduler-actor-reminders-client:
-    image: player-actor-client
+    image: scheduler-actor-reminders-client
     build:
       context: ./scheduler-actor-reminders
       dockerfile: Dockerfile-client

@@ -19,7 +19,7 @@ import (
 	"github.com/dapr/go-sdk/client"
 )
 
-const appPort = ":8383"
+const appPort = ":3006"
 
 var oneshot atomic.Int64
 var indefinite atomic.Int64

@@ -3,32 +3,32 @@
 # Licensed under the MIT License.
 # ------------------------------------------------------------
 
-name: build-scheduler-actor-reminders-client
+name: build-scheduler-actor-reminders-server
 
 on:
   push:
     branches:
       - master
     paths:
-      - 'scheduler-actor-reminders-client/**'
-      - '.github/workflows/scheduler-actor-reminders-client-build.yml'
+      - 'scheduler-actor-reminders/server/**'
+      - '.github/workflows/scheduler-actor-reminders-server-build.yml'
       - '.github/workflows/dapr-deploy.yml'
   pull_request:
     branches:
       - master
     paths:
-      - 'scheduler-actor-reminders-client/**'
+      - 'scheduler-actor-reminders/server/**'
 
 jobs:
   build:
-    name: build scheduler-actor-reminders-client
+    name: build scheduler-actor-reminders-server
     runs-on: ubuntu-latest
     env:
       APP_REGISTRY: daprtests.azurecr.io
-      APP_IMAGE_NAME: scheduler-actor-reminders-client
+      APP_IMAGE_NAME: scheduler-actor-reminders-server
       # TODO: APP_VER needs to be versioned correctly
       APP_VER: dev
-      APP_DIR: ./scheduler-actor-reminders-client
+      APP_DIR: ./scheduler-actor-reminders-server
       ARTIFACT_DIR: ./deploy_artifact
     steps:
       - name: Check out code
@@ -40,11 +40,11 @@ jobs:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASS }}
-      - name: Build scheduler-actor-reminders-client app docker image
+      - name: Build scheduler-actor-reminders-server app docker image
         run: |
           docker compose build ${{ env.APP_IMAGE_NAME }}
           docker tag ${{ env.APP_IMAGE_NAME }} ${{ env.APP_REGISTRY }}/${{ env.APP_IMAGE_NAME }}:${{ env.APP_VER }}
-      - name: Push scheduler-actor-reminders-client app image to dockerhub
+      - name: Push scheduler-actor-reminders-server app image to dockerhub
         if: github.event_name != 'pull_request'
         run: |
           docker push ${{ env.APP_REGISTRY }}/${{ env.APP_IMAGE_NAME }}:${{ env.APP_VER }}
@@ -58,7 +58,7 @@ jobs:
           name: longhaul-test
           path: ${{ env.ARTIFACT_DIR }}
   deploy:
-    name: deploy scheduler-actor-reminders-client to test cluster
+    name: deploy scheduler-actor-reminders-server to test cluster
     needs: build
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -81,4 +81,4 @@ jobs:
           az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
       - name: Deploy apps to longhaul test environment
         run: |
-          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/scheduler-actor-reminders-client-deploy.yml & kubectl rollout restart -n ${{ env.APP_NAMESPACE }} deploy/scheduler-actor-reminders-client-app
+          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/scheduler-actor-reminders-server-deploy.yml & kubectl rollout restart -n ${{ env.APP_NAMESPACE }} deploy/scheduler-actor-reminders-server-app

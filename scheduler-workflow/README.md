@@ -35,5 +35,5 @@ The long-haul test workflow performs the following operations repeatedly:
 
 Run the server with:
 ```shell
-dapr run --app-id scheduler-workflow --app-port 8484 --dapr-http-port 3502 --log-level debug  --config dapr/config.yaml  -- go run workflow.go
+dapr run --app-id scheduler-workflow --app-port 3009 --dapr-http-port 3502 --log-level debug  --config dapr/config.yaml  -- go run workflow.go
 ```

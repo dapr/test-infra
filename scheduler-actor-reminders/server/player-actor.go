@@ -15,6 +15,8 @@ import (
 	"github.com/dapr/go-sdk/service/http"
 )
 
+const appPort = ":3007"
+
 func playerActorFactory() actor.ServerContext {
 	client, err := dapr.NewClient()
 	if err != nil {
@@ -31,7 +33,7 @@ func main() {
 	_, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	daprService := http.NewService(":3007")
+	daprService := http.NewService(appPort)
 	// Register actor factory, meaning register actor methods to be called by client
 	daprService.RegisterActorImplFactoryContext(playerActorFactory)
 

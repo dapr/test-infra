@@ -19,6 +19,5 @@ WORKDIR /client
 # Copy binary from the builder stage
 COPY --from=builder /client/player-actor-client .
 
-
 # Start the client
 CMD ["/client/player-actor-client"]

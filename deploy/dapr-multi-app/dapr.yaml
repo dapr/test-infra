@@ -34,16 +34,20 @@ apps:
   - appID: scheduler-jobs
     appDirPath: ../../scheduler-jobs
     appPort: 3006
+    daprHTTPPort: 3008
     command: [ "go","run", "scheduler-jobs.go"]
   - appID: scheduler-actor-reminders-server
     appDirPath: ../../scheduler-actor-reminders/server
     appPort: 3007
+    daprHTTPPort: 3007
     command: [ "go","run", "player-actor.go"]
   - appID: scheduler-actor-reminders-client
     appDirPath: ../../scheduler-actor-reminders/client
     appPort: 3008
+    daprHTTPPort: 3008
     command: [ "go","run", "player-actor-client.go"]
   - appID: scheduler-workflow
     appDirPath: ../../scheduler-workflow
     appPort: 3009
+    daprHTTPPort: 3009
     command: [ "go","run", "scheduler-workflow.go"]

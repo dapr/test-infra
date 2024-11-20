@@ -7,7 +7,7 @@ import 'kubernetes@1.0.0' with {
   kubeConfig: kubeConfig
 }
 
-resource coreService_workflowGen 'core/Service@v1' = {
+resource coreService_schedulerWorkflow 'core/Service@v1' = {
   metadata: {
     name: 'scheduler-workflow'
     labels: {
@@ -30,7 +30,7 @@ resource coreService_workflowGen 'core/Service@v1' = {
   }
 }
 
-resource appsDeployment_workflowGenApp 'apps/Deployment@v1' = {
+resource appsDeployment_schedulerWorkflow 'apps/Deployment@v1' = {
   metadata: {
     name: 'scheduler-workflow-app'
     labels: {

@@ -17,7 +17,7 @@ import (
 	"github.com/dapr/go-sdk/workflow"
 )
 
-const appPort = ":8484"
+const appPort = ":3009"
 
 var stage atomic.Int64
 

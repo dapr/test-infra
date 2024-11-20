@@ -13,7 +13,7 @@ Run with dapr:
 ```shell
 dapr run \
   --app-id scheduler-jobs \
-  --app-port 8383 \
+  --app-port 3006 \
   --dapr-grpc-port 3501 --app-protocol grpc \
   --dapr-http-port 3500 --scheduler-host-address=127.0.0.1:50006 --app-channel-address=127.0.0.1 \
   -- go run scheduler-jobs.go

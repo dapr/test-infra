@@ -48,3 +48,27 @@ services:
     build:
       context: .
       dockerfile: workflow-gen/Dockerfile
+
+  scheduler-jobs:
+    image: scheduler-jobs
+    build:
+      context: ./scheduler-jobs
+      dockerfile: Dockerfile
+
+  scheduler-actor-reminders-server:
+    image: scheduler-actor-reminders-server
+    build:
+      context: ./scheduler-actor-reminders
+      dockerfile: Dockerfile-server
+
+  scheduler-actor-reminders-client:
+    image: scheduler-actor-reminders-client
+    build:
+      context: ./scheduler-actor-reminders
+      dockerfile: Dockerfile-client
+
+  scheduler-workflow:
+    image: scheduler-workflow
+    build:
+      context: ./scheduler-workflow
+      dockerfile: Dockerfile

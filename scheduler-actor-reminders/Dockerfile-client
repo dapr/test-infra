@@ -1,0 +1,23 @@
+FROM golang:1.23 as builder
+
+# Set the working directory inside the container
+WORKDIR /client
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+# Build the client app binary
+RUN CGO_ENABLED=0 go build -o player-actor-client ./client/player-actor-client.go
+
+# Final stage
+FROM alpine:latest
+
+WORKDIR /client
+
+# Copy binary from the builder stage
+COPY --from=builder /client/player-actor-client .
+
+# Start the client
+CMD ["/client/player-actor-client"]

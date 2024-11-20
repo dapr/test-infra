@@ -1,0 +1,54 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: scheduler-actor-reminders-client
+  labels:
+    app: scheduler-actor-reminders-client
+spec:
+  selector:
+    app: scheduler-actor-reminders-client
+  ports:
+    - protocol: TCP
+      port: 9988
+      targetPort: 9988
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scheduler-actor-reminders-client-app
+  labels:
+    app: scheduler-actor-reminders-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scheduler-actor-reminders-client
+  template:
+    metadata:
+      labels:
+        app: scheduler-actor-reminders-client
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "scheduler-actor-reminders-client"
+        dapr.io/enable-profiling: "true"
+        dapr.io/log-as-json: "true"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9988'
+    spec:
+      containers:
+        - name: scheduler-actor-reminders-client
+          image: daprtests.azurecr.io/scheduler-actor-reminders-client:dev
+          ports:
+            - name: dapr
+              containerPort: 3008
+            - name: prom
+              containerPort: 9988
+
+          imagePullPolicy: Always

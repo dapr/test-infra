@@ -24,6 +24,10 @@ func main() {
 	}
 	defer client.Close()
 
+	// implement the actor client stub
+	myActor := new(api.ClientStub)
+	client.ImplActorClientStub(myActor)
+
 	// Actor ID for the player 'session'
 	actorID := "player-1"
 	deathSignal := make(chan bool)
@@ -33,14 +37,13 @@ func main() {
 
 	incReminderCtx, incReminderCancel := context.WithTimeout(ctx, 5*time.Second)
 	defer incReminderCancel()
-	// Start player actor health increase reminder
-	err = client.RegisterActorReminder(incReminderCtx, &dapr.RegisterActorReminderRequest{
-		ActorType: "playerActorType",
-		ActorID:   actorID,
-		Name:      "healthReminder",
-		DueTime:   "10s",
-		Period:    "20s", // Every 20 seconds, increase health
-		Data:      []byte(`"Health increase reminder"`),
+
+	//Start player actor health increase reminder
+	err = myActor.StartReminder(incReminderCtx, &api.ReminderRequest{
+		ReminderName: "healthReminder",
+		Period:       "20s",
+		DueTime:      "10s",
+		Data:         `"Health increase reminder"`,
 	})
 	if err != nil {
 		log.Printf("error starting health increase reminder: %v", err)
@@ -50,13 +53,11 @@ func main() {
 	decReminderCtx, decReminderCancel := context.WithTimeout(ctx, 5*time.Second)
 	defer decReminderCancel()
 	// Start player actor  health decay reminder
-	err = client.RegisterActorReminder(decReminderCtx, &dapr.RegisterActorReminderRequest{
-		ActorType: "playerActorType",
-		ActorID:   actorID,
-		Name:      "healthDecayReminder",
-		DueTime:   "0s",
-		Period:    "2s", // Every 2 seconds, decay health
-		Data:      []byte(`"Health decay reminder"`),
+	err = myActor.StartReminder(decReminderCtx, &api.ReminderRequest{
+		ReminderName: "healthDecayReminder",
+		Period:       "2s", // Every 2 seconds, decay health
+		DueTime:      "0s",
+		Data:         `"Health decay reminder"`,
 	})
 	if err != nil {
 		log.Printf("failed to start health decay reminder: %w", err)
@@ -72,11 +73,11 @@ func main() {
 
 				log.Println("Unregistering health increase reminder for actor...")
 				unregIncReminderCtx, unregIncReminderCancel := context.WithTimeout(ctx, 5*time.Second)
-				err = client.UnregisterActorReminder(unregIncReminderCtx, &dapr.UnregisterActorReminderRequest{
-					ActorType: "playerActorType",
-					ActorID:   actorID,
-					Name:      "healthReminder",
+
+				myActor.StopReminder(unregIncReminderCtx, &api.ReminderRequest{
+					ReminderName: "healthReminder",
 				})
+
 				unregIncReminderCancel()
 				if err != nil {
 					log.Printf("error unregistering actor reminder: %v", err)
@@ -84,25 +85,18 @@ func main() {
 
 				log.Println("Unregistering health decay reminder for actor...")
 				unregDecReminderCtx, unregDecReminderCancel := context.WithTimeout(ctx, 5*time.Second)
-				err = client.UnregisterActorReminder(unregDecReminderCtx, &dapr.UnregisterActorReminderRequest{
-					ActorType: "playerActorType",
-					ActorID:   actorID,
-					Name:      "healthDecayReminder",
+				myActor.StopReminder(unregDecReminderCtx, &api.ReminderRequest{
+					ReminderName: "healthDecayReminder",
 				})
+
 				unregDecReminderCancel()
 				if err != nil {
 					log.Printf("error unregistering actor reminder: %v", err)
 				}
 
 				log.Println("Player reminders unregistered. Reviving player...")
-				req := &dapr.InvokeActorRequest{
-					ActorType: "playerActorType",
-					ActorID:   actorID,
-					Method:    "RevivePlayer",
-					Data:      []byte(`"player-1"`),
-				}
 				invokeCtx, invokeCancel := context.WithTimeout(ctx, 5*time.Second)
-				_, err = client.InvokeActor(invokeCtx, req)
+				myActor.RevivePlayer(invokeCtx, "player-1")
 				invokeCancel()
 				if err != nil {
 					log.Printf("error invoking actor method RevivePlayer: %v", err)
@@ -111,13 +105,11 @@ func main() {
 
 				incRemCtx, incRemCancel := context.WithTimeout(ctx, 5*time.Second)
 				// Restart reminders
-				err = client.RegisterActorReminder(incRemCtx, &dapr.RegisterActorReminderRequest{
-					ActorType: "playerActorType",
-					ActorID:   actorID,
-					Name:      "healthReminder",
-					DueTime:   "10s",
-					Period:    "20s",
-					Data:      []byte(`"Health increase reminder"`),
+				err = myActor.StartReminder(incRemCtx, &api.ReminderRequest{
+					ReminderName: "healthReminder",
+					Period:       "20s",
+					DueTime:      "10s",
+					Data:         `"Health increase reminder"`,
 				})
 				incRemCancel()
 				if err != nil {
@@ -125,13 +117,11 @@ func main() {
 				}
 				log.Println("Started health increase reminder for actor:", actorID)
 				decRemCtx, decRemCancel := context.WithTimeout(ctx, 5*time.Second)
-				err = client.RegisterActorReminder(decRemCtx, &dapr.RegisterActorReminderRequest{
-					ActorType: "playerActorType",
-					ActorID:   actorID,
-					Name:      "healthDecayReminder",
-					DueTime:   "0s",
-					Period:    "2s", // Every 5 seconds, decay health
-					Data:      []byte(`"Health decay reminder"`),
+				err = myActor.StartReminder(decRemCtx, &api.ReminderRequest{
+					ReminderName: "healthDecayReminder",
+					Period:       "2s",
+					DueTime:      "0s",
+					Data:         `"Health decay reminder"`,
 				})
 				decRemCancel()
 				if err != nil {

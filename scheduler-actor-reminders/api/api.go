@@ -6,10 +6,26 @@ import (
 
 	"github.com/dapr/go-sdk/actor"
 	dapr "github.com/dapr/go-sdk/client"
-	"github.com/dapr/go-sdk/examples/actor/api"
 )
 
 const playerActorType = "playerActorType"
+
+type ClientStub struct {
+	GetUser       func(ctx context.Context) (*GetPlayerResponse, error)
+	Invoke        func(context.Context, string) (string, error)
+	RevivePlayer  func(context.Context, string) error
+	StartReminder func(context.Context, *ReminderRequest) error
+	StopReminder  func(context.Context, *ReminderRequest) error
+	ReminderCall  func(string, []byte, string, string) error
+}
+
+func (a *ClientStub) Type() string {
+	return playerActorType
+}
+
+func (a *ClientStub) ID() string {
+	return "player-1"
+}
 
 type PlayerActor struct {
 	actor.ServerImplBaseCtx
@@ -30,16 +46,20 @@ type GetPlayerResponse struct {
 	Health  int
 }
 
+type ReminderRequest struct {
+	ReminderName string `json:"reminder_name"`
+	DueTime      string `json:"duration"`
+	Period       string `json:"period"`
+	Data         string `json:"data"`
+}
+
 // GetUser retrieving the state of the PlayerActor
-func (p *PlayerActor) GetUser(ctx context.Context, player *GetPlayerRequest) (*GetPlayerResponse, error) {
-	if player.ActorID == p.ID() {
-		fmt.Printf("Player Actor ID: %s has a health level of: %d\n", p.ID(), p.Health)
-		return &GetPlayerResponse{
-			ActorID: p.ID(),
-			Health:  p.Health,
-		}, nil
-	}
-	return nil, nil
+func (p *PlayerActor) GetUser(ctx context.Context) (*GetPlayerResponse, error) {
+	fmt.Printf("Player Actor ID: %s has a health level of: %d\n", p.ID(), p.Health)
+	return &GetPlayerResponse{
+		ActorID: p.ID(),
+		Health:  p.Health,
+	}, nil
 }
 
 // Invoke invokes an action on the actor
@@ -56,6 +76,29 @@ func (p *PlayerActor) RevivePlayer(ctx context.Context, id string) error {
 	}
 
 	return nil
+}
+
+// StartReminder registers a reminder for the actor
+func (p *PlayerActor) StartReminder(ctx context.Context, req *ReminderRequest) error {
+	fmt.Println("Starting reminder:", req.ReminderName)
+	return p.DaprClient.RegisterActorReminder(ctx, &dapr.RegisterActorReminderRequest{
+		ActorType: p.Type(),
+		ActorID:   p.ID(),
+		Name:      req.ReminderName,
+		DueTime:   req.DueTime,
+		Period:    req.Period,
+		Data:      []byte(req.Data),
+	})
+}
+
+// StopReminder unregisters a reminder for the actor
+func (p *PlayerActor) StopReminder(ctx context.Context, req *ReminderRequest) error {
+	fmt.Println("Stopping reminder:", req.ReminderName)
+	return p.DaprClient.RegisterActorReminder(ctx, &dapr.RegisterActorReminderRequest{
+		ActorType: p.Type(),
+		ActorID:   p.ID(),
+		Name:      req.ReminderName,
+	})
 }
 
 // ReminderCall executes logic to handle what happens when the reminder is triggered
@@ -80,17 +123,4 @@ func (p *PlayerActor) ReminderCall(reminderName string, state []byte, dueTime st
 		fmt.Printf("Health decreased. Current health: %d\n", p.Health)
 	}
 
-}
-
-// StartReminder registers a reminder for the actor
-func (p *PlayerActor) StartReminder(ctx context.Context, req *api.ReminderRequest) error {
-	fmt.Println("Starting reminder:", req.ReminderName)
-	return p.DaprClient.RegisterActorReminder(ctx, &dapr.RegisterActorReminderRequest{
-		ActorType: p.Type(),
-		ActorID:   p.ID(),
-		Name:      req.ReminderName,
-		DueTime:   req.Duration,
-		Period:    req.Period,
-		Data:      []byte(req.Data),
-	})
 }

@@ -23,6 +23,9 @@ func main() {
 		panic(err)
 	}
 	defer client.Close()
+	if err := client.Wait(ctx, 15*time.Second); err != nil {
+		log.Fatalf("error waiting for Dapr initialization: %v", err)
+	}
 
 	// implement the actor client stub
 	myActor := new(api.ClientStub)
@@ -35,33 +38,33 @@ func main() {
 	// Start monitoring actor player's health
 	go monitorPlayerHealth(ctx, client, actorID, deathSignal)
 
-	incReminderCtx, incReminderCancel := context.WithTimeout(ctx, 5*time.Second)
-	defer incReminderCancel()
-
 	//Start player actor health increase reminder
-	err = myActor.StartReminder(incReminderCtx, &api.ReminderRequest{
+	err = myActor.StartReminder(ctx, &api.ReminderRequest{
 		ReminderName: "healthReminder",
 		Period:       "20s",
 		DueTime:      "10s",
 		Data:         `"Health increase reminder"`,
 	})
 	if err != nil {
-		log.Printf("error starting health increase reminder: %v", err)
+		// The first reminder registrations have to succeed,
+		// if they don't, the app is not testing what we need to test
+		log.Fatalf("error starting health increase reminder: %v", err)
 	}
 	log.Println("Started healthReminder for actor:", actorID)
 
-	decReminderCtx, decReminderCancel := context.WithTimeout(ctx, 5*time.Second)
-	defer decReminderCancel()
 	// Start player actor  health decay reminder
-	err = myActor.StartReminder(decReminderCtx, &api.ReminderRequest{
+	err = myActor.StartReminder(ctx, &api.ReminderRequest{
 		ReminderName: "healthDecayReminder",
 		Period:       "2s", // Every 2 seconds, decay health
 		DueTime:      "0s",
 		Data:         `"Health decay reminder"`,
 	})
 	if err != nil {
-		log.Printf("failed to start health decay reminder: %w", err)
+		// The first reminder registrations have to succeed,
+		// if they don't, the app is not testing what we need to test
+		log.Fatalf("failed to start health decay reminder: %w", err)
 	}
+	log.Println("Started healthDecayReminder for actor:", actorID)
 
 	go func(ctx context.Context) {
 		for {

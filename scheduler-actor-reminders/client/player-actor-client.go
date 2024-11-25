@@ -51,6 +51,7 @@ func main() {
 		log.Fatalf("error starting health increase reminder: %v", err)
 	}
 	log.Println("Started healthReminder for actor:", actorID)
+	defer stopReminder(ctx, myActor, "healthReminder")
 
 	// Start player actor  health decay reminder
 	err = myActor.StartReminder(ctx, &api.ReminderRequest{
@@ -64,6 +65,7 @@ func main() {
 		// if they don't, the app is not testing what we need to test
 		log.Fatalf("failed to start health decay reminder: %w", err)
 	}
+	defer stopReminder(ctx, myActor, "healthDecayReminder")
 	log.Println("Started healthDecayReminder for actor:", actorID)
 
 	go func(ctx context.Context) {
@@ -74,59 +76,34 @@ func main() {
 			case <-deathSignal:
 				log.Println("Player is dead. Unregistering reminders...")
 
-				log.Println("Unregistering health increase reminder for actor...")
-				unregIncReminderCtx, unregIncReminderCancel := context.WithTimeout(ctx, 5*time.Second)
-
-				myActor.StopReminder(unregIncReminderCtx, &api.ReminderRequest{
-					ReminderName: "healthReminder",
-				})
-
-				unregIncReminderCancel()
-				if err != nil {
-					log.Printf("error unregistering actor reminder: %v", err)
-				}
-
-				log.Println("Unregistering health decay reminder for actor...")
-				unregDecReminderCtx, unregDecReminderCancel := context.WithTimeout(ctx, 5*time.Second)
-				myActor.StopReminder(unregDecReminderCtx, &api.ReminderRequest{
-					ReminderName: "healthDecayReminder",
-				})
-
-				unregDecReminderCancel()
-				if err != nil {
-					log.Printf("error unregistering actor reminder: %v", err)
-				}
+				stopReminder(ctx, myActor, "healthReminder")
+				stopReminder(ctx, myActor, "healthDecayReminder")
 
 				log.Println("Player reminders unregistered. Reviving player...")
-				invokeCtx, invokeCancel := context.WithTimeout(ctx, 5*time.Second)
-				myActor.RevivePlayer(invokeCtx, "player-1")
-				invokeCancel()
+				err = myActor.RevivePlayer(ctx, "player-1")
 				if err != nil {
 					log.Printf("error invoking actor method RevivePlayer: %v", err)
 				}
 				log.Println("Player revived, health reset to 100. Restarting reminders...")
 
-				incRemCtx, incRemCancel := context.WithTimeout(ctx, 5*time.Second)
 				// Restart reminders
-				err = myActor.StartReminder(incRemCtx, &api.ReminderRequest{
+				err = myActor.StartReminder(ctx, &api.ReminderRequest{
 					ReminderName: "healthReminder",
 					Period:       "20s",
 					DueTime:      "10s",
 					Data:         `"Health increase reminder"`,
 				})
-				incRemCancel()
 				if err != nil {
 					log.Printf("error starting actor reminder: %v", err)
 				}
 				log.Println("Started health increase reminder for actor:", actorID)
-				decRemCtx, decRemCancel := context.WithTimeout(ctx, 5*time.Second)
-				err = myActor.StartReminder(decRemCtx, &api.ReminderRequest{
+
+				err = myActor.StartReminder(ctx, &api.ReminderRequest{
 					ReminderName: "healthDecayReminder",
 					Period:       "2s",
 					DueTime:      "0s",
 					Data:         `"Health decay reminder"`,
 				})
-				decRemCancel()
 				if err != nil {
 					log.Printf("error starting health decay reminder: %v", err)
 				}
@@ -140,6 +117,16 @@ func main() {
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 	<-signalChan
 	log.Println("Shutting down...")
+}
+
+func stopReminder(ctx context.Context, myActor *api.ClientStub, reminderName string) {
+	log.Printf("Unregistering '%s' reminder for actor...", reminderName)
+	err := myActor.StopReminder(ctx, &api.ReminderRequest{
+		ReminderName: reminderName,
+	})
+	if err != nil {
+		log.Printf("error unregistering actor reminder '%s': %v", reminderName, err)
+	}
 }
 
 // monitorPlayerHealth continuously checks the player's health every 5 seconds

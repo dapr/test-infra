@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"os"
 	"os/signal"
@@ -36,7 +35,7 @@ func main() {
 	deathSignal := make(chan bool)
 
 	// Start monitoring actor player's health
-	go monitorPlayerHealth(ctx, client, actorID, deathSignal)
+	go monitorPlayerHealth(ctx, myActor, deathSignal)
 
 	//Start player actor health increase reminder
 	err = myActor.StartReminder(ctx, &api.ReminderRequest{
@@ -47,11 +46,11 @@ func main() {
 	})
 	if err != nil {
 		// The first reminder registrations have to succeed,
-		// if they don't, the app is not testing what we need to test
+		// if they don't, the app is not testing what we need to test and we need to exit
 		log.Fatalf("error starting health increase reminder: %v", err)
 	}
-	log.Println("Started healthReminder for actor:", actorID)
 	defer stopReminder(ctx, myActor, "healthReminder")
+	log.Println("Started healthReminder for actor:", actorID)
 
 	// Start player actor  health decay reminder
 	err = myActor.StartReminder(ctx, &api.ReminderRequest{
@@ -62,7 +61,7 @@ func main() {
 	})
 	if err != nil {
 		// The first reminder registrations have to succeed,
-		// if they don't, the app is not testing what we need to test
+		// if they don't, the app is not testing what we need to test and we need to exit
 		log.Fatalf("failed to start health decay reminder: %w", err)
 	}
 	defer stopReminder(ctx, myActor, "healthDecayReminder")
@@ -131,37 +130,18 @@ func stopReminder(ctx context.Context, myActor *api.ClientStub, reminderName str
 
 // monitorPlayerHealth continuously checks the player's health every 5 seconds
 // and signals via a channel if the player is dead (health <= 0).
-func monitorPlayerHealth(ctx context.Context, client dapr.Client, actorID string, deathSignal chan bool) {
+func monitorPlayerHealth(ctx context.Context, actor *api.ClientStub, deathSignal chan bool) {
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		default:
 			// Check actor player's health
-			getPlayerRequest := &api.GetPlayerRequest{ActorID: actorID}
-			requestData, err := json.Marshal(getPlayerRequest)
-			if err != nil {
-				log.Printf("error marshaling request data: %v", err)
-			}
-
-			req := &dapr.InvokeActorRequest{
-				ActorType: "playerActorType",
-				ActorID:   actorID,
-				Method:    "GetUser",
-				Data:      requestData,
-			}
-			invokeCtx, invokeCancel := context.WithTimeout(ctx, 5*time.Second)
-			resp, err := client.InvokeActor(invokeCtx, req)
-			invokeCancel()
+			playerResp, err := actor.GetUser(ctx)
 			if err != nil {
 				log.Printf("error invoking actor method GetUser: %v", err)
 			}
 
-			playerResp := &api.GetPlayerResponse{}
-			err = json.Unmarshal(resp.Data, playerResp)
-			if err != nil {
-				log.Printf("error unmarshaling player state: %v", err)
-			}
 			log.Printf("Player health: %v\n", playerResp.Health)
 
 			// If health is zero or below, signal player death

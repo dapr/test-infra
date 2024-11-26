@@ -84,9 +84,6 @@ func monitorPlayerHealth(ctx context.Context, actor *api.ClientStub) {
 			playerResp, err := actor.GetUser(ctx)
 			if err != nil {
 				log.Printf("error invoking actor method GetUser: %v", err)
-			}
-			if playerResp == nil {
-				log.Printf("Can't get player health.")
 				return
 			}
 

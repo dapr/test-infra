@@ -3,60 +3,101 @@ package main
 import (
 	"context"
 	"log"
-	http2 "net/http"
-	"os"
-	"os/signal"
-	"syscall"
 
 	"test-infra/scheduler-actor-reminders/api"
 
 	"github.com/dapr/go-sdk/actor"
 	dapr "github.com/dapr/go-sdk/client"
-	"github.com/dapr/go-sdk/service/http"
 )
 
-const appPort = ":3007"
+const stateKey = "health"
 
-func playerActorFactory() actor.ServerContext {
-	client, err := dapr.NewClient()
-	if err != nil {
-		panic(err)
-	}
-
-	return &api.PlayerActor{
-		DaprClient: client,
-		Health:     100, // initial health
-	}
+type PlayerActor struct {
+	actor.ServerImplBaseCtx
+	DaprClient dapr.Client
+	Health     int
 }
 
-func main() {
-	_, cancel := context.WithCancel(context.Background())
-	defer cancel()
+func (p *PlayerActor) Type() string {
+	return api.PlayerActorType
+}
 
-	daprService := http.NewService(appPort)
-	// Register actor factory, meaning register actor methods to be called by client
-	daprService.RegisterActorImplFactoryContext(playerActorFactory)
+// GetUser retrieving the state of the PlayerActor
+func (p *PlayerActor) GetUser(ctx context.Context) (*api.GetPlayerResponse, error) {
+	log.Printf("Player Actor ID: %s has a health level of: %d\n", p.ID(), p.Health)
+	return &api.GetPlayerResponse{
+		ActorID: p.ID(),
+		Health:  p.Health,
+	}, nil
+}
 
-	go func() {
-		log.Println("Starting Dapr actor runtime...")
-		if err := daprService.Start(); err != nil && err.Error() != http2.ErrServerClosed.Error() {
-			log.Fatalf("error starting Dapr actor runtime: %v", err)
+// Invoke invokes an action on the actor
+func (p *PlayerActor) Invoke(ctx context.Context, req string) (string, error) {
+	log.Println("get req = ", req)
+	return req, nil
+}
+
+// RevivePlayer revives the actor players health back to 100
+func (p *PlayerActor) RevivePlayer(ctx context.Context, id string) error {
+	log.Printf("Reviving player: %s\n", p.ID())
+	p.Health = 100
+	if err := p.GetStateManager().Set(ctx, stateKey, p.Health); err != nil {
+		log.Printf("error saving state: %v", err)
+	}
+
+	return nil
+}
+
+// StartReminder registers a reminder for the actor
+func (p *PlayerActor) StartReminder(ctx context.Context, req *api.ReminderRequest) error {
+	log.Println("Starting reminder:", req.ReminderName)
+	return p.DaprClient.RegisterActorReminder(ctx, &dapr.RegisterActorReminderRequest{
+		ActorType: p.Type(),
+		ActorID:   p.ID(),
+		Name:      req.ReminderName,
+		DueTime:   req.DueTime,
+		Period:    req.Period,
+		Data:      []byte(req.Data),
+	})
+}
+
+// StopReminder unregisters a reminder for the actor
+func (p *PlayerActor) StopReminder(ctx context.Context, req *api.ReminderRequest) error {
+	log.Println("Stopping reminder:", req.ReminderName)
+	return p.DaprClient.UnregisterActorReminder(ctx, &dapr.UnregisterActorReminderRequest{
+		ActorType: p.Type(),
+		ActorID:   p.ID(),
+		Name:      req.ReminderName,
+	})
+}
+
+// ReminderCall executes logic to handle what happens when the reminder is triggered
+// Dapr automatically calls this method when a reminder fires for the player actor
+func (p *PlayerActor) ReminderCall(reminderName string, state []byte, dueTime string, period string) {
+	log.Println("received reminder = ", reminderName, " state = ", string(state), "duetime = ", dueTime, "period = ", period)
+	switch reminderName {
+	case "healthReminder":
+		if p.Health < 100 {
+			p.Health += 10
+			if p.Health > 100 {
+				p.Health = 100
+			}
+			log.Printf("Player Actor health increased. Current health: %d\n", p.Health)
 		}
-	}()
-
-	waitForShutdown(cancel)
-	if err := daprService.GracefulStop(); err != nil {
-		log.Fatalf("error stopping Dapr actor runtime: %v", err)
+	case "healthDecayReminder":
+		p.Health -= 5
+		if p.Health < 0 {
+			log.Println("Player Actor died...")
+		}
+		log.Printf("Health decreased. Current health: %d\n", p.Health)
+	default:
+		log.Printf("Unknown reminder: %s\n", reminderName)
+		return
 	}
-}
 
-// waitForShutdown keeps the app alive until an interrupt or termination signal is received
-func waitForShutdown(cancelFunc context.CancelFunc) {
-	sigCh := make(chan os.Signal, 1)
-	// Notify the channel on Interrupt (Ctrl+C) or SIGTERM (for Docker/K8s graceful shutdown)
-	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
-	<-sigCh
-
-	log.Println("Shutting down...")
-	cancelFunc()
+	// Update the state of the actor
+	err := p.GetStateManager().Set(context.TODO(), stateKey, p.Health)
+	if err != nil {
+		log.Printf("error saving state: %v", err)
+	}
 }

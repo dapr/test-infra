@@ -86,3 +86,6 @@ bld/
 
 # VS Code
 .vscode/
+
+# JetBrains
+.idea

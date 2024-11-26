@@ -35,7 +35,7 @@ func main() {
 	// Start monitoring actor player's health
 	go monitorPlayerHealth(ctx, myActor)
 
-	//Start player actor health increase reminder
+	// Start player actor health increase reminder
 	err = myActor.StartReminder(ctx, &api.ReminderRequest{
 		ReminderName: "healthReminder",
 		Period:       "20s",

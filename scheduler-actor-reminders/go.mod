@@ -2,15 +2,13 @@ module test-infra/scheduler-actor-reminders
 
 go 1.23.1
 
-require (
-	github.com/dapr/go-sdk v1.11.0
-	github.com/dapr/go-sdk/examples/actor v0.0.0-20240626135542-c417f950fe1d
-)
+require github.com/dapr/go-sdk v1.11.0
 
 require (
 	github.com/dapr/dapr v1.14.0 // indirect
 	github.com/go-chi/chi/v5 v5.1.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/kr/pretty v0.3.1 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	go.opentelemetry.io/otel v1.27.0 // indirect
 	golang.org/x/net v0.26.0 // indirect

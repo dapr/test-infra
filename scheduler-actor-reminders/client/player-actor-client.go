@@ -26,14 +26,14 @@ func main() {
 		log.Fatalf("error waiting for Dapr initialization: %v", err)
 	}
 
-	// implement the actor client stub
-	myActor := new(api.ClientStub)
+	// Implement the actor client stub
+	myActor := &api.ClientStub{
+		ActorID: "player-1",
+	}
 	client.ImplActorClientStub(myActor)
 
-	deathSignal := make(chan bool)
-
 	// Start monitoring actor player's health
-	go monitorPlayerHealth(ctx, myActor, deathSignal)
+	go monitorPlayerHealth(ctx, myActor)
 
 	//Start player actor health increase reminder
 	err = myActor.StartReminder(ctx, &api.ReminderRequest{
@@ -74,7 +74,7 @@ func main() {
 
 // monitorPlayerHealth continuously checks the player's health every 5 seconds
 // and signals via a channel if the player is dead (health <= 0).
-func monitorPlayerHealth(ctx context.Context, actor *api.ClientStub, deathSignal chan bool) {
+func monitorPlayerHealth(ctx context.Context, actor *api.ClientStub) {
 	for {
 		select {
 		case <-ctx.Done():

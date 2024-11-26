@@ -9,7 +9,7 @@ RUN go mod download
 COPY . .
 
 # Build the server app binary
-RUN CGO_ENABLED=0 go build -o player-actor ./server/player-actor.go
+RUN CGO_ENABLED=0 go build -o player-actor-server ./server
 
 # Final stage
 FROM alpine:latest
@@ -17,9 +17,9 @@ FROM alpine:latest
 WORKDIR /server
 
 # Copy binary from the builder stage
-COPY --from=builder /server/player-actor .
+COPY --from=builder /server/player-actor-server .
 
 EXPOSE 3007
 
 # Start the server
-CMD ["/server/player-actor"]
+CMD ["/server/player-actor-server"]

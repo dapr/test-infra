@@ -36,6 +36,7 @@ spec:
         app: scheduler-actor-reminders-server
       annotations:
         dapr.io/enabled: "true"
+        dapr.io/app-port: "3007"
         dapr.io/app-id: "scheduler-actor-reminders-server"
         dapr.io/enable-profiling: "true"
         dapr.io/log-as-json: "true"

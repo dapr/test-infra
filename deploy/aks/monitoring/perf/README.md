@@ -200,4 +200,4 @@ kubectl apply -f ./prometheus-pushgateway-configmap.yaml
 
 #### Step 22: Create Grafana Dashboard
 
-Grab the granfa link from azure portal and create a Grafana dashboard by importing the [JSON model](https://github.com/dapr/dapr/blob/78b7271f015fa935fd59299357787f3e86861300/tests/grafana/grafana-perf-test-dashboard.json). Ensure to update all [`uid` of `datasource`](https://github.com/dapr/dapr/blob/78b7271f015fa935fd59299357787f3e86861300/tests/grafana/grafana-perf-test-dashboard.json#L41) objects present in the JSON file to match your configuration.
+Grab the Grafana link from azure portal and create a Grafana dashboard by importing the [JSON model](https://github.com/dapr/dapr/blob/78b7271f015fa935fd59299357787f3e86861300/tests/grafana/grafana-perf-test-dashboard.json). Ensure to update all [`uid` of `datasource`](https://github.com/dapr/dapr/blob/78b7271f015fa935fd59299357787f3e86861300/tests/grafana/grafana-perf-test-dashboard.json#L41) objects present in the JSON file to match your configuration.

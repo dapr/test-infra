@@ -73,3 +73,4 @@ jobs:
           kubectl apply -f ./longhaul-test/scheduler-actor-reminders-server-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/scheduler-actor-reminders-server-app -n ${{ env.APP_NAMESPACE }}
           kubectl apply -f ./longhaul-test/scheduler-actor-reminders-client-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/scheduler-actor-reminders-client-app -n ${{ env.APP_NAMESPACE }}
           kubectl apply -f ./longhaul-test/scheduler-workflow-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/scheduler-workflow-app -n ${{ env.APP_NAMESPACE }}
+          kubectl apply -f ./longhaul-test/workflow-gen-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/workflow-gen-app -n ${{ env.APP_NAMESPACE }}

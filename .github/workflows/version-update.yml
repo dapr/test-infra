@@ -1,0 +1,77 @@
+#
+# Copyright 2025 The Dapr Authors
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#     http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: update-dapr-version
+
+on:
+  workflow_dispatch:
+    inputs:
+      rel_version:
+        description: 'Dapr release version (examples: 1.9.0-rc.1, 1.9.1)'
+        required: true 
+        type: string
+
+jobs:
+  update-longhauls:
+    name: Update the dapr version in longhaul tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      LONG_HAUL_REPO: test-infra
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
+      - name: Checkout the dapr repo
+        uses: actions/checkout@v4
+        with:
+          repository: dapr/dapr
+          path: .dapr_repo
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install pcre2-utils
+          pip install packaging
+      - name: Parse release version and set REL_VERSION and LATEST_RELEASE
+        run: python .dapr_repo/.github/scripts/get_release_version.py ${{ github.event_name }}
+      - name: Compare versions and determine if update of long haul tests is required
+        id: compare_versions
+        run: |
+          # Thanks to https://ihateregex.io/expr/semver/
+          SEMVER_REGEX='^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
+          REL_VERSION=`echo "${{ inputs.rel_version }}" | sed -r 's/^[vV]?([0-9].+)$/\1/'`
+          if [ `echo $REL_VERSION | pcre2grep "$SEMVER_REGEX"` ]; then
+            echo "$REL_VERSION is a valid semantic version."
+          else
+            echo "$REL_VERSION is not a valid semantic version."
+            exit 1
+          fi
+          echo "REL_VERSION=${REL_VERSION,,}" >>${GITHUB_ENV}
+
+          EXISTING_VERSION=$(cat "config/dapr_runtime.version")
+          echo "Existing version in longhaul tests: $EXISTING_VERSION"
+          echo "New version: $REL_VERSION"
+          python .dapr_repo/.github/scripts/compare_versions.py "$REL_VERSION" "$EXISTING_VERSION"
+
+      - name: Update dapr runtime version in the longhaul tests repo
+        if: env.VERSION_UPDATE_REQUIRED == 'true'
+        run: |
+          echo "${REL_VERSION}" > config/dapr_runtime.version
+      - name: Commit and push changes
+        if: env.VERSION_UPDATE_REQUIRED == 'true'
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add config/dapr_runtime.version
+          git commit -m "Updates dapr runtime version to ${REL_VERSION}"
+          git push

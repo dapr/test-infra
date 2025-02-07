@@ -1,73 +1,68 @@
-using System.Globalization;
+// ------------------------------------------------------------------------
+// Copyright 2025 The Dapr Authors
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ------------------------------------------------------------------------
 // ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 // ------------------------------------------------------------
 
-using Dapr.Client;
 using Dapr.Tests.Common;
-using Dapr.Workflow;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapr.Workflow;
+using Microsoft.Extensions.DependencyInjection;
 using WorkflowGen.Activities;
-using WorkflowGen.Models;
 using WorkflowGen.Workflows;
 
-namespace WorkflowGen
+namespace WorkflowGen;
+
+/// <summary>
+/// WorkflowGenerator - runs worflows and executes them using Dapr.
+/// The main functionality is in StartWorkflowGeneratorAsync().
+/// </summary>
+public class Program
 {
     /// <summary>
-    /// WorkflowGenerator - runs worflows and executes them using Dapr.
-    /// The main functionality is in StartWorkflowGeneratorAsync().
+    /// Main for WorkflowGen
     /// </summary>
-    public class Program
+    /// <param name="args">Arguments.</param>
+    public static async Task Main(string[] args)
     {
-        /// <summary>
-        /// Main for WorkflowGen
-        /// </summary>
-        /// <param name="args">Arguments.</param>
-        public static void Main(string[] args)
-        {
-            ObservabilityUtils.StartMetricsServer();
+        ObservabilityUtils.StartMetricsServer();
 
-            var builder = Host.CreateDefaultBuilder(args)
-                .ConfigureTestInfraLogging()
-                .ConfigureServices(services =>
+        var builder = Host.CreateDefaultBuilder(args)
+            .ConfigureTestInfraLogging()
+            .ConfigureServices(services =>
+            {
+                services.AddDaprClient();
+                services.AddDaprWorkflow(options =>
                 {
-                    services.AddDaprWorkflow(options =>
-                    {
-                        options.RegisterWorkflow<OrderProcessingWorkflow>();
-                        options.RegisterActivity<NotifyActivity>();
-                        options.RegisterActivity<ReserveInventoryActivity>();
-                        options.RegisterActivity<ProcessPaymentActivity>();
-                        options.RegisterActivity<UpdateInventoryActivity>();
-                    });
+                    options.RegisterWorkflow<OrderProcessingWorkflow>();
+                    options.RegisterActivity<NotifyActivity>();
+                    options.RegisterActivity<ReserveInventoryActivity>();
+                    options.RegisterActivity<ProcessPaymentActivity>();
+                    options.RegisterActivity<UpdateInventoryActivity>();
                 });
+                services.AddTransient<WorkflowRunner>();
+            });
 
-            using var host = builder.Build();
+        using var host = builder.Build();
 
-            var logger = host.Services.GetRequiredService<ILogger<WorkflowRunner>>();
+        var workflowRunner = host.Services.GetRequiredService<WorkflowRunner>();
+        await using var wTimer =
+            new Timer(workflowRunner.Execute!, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(30));
 
-            var wTimer = StartExecutingWorkflows(30, logger);
-            host.Run();
-            wTimer.Dispose();
-        }
-
-        static internal Timer StartExecutingWorkflows(int periodInSeconds, ILogger<WorkflowRunner> logger)
-        {
-            DaprClientBuilder daprClientBuilder = new DaprClientBuilder();
-            var client = new DaprClientBuilder().Build();
-            var counter = 0;
-            var workflowRunner = new WorkflowRunner(client, counter, logger);
-
-            return new Timer(workflowRunner.Execute, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(periodInSeconds));
-        }
+        await host.RunAsync();
     }
 }
-

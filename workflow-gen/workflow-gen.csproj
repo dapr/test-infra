@@ -4,6 +4,7 @@
     <TargetFramework>$(DefaultTargetFramework)</TargetFramework>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

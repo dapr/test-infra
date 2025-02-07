@@ -18,6 +18,7 @@
 using Dapr.Client;
 using Prometheus;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Dapr.Workflow;
 using WorkflowGen.Models;
 using WorkflowGen.Workflows;
@@ -25,6 +26,7 @@ using Microsoft.Extensions.Logging;
 
 namespace WorkflowGen;
 
+[SuppressMessage("LoggingGenerator", "SYSLIB1013:Don\'t include exception parameters as templates in the logging message")]
 internal sealed partial class WorkflowRunner(ILogger<WorkflowRunner> logger, DaprClient daprClient, DaprWorkflowClient workflowClient)
 {
     private static readonly Gauge ExecutionCallTime = Metrics.CreateGauge("lh_workflow_generator_execution_call_time", "The time it takes for the workflow call to return");
@@ -80,5 +82,7 @@ internal sealed partial class WorkflowRunner(ILogger<WorkflowRunner> logger, Dap
     static partial void LogWorkflowStatus(ILogger logger, WorkflowRuntimeStatus status );
 
     [LoggerMessage(LogLevel.Error, "Caught {exception}")]
+#pragma warning disable SYSLIB1013
     static partial void LogWorkflowException(ILogger logger, Exception exception);
+#pragma warning restore SYSLIB1013
 }

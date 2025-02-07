@@ -89,3 +89,7 @@ bld/
 
 # JetBrains
 .idea
+
+
+# Mac
+.DS_Store

@@ -77,6 +77,8 @@ func (s *appServer) OnBulkTopicEventAlpha1(ctx context.Context, in *rtv1.TopicEv
 
 func (s *appServer) OnJobEventAlpha1(ctx context.Context, in *rtv1.JobEventRequest) (*rtv1.JobEventResponse, error) {
 	if strings.HasPrefix(in.GetMethod(), "job/") {
+		log.Println("***************Received job event: ", in.GetMethod())
+
 		if strings.Contains(in.GetMethod(), "oneshot") {
 			count := oneshot.Add(1)
 			if count == maxOneshotTriggerCount {

@@ -5,7 +5,7 @@
     -->
     <EnlistmentRoot>$(MSBuildThisFileDirectory.TrimEnd('\\'))</EnlistmentRoot>
 
-    <DefaultTargetFramework>net7.0</DefaultTargetFramework>
+    <DefaultTargetFramework>net8.0</DefaultTargetFramework>
 
   </PropertyGroup>
 </Project>

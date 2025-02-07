@@ -11,6 +11,7 @@ on:
       - master
     paths:
       - 'config/dapr_runtime.version'
+      - 'config/dapr_cli.version'
   workflow_dispatch:
 
 jobs:

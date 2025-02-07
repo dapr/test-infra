@@ -41,15 +41,16 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install pcre2-utils
-          pip install packaging
+          pip install semver
       - name: Parse release version and set REL_VERSION and LATEST_RELEASE
         run: python .dapr_repo/.github/scripts/get_release_version.py ${{ github.event_name }}
       - name: Compare versions and determine if update of long haul tests is required
         id: compare_versions
         run: |
+          REL_VERSION=`echo "${{ inputs.rel_version }}" | sed -r 's/^[vV]?([0-9].+)$/\1/'`
+          
           # Thanks to https://ihateregex.io/expr/semver/
           SEMVER_REGEX='^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
-          REL_VERSION=`echo "${{ inputs.rel_version }}" | sed -r 's/^[vV]?([0-9].+)$/\1/'`
           if [ `echo $REL_VERSION | pcre2grep "$SEMVER_REGEX"` ]; then
             echo "$REL_VERSION is a valid semantic version."
           else
@@ -61,8 +62,7 @@ jobs:
           EXISTING_VERSION=$(cat "config/dapr_runtime.version")
           echo "Existing version in longhaul tests: $EXISTING_VERSION"
           echo "New version: $REL_VERSION"
-          python .dapr_repo/.github/scripts/compare_versions.py "$REL_VERSION" "$EXISTING_VERSION"
-
+          python .github/scripts/compare_versions.py "$REL_VERSION" "$EXISTING_VERSION"
       - name: Update dapr runtime version in the longhaul tests repo
         if: env.VERSION_UPDATE_REQUIRED == 'true'
         run: |

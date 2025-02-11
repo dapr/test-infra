@@ -14,6 +14,11 @@
 name: update-cli-version
 
 on:
+  pull:
+    paths:
+      - '.github/workflows/version-update-cli.yml'
+      - '.github/scripts/compare_versions.py'
+  
   workflow_dispatch:
     inputs:
       rel_version:
@@ -29,6 +34,7 @@ jobs:
       contents: write
     env:
       LONG_HAUL_REPO: test-infra
+      REL_VERSION: ${{ github.event.inputs.rel_version || '99.99.99' }}
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
@@ -47,7 +53,7 @@ jobs:
       - name: Compare versions and determine if update of long haul tests is required
         id: compare_versions
         run: |
-          REL_VERSION=`echo "${{ inputs.rel_version }}" | sed -r 's/^[vV]?([0-9].+)$/\1/'`
+          REL_VERSION=`echo "${{ env.REL_VERSION }}" | sed -r 's/^[vV]?([0-9].+)$/\1/'`
           
           # Thanks to https://ihateregex.io/expr/semver/
           SEMVER_REGEX='^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
@@ -67,8 +73,11 @@ jobs:
         if: env.VERSION_UPDATE_REQUIRED == 'true'
         run: |
           echo "${REL_VERSION}" > config/dapr_cli.version
+      - name: Show Diff
+         run: |
+           git diff
       - name: Commit and push changes
-        if: env.VERSION_UPDATE_REQUIRED == 'true'
+        if: github.event_name == 'workflow_dispatch' && env.VERSION_UPDATE_REQUIRED == 'true'
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"

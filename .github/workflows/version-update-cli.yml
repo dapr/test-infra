@@ -14,7 +14,7 @@
 name: update-cli-version
 
 on:
-  pull:
+  pull_request:
     paths:
       - '.github/workflows/version-update-cli.yml'
       - '.github/scripts/compare_versions.py'

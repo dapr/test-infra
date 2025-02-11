@@ -14,7 +14,7 @@
 name: update-dapr-version
 
 on:
-  pull:
+  pull_request:
     paths:
       - '.github/workflows/version-update-dapr.yml'
       - '.github/scripts/compare_versions.py'

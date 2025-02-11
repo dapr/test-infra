@@ -73,8 +73,8 @@ jobs:
         run: |
           echo "${REL_VERSION}" > config/dapr_runtime.version
       - name: Show Diff
-         run: |
-           git diff
+        run: |
+          git diff
       - name: Commit and push changes
         if: github.event_name == 'workflow_dispatch' && env.VERSION_UPDATE_REQUIRED == 'true'
         run: |

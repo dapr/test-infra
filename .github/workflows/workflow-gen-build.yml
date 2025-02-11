@@ -13,11 +13,13 @@ on:
       - 'workflow-gen/**'
       - '.github/workflows/workflow-gen-build.yml'
       - '.github/workflows/dapr-deploy.yml'
+      - 'Directory.Packages.props'
   pull_request:
     branches:
       - master
     paths:
       - 'workflow-gen/**'
+      - 'Directory.Packages.props'
 
 jobs:
   build:

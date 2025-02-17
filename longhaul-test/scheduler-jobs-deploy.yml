@@ -38,6 +38,7 @@ spec:
         dapr.io/enabled: "true"
         dapr.io/app-id: "scheduler-jobs"
         dapr.io/app-port: "3006"
+        dapr.io/app-protocol: "grpc"
         dapr.io/enable-profiling: "true"
         dapr.io/log-as-json: "true"
         prometheus.io/scrape: 'true'

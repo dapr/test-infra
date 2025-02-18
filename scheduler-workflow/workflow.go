@@ -25,6 +25,9 @@ func main() {
 	defer cancel()
 
 	wfClient, err := workflow.NewClient()
+	if err != nil {
+		log.Fatalf("Error getting dapr client: %v", err)
+	}
 	defer wfClient.Close()
 
 	daprService := http.NewService(appPort)

@@ -173,6 +173,7 @@ func startLonghaulWorkflow(ctx context.Context, client *workflow.Client) {
 				i = 0
 			}
 		}
+		time.Sleep(1 * time.Second)
 	}
 }
 

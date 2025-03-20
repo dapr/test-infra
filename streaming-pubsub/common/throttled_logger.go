@@ -1,4 +1,4 @@
-package logger
+package common
 
 import (
 	"sync"

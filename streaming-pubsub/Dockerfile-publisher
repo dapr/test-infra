@@ -19,7 +19,7 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 
 # Copy the binary from the builder image -> final image
-COPY --from=builder /app/publisher /usr/local/bin/publisher
+COPY --from=builder /app/publisher /publisher
 
 # Entrypoint to run the publisher
-ENTRYPOINT ["publisher"]
+ENTRYPOINT ["/publisher/publisher"]

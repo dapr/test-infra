@@ -1,0 +1,25 @@
+FROM golang:1.24 as builder
+
+# Working directory inside the container
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the app code
+COPY . .
+
+# Build the publisher
+RUN CGO_ENABLED=0 GOOS=linux go build -o publisher ./publisher/publisher.go
+
+# Initialize a new build stage. Use a minimal base image for the final container
+FROM alpine:latest
+
+# Install certificates for HTTPS support
+RUN apk --no-cache add ca-certificates
+
+# Copy the binary from the builder image -> final image
+COPY --from=builder /app/publisher /publisher
+
+# Entrypoint to run the publisher
+ENTRYPOINT ["/publisher/publisher"]

@@ -1,0 +1,47 @@
+# ------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------------------------------
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: streaming-pubsub-subscriber
+  labels:
+    app: streaming-pubsub-subscriber
+spec:
+  selector:
+    app: streaming-pubsub-subscriber
+  ports:
+  - protocol: TCP
+    port: 9988
+    targetPort: 9988
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streaming-pubsub-subscriber-app
+  labels:
+    app: streaming-pubsub-subscriber
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: streaming-pubsub-subscriber
+  template:
+    metadata:
+      labels:
+        app: streaming-pubsub-subscriber
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "streaming-pubsub-subscriber"
+        dapr.io/enable-profiling: "true"
+        dapr.io/log-as-json: "true"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9988'          
+    spec:
+      containers:
+      - name: streaming-pubsub-subscriber
+        image: daprtests.azurecr.io/streaming-pubsub-subscriber:dev
+        imagePullPolicy: Always

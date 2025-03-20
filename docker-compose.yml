@@ -30,7 +30,19 @@ services:
     build:
       context: .
       dockerfile: pubsub-workflow/Dockerfile
-      
+
+  streaming-pubsub-publisher:
+    image: streaming-pubsub-publisher
+    build:
+      context: .
+      dockerfile: streaming-pubsub/Dockerfile-publisher
+
+  streaming-pubsub-subscriber:
+    image: streaming-pubsub-subscriber
+    build:
+      context: .
+      dockerfile: streaming-pubsub/Dockerfile-subscriber
+
   snapshot:
     image: snapshot
     build:

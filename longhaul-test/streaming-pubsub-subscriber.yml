@@ -17,7 +17,9 @@ spec:
     port: 9988
     targetPort: 9988
   type: ClusterIP
+
 ---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:

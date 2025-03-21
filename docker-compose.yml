@@ -35,13 +35,13 @@ services:
     image: streaming-pubsub-publisher
     build:
       context: ./streaming-pubsub
-      dockerfile: streaming-pubsub/Dockerfile-publisher
+      dockerfile: Dockerfile-publisher
 
   streaming-pubsub-subscriber:
     image: streaming-pubsub-subscriber
     build:
       context: ./streaming-pubsub
-      dockerfile: streaming-pubsub/Dockerfile-subscriber
+      dockerfile: Dockerfile-subscriber
 
   snapshot:
     image: snapshot

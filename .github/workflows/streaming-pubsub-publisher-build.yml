@@ -18,7 +18,6 @@ on:
       - master
     paths:
       - 'streaming-pubsub-publisher/**'
-
 jobs:
   build:
     name: build streaming pubsub publisher

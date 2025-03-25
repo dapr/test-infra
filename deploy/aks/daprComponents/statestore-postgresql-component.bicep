@@ -5,7 +5,7 @@ param kubernetesNamespace string
 @secure()
 param connectionString string
 
-import 'kubernetes@1.0.0' with {
+extension kubernetes with {
   namespace: 'default'
   kubeConfig: kubeConfig
 }

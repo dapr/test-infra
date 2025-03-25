@@ -7,7 +7,7 @@ param storageAccountName string
 param storageQueueName string
 
 
-import 'kubernetes@1.0.0' with {
+extension kubernetes with {
   namespace: 'default'
   kubeConfig: kubeConfig
 }

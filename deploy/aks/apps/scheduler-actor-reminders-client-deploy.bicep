@@ -2,7 +2,7 @@
 param kubeConfig string
 param kubernetesNamespace string
 
-import 'kubernetes@1.0.0' with {
+extension kubernetes with {
   namespace: 'default'
   kubeConfig: kubeConfig
 }

@@ -1,25 +1,29 @@
-﻿using System.Threading.Tasks;
+﻿// ------------------------------------------------------------------------
+// Copyright 2025 The Dapr Authors
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ------------------------------------------------------------------------
+
+using System.Threading.Tasks;
 using Dapr.Workflow;
 using Microsoft.Extensions.Logging;
 
-namespace WorkflowGen.Activities
+namespace WorkflowGen.Activities;
+
+internal sealed record Notification(string Message);
+
+internal sealed class NotifyActivity(ILogger<NotifyActivity> logger) : WorkflowActivity<Notification, object?>
 {
-    record Notification(string Message);
-
-    class NotifyActivity : WorkflowActivity<Notification, object>
+    public override Task<object?> RunAsync(WorkflowActivityContext context, Notification notification)
     {
-        readonly ILogger logger;
-
-        public NotifyActivity(ILoggerFactory loggerFactory)
-        {
-            this.logger = loggerFactory.CreateLogger<NotifyActivity>();
-        }
-
-        public override Task<object> RunAsync(WorkflowActivityContext context, Notification notification)
-        {
-            this.logger.LogInformation(notification.Message);
-
-            return Task.FromResult<object>(null);
-        }
+        logger.LogInformation(notification.Message);
+        return Task.FromResult<object?>(null);
     }
 }

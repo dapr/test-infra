@@ -1,50 +1,56 @@
-﻿using System.Threading.Tasks;
+﻿// ------------------------------------------------------------------------
+// Copyright 2025 The Dapr Authors
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ------------------------------------------------------------------------
+
+using System.Threading.Tasks;
 using Dapr.Client;
 using Dapr.Workflow;
 using WorkflowGen.Models;
 using Microsoft.Extensions.Logging;
 using System;
 
-namespace WorkflowGen.Activities
+namespace WorkflowGen.Activities;
+
+internal sealed partial class UpdateInventoryActivity(ILogger<UpdateInventoryActivity> logger, DaprClient daprClient)  : WorkflowActivity<PaymentRequest, object?>
 {
+    private const string StoreName = "statestore";
 
-    class UpdateInventoryActivity : WorkflowActivity<PaymentRequest, Object>
+    public override async Task<object?> RunAsync(WorkflowActivityContext context, PaymentRequest req)
     {
-        static readonly string storeName = "statestore";
-        readonly ILogger logger;
-        readonly DaprClient client;
+        LogCheckingInventory(logger, req.RequestId, req.Amount, req.ItemBeingPurchased);
 
-        public UpdateInventoryActivity(ILoggerFactory loggerFactory, DaprClient client)
+        await Task.Delay(TimeSpan.FromSeconds(5));
+
+        var original = await daprClient.GetStateAsync<OrderPayload>(StoreName, req.ItemBeingPurchased);
+        var newQuantity = original.Quantity - req.Amount;
+
+        if (newQuantity < 0)
         {
-            this.logger = loggerFactory.CreateLogger<UpdateInventoryActivity>();
-            this.client = client;
+            LogInsufficientInventory(logger, req.RequestId);
+            throw new InvalidOperationException();
         }
 
-        public override async Task<Object> RunAsync(WorkflowActivityContext context, PaymentRequest req)
-        {
-            this.logger.LogInformation(
-                "Checking Inventory for: Order# {RequestId} for {Amount} {Item}",
-                req.RequestId,
-                req.Amount,
-                req.ItemBeingPruchased);
+        await daprClient.SaveStateAsync<OrderPayload>(StoreName, req.ItemBeingPurchased, new OrderPayload(Name: req.ItemBeingPurchased, TotalCost: req.Currency, Quantity: newQuantity));
+        LogRemainingStock(logger, newQuantity, original.Name);
 
-            await Task.Delay(TimeSpan.FromSeconds(5));
-
-            var original = await client.GetStateAsync<OrderPayload>(storeName, req.ItemBeingPruchased);
-            int newQuantity = original.Quantity - req.Amount;
-
-            if (newQuantity < 0)
-            {
-                this.logger.LogInformation(
-                    "Payment for request ID '{RequestId}' could not be processed. Insufficient inventory.",
-                    req.RequestId);
-                throw new InvalidOperationException();
-            }
-
-            await client.SaveStateAsync<OrderPayload>(storeName, req.ItemBeingPruchased, new OrderPayload(Name: req.ItemBeingPruchased, TotalCost: req.Currency, Quantity: newQuantity));
-            this.logger.LogInformation("There are now: {NewQuantity} {OriginalName} left in stock", newQuantity, original.Name);
-
-            return null;
-        }
+        return null;
     }
+
+    [LoggerMessage(LogLevel.Information, "Checking Inventory for: Order# {requestId} for {amount} {item}")]
+    static partial void LogCheckingInventory(ILogger logger, string requestId, int amount, string item);
+
+    [LoggerMessage(LogLevel.Information, "Payment for request ID '{requestId}' could not be processed. Insufficient inventory.")]
+    static partial void LogInsufficientInventory(ILogger logger, string requestId);
+
+    [LoggerMessage(LogLevel.Information, "There are now: {newQuantity} {originalName} left in stock")]
+    static partial void LogRemainingStock(ILogger logger, int newQuantity, string originalName);
 }

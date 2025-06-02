@@ -3,34 +3,31 @@
 # Licensed under the MIT License.
 # ------------------------------------------------------------
 
-name: build-hashtag-counter
+name: build-streaming-pubsub-publisher
 
 on:
   push:
     branches:
       - master
     paths:
-      - 'hashtag-counter/**'
-      - '.github/workflows/hashtag-counter.yml'
+      - 'streaming-pubsub/**'
+      - '.github/workflows/streaming-pubsub-publisher-build.yml'
       - '.github/workflows/dapr-deploy.yml'
-      - 'Directory.Packages.props'
   pull_request:
     branches:
       - master
     paths:
-      - 'hashtag-counter/**'
-      - 'Directory.Packages.props'
-
+      - 'streaming-pubsub-publisher/**'
+      
 jobs:
   build:
-    name: build hashtag-counter
+    name: build streaming pubsub publisher
     runs-on: ubuntu-latest
     env:
       APP_REGISTRY: daprtests.azurecr.io
-      APP_IMAGE_NAME: hashtag-counter
-      # TODO: APP_VER needs to be versioned correctly
+      APP_IMAGE_NAME: streaming-pubsub-publisher
       APP_VER: dev
-      APP_DIR: ./hashtag-counter
+      APP_DIR: ./streaming-pubsub
       ARTIFACT_DIR: ./deploy_artifact
     steps:
       - name: Check out code
@@ -42,11 +39,11 @@ jobs:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASS }}
-      - name: Build hashtag app docker image
+      - name: Build scheduler-jobs app docker image
         run: |
           docker compose build ${{ env.APP_IMAGE_NAME }}
           docker tag ${{ env.APP_IMAGE_NAME }} ${{ env.APP_REGISTRY }}/${{ env.APP_IMAGE_NAME }}:${{ env.APP_VER }}
-      - name: Push hashtag app image to dockerhub
+      - name: Push app image to dockerhub
         if: github.event_name != 'pull_request'
         run: |
           docker push ${{ env.APP_REGISTRY }}/${{ env.APP_IMAGE_NAME }}:${{ env.APP_VER }}
@@ -60,7 +57,7 @@ jobs:
           name: longhaul-test
           path: ${{ env.ARTIFACT_DIR }}
   deploy:
-    name: deploy hashtag-counter to test cluster
+    name: deploy streaming-pubsub-publisher to test cluster
     needs: build
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -83,4 +80,4 @@ jobs:
           az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
       - name: Deploy apps to longhaul test environment
         run: |
-          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/hashtag-counter-deploy.yml & kubectl rollout restart -n ${{ env.APP_NAMESPACE }} deploy/hashtag-counter-app
+          kubectl apply -n ${{ env.APP_NAMESPACE }} -f ${{ env.ARTIFACT_DIR }}/streaming-pubsub-publisher.yml & kubectl rollout restart -n ${{ env.APP_NAMESPACE }} deploy/streaming-pubsub-publisher-app

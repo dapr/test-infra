@@ -1,43 +1,41 @@
-﻿using System.Threading.Tasks;
-using Dapr.Client;
+﻿// ------------------------------------------------------------------------
+// Copyright 2025 The Dapr Authors
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ------------------------------------------------------------------------
+
+using System.Threading.Tasks;
 using Dapr.Workflow;
 using Microsoft.Extensions.Logging;
 using WorkflowGen.Models;
 using System;
 using Microsoft.Extensions.Configuration;
 
-namespace WorkflowGen.Activities
+namespace WorkflowGen.Activities;
+
+internal sealed partial class ProcessPaymentActivity(ILogger<ProcessPaymentActivity> logger, IConfiguration configuration) : WorkflowActivity<PaymentRequest, object?>
 {
-
-    class ProcessPaymentActivity : WorkflowActivity<PaymentRequest, object>
+    public override async Task<object?> RunAsync(WorkflowActivityContext context, PaymentRequest req)
     {
-        readonly ILogger logger;
-        readonly DaprClient client;
-        IConfiguration _configuration;
+        LogProcessingPayment(logger, req.RequestId, req.Amount, req.ItemBeingPurchased, req.Currency);
 
-        public ProcessPaymentActivity(ILoggerFactory loggerFactory, DaprClient client, IConfiguration configuration)
-        {
-            this.logger = loggerFactory.CreateLogger<ProcessPaymentActivity>();
-            this.client = client;
-            this._configuration = configuration;
-        }
+        await Task.Delay(TimeSpan.FromSeconds(Convert.ToDouble(configuration.GetValue<string>("PaymentProcessingTime"))));
 
-        public override async Task<object> RunAsync(WorkflowActivityContext context, PaymentRequest req)
-        {
-            this.logger.LogInformation(
-                "Processing payment: {requestId} for {amount} {item} at ${currency}",
-                req.RequestId,
-                req.Amount,
-                req.ItemBeingPruchased,
-                req.Currency);
+        LogSuccessfulPayment(logger, req.RequestId);
 
-            await Task.Delay(TimeSpan.FromSeconds(Convert.ToDouble(this._configuration.GetValue<string>("PaymentProcessingTime"))));
-
-            this.logger.LogInformation(
-                "Payment for request ID '{requestId}' processed successfully",
-                req.RequestId);
-
-            return null;
-        }
+        return null;
     }
+
+    [LoggerMessage(LogLevel.Information, "Processing payment: {requestId} for {amount} {item} at ${currency}")]
+    static partial void LogProcessingPayment(ILogger logger, string requestId, int amount, string item, double currency);
+
+    [LoggerMessage(LogLevel.Information, "Payment for request ID '{requestId}' processed successfully")]
+    static partial void LogSuccessfulPayment(ILogger logger, string requestId);
 }

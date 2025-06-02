@@ -1,9 +1,9 @@
 <Project>
   <ItemGroup>
-    <PackageVersion Include="Dapr.Client" Version="1.16.0-rc02" />
-    <PackageVersion Include="Dapr.AspNetCore" Version="1.16.0-rc02" />
-    <PackageVersion Include="Dapr.Actors.AspNetCore" Version="1.16.0-rc02" />
-    <PackageVersion Include="Dapr.Workflow" Version="1.16.0-rc02" />
+    <PackageVersion Include="Dapr.Client" Version="1.16.0-rc03" />
+    <PackageVersion Include="Dapr.AspNetCore" Version="1.16.0-rc03" />
+    <PackageVersion Include="Dapr.Actors.AspNetCore" Version="1.16.0-rc03" />
+    <PackageVersion Include="Dapr.Workflow" Version="1.16.0-rc03" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.5" />
     <PackageVersion Include="prometheus-net" Version="8.2.1" />

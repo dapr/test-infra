@@ -41,7 +41,7 @@ jobs:
       TEST_CLUSTER: aks-longhaul-weekly
       TEST_RESOURCE_GROUP: aks-longhaul-weekly
       DAPR_CHECKOUT_REPO: dapr/dapr
-      DAPR_CHECKOUT_REF: refs/heads/release-1.15
+      DAPR_CHECKOUT_REF: refs/heads/master
       APP_NAMESPACE: longhaul-test
     steps:
       # Environment setup.

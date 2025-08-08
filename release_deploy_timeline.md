@@ -1,5 +1,8 @@
 # deploy-longhaul-release timeline
 
+## 1.16
+- 2025-08-08 - Updated dapr version to 1.16.0-rc.3
+
 ### 1.15
 - 2025-01-21 - Updated dapr version to 1.15.0-rc.5 and dapr cli to 1.15.0-rc.1
 - 2025-01-14 - Updated dapr version to 1.15.0-rc.2

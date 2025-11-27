@@ -10,7 +10,7 @@ on:
     branches:
       - master
     paths:
-      - 'config/dapr_runtime.version'
+      - "config/dapr_runtime.version"
   workflow_dispatch:
 
 jobs:
@@ -26,6 +26,7 @@ jobs:
       # Test applications-specific settings
       APP_NAMESPACE: longhaul-test
       KUBECTLVER: v1.19.3
+      DAPR_MONITORING: dapr-monitoring
     steps:
       - name: Checkout dapr/test-infra
         uses: actions/checkout@v2
@@ -50,6 +51,32 @@ jobs:
       - name: Set up kubeconf for longhaul cluster ${{ env.TEST_CLUSTER_NAME }}
         run: |
           az aks get-credentials -n ${{ env.TEST_CLUSTER_NAME }} -g ${{ env.TEST_RESOURCE_GROUP }}
+      # Setup monitoring
+      - name: Create monitoring namespace if it doesn't exist
+        run: |
+          kubectl get namespace | grep ${{ env.DAPR_MONITORING }} || kubectl create namespace ${{ env.DAPR_MONITORING }}
+      - name: check if grafana already exists
+        if: env.TEST_CLUSTER_NAME != ''
+        run: |
+          helm list -n ${{ env.DAPR_MONITORING }} | grep grafana && echo "GRAF_PRESENT=true" >> $GITHUB_ENV || echo "Grafana not present."
+      - name: Preparing ${{ env.TEST_CLUSTER_NAME }} cluster for test by installing grafana if not present
+        if: env.TEST_CLUSTER_NAME != '' && env.GRAF_PRESENT != 'true'
+        working-directory: ./longhaul
+        run: |
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm upgrade --install grafana grafana/grafana -n ${{ env.DAPR_MONITORING }} -f ./grafana-config/values.yaml
+          kubectl get pods -n ${{ env.DAPR_MONITORING }}
+      - name: check if prometheus already exists
+        if: env.TEST_CLUSTER_NAME != ''
+        run: |
+          helm list -n ${{ env.DAPR_MONITORING }} | grep prometheus && echo "PROM_PRESENT=true" >> $GITHUB_ENV || echo "Prometheus not present."
+      - name: Preparing ${{ env.TEST_CLUSTER_NAME }} cluster for test by installing prometheus if not present
+        if: env.TEST_CLUSTER_NAME != '' && env.PROM_PRESENT != 'true'
+        working-directory: ./longhaul
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm upgrade --install dapr-prom prometheus-community/prometheus -n ${{ env.DAPR_MONITORING }} -f ./prometheus-config/values.yaml --version 14.12.0 --set server.retention="45d" --set server.remoteWrite[0].basic_auth.password="${{ secrets.GRAFANA_PROM_KEY }}"
+          kubectl get pods -n ${{ env.DAPR_MONITORING }}
       - name: Deploy dapr version ${{ env.DAPR_RUNTIME_VER }} to longhaul cluster
         run: |
           dapr upgrade -k --runtime-version ${{ env.DAPR_RUNTIME_VER }}
@@ -76,3 +103,4 @@ jobs:
           kubectl apply -f ./longhaul-test/scheduler-actor-reminders-client-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/scheduler-actor-reminders-client-app -n ${{ env.APP_NAMESPACE }}
           kubectl apply -f ./longhaul-test/scheduler-workflow-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/scheduler-workflow-app -n ${{ env.APP_NAMESPACE }}
           kubectl apply -f ./longhaul-test/workflow-gen-deploy.yml -n ${{ env.APP_NAMESPACE }} && kubectl rollout restart deploy/workflow-gen-app -n ${{ env.APP_NAMESPACE }}
+

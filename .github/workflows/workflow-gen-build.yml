@@ -11,6 +11,7 @@ on:
       - master
     paths:
       - 'workflow-gen/**'
+  workflow_dispatch:
       - '.github/workflows/workflow-gen-build.yml'
       - '.github/workflows/dapr-deploy.yml'
       - 'Directory.Packages.props'

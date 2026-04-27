@@ -11,6 +11,7 @@ on:
       - master
     paths:
       - 'hashtag-actor/**'
+  workflow_dispatch:
       - '.github/workflows/hashtag-actor.yml'
       - '.github/workflows/dapr-deploy.yml'
       - 'Directory.Packages.props'

@@ -11,6 +11,7 @@ on:
       - master
     paths:
       - 'scheduler-workflow/**'
+  workflow_dispatch:
       - '.github/workflows/scheduler-workflow-build.yml'
       - '.github/workflows/dapr-deploy.yml'
   pull_request:

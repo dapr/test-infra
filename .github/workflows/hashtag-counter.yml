@@ -11,6 +11,7 @@ on:
       - master
     paths:
       - 'hashtag-counter/**'
+  workflow_dispatch:
       - '.github/workflows/hashtag-counter.yml'
       - '.github/workflows/dapr-deploy.yml'
       - 'Directory.Packages.props'

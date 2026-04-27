@@ -11,6 +11,7 @@ on:
       - master
     paths:
       - 'scheduler-actor-reminders/client/**'
+  workflow_dispatch:
       - '.github/workflows/scheduler-actor-reminders-client-build.yml'
       - '.github/workflows/dapr-deploy.yml'
   pull_request:

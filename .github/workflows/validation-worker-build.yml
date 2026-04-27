@@ -11,6 +11,7 @@ on:
       - master
     paths:
       - 'validation-worker/**'
+  workflow_dispatch:
       - '.github/workflows/validation-worker-build.yml'
       - '.github/workflows/dapr-deploy.yml'
       - 'Directory.Packages.props'

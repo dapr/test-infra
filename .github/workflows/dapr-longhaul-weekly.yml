@@ -77,7 +77,7 @@ jobs:
         run: |
           az login --service-principal -u ${{ secrets.AZURE_LOGIN_USER }} -p ${{ secrets.AZURE_LOGIN_PASS }} --tenant ${{ secrets.AZURE_TENANT }} --output none
       - name: Find the test cluster
-        run: az aks get-credentials -n ${{ env.TEST_CLUSTER }} -g ${{ env.TEST_RESOURCE_GROUP }}
+        run: az aks get-credentials -n ${{ env.TEST_CLUSTER }} -g ${{ env.TEST_RESOURCE_GROUP }} --subscription ${{ secrets.AZURE_SUBSCRIPTION }}
         shell: bash 
       # Setup docker and build image
       - name: docker login

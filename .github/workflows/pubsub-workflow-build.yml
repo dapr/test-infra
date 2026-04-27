@@ -11,7 +11,6 @@ on:
       - master
     paths:
       - 'pubsub-workflow/**'
-  workflow_dispatch:
       - '.github/workflows/dapr-deploy.yml'
       - '.github/workflows/pubsub-workflow-build.yml'
       - 'Directory.Packages.props'
@@ -22,6 +21,7 @@ on:
       - 'pubsub-workflow/**'
       - '.github/workflows/pubsub-workflow-build.yml'
       - 'Directory.Packages.props'
+  workflow_dispatch:
 
 jobs:
   build:

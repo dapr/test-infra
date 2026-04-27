@@ -11,7 +11,6 @@ on:
       - master
     paths:
       - 'streaming-pubsub/**'
-  workflow_dispatch:
       - '.github/workflows/streaming-pubsub-subscriber-build.yml'
       - '.github/workflows/dapr-deploy.yml'
   pull_request:
@@ -19,6 +18,7 @@ on:
       - master
     paths:
       - 'streaming-pubsub-subscriber/**'
+  workflow_dispatch:
       
 jobs:
   build:

@@ -18,6 +18,7 @@ on:
       - master
     paths:
       - 'scheduler-workflow/**'
+  workflow_dispatch:
 
 jobs:
   build:

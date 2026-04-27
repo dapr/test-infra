@@ -21,6 +21,7 @@ on:
       - 'pubsub-workflow/**'
       - '.github/workflows/pubsub-workflow-build.yml'
       - 'Directory.Packages.props'
+  workflow_dispatch:
 
 jobs:
   build:

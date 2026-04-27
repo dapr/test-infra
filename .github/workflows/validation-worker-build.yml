@@ -20,6 +20,7 @@ on:
     paths:
       - 'validation-worker/**'
       - 'Directory.Packages.props'
+  workflow_dispatch:
 
 jobs:
   build:

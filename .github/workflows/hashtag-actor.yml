@@ -20,6 +20,7 @@ on:
     paths:
       - 'hashtag-actor/**'
       - 'Directory.Packages.props'
+  workflow_dispatch:
 
 jobs:
   build:

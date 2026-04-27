@@ -18,6 +18,7 @@ on:
       - master
     paths:
       - 'scheduler-actor-reminders/client/**'
+  workflow_dispatch:
 
 jobs:
   build:

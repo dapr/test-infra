@@ -27,7 +27,7 @@ jobs:
       DAPR_NAMESPACE: dapr-system
       # Inputs are empty on push, so merges keep using the release cluster
       TEST_CLUSTER_NAME: ${{ inputs.cluster_name || 'aks-longhaul-release' }}
-      TEST_RESOURCE_GROUP: aks-longhaul-release
+      TEST_RESOURCE_GROUP: ${{ inputs.cluster_name || 'aks-longhaul-release' }}
       HELMVER: v3.7.2
       # Test applications-specific settings
       APP_NAMESPACE: longhaul-test

@@ -12,6 +12,11 @@ on:
     paths:
       - "config/dapr_runtime.version"
   workflow_dispatch:
+    inputs:
+      cluster_name:
+        description: "AKS cluster to deploy to (defaults to aks-longhaul-release)"
+        required: false
+        type: string
 
 jobs:
   deploy:
@@ -20,7 +25,8 @@ jobs:
     env:
       DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/master/install/install.sh
       DAPR_NAMESPACE: dapr-system
-      TEST_CLUSTER_NAME: aks-longhaul-release
+      # Inputs are empty on push, so merges keep using the release cluster
+      TEST_CLUSTER_NAME: ${{ inputs.cluster_name || 'aks-longhaul-release' }}
       TEST_RESOURCE_GROUP: aks-longhaul-release
       HELMVER: v3.7.2
       # Test applications-specific settings

@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
     inputs:
       cluster_name:
-        description: "AKS cluster to deploy to (defaults to aks-longhaul-release)"
+        description: "AKS cluster to deploy to (default: the LONGHAUL_RELEASE_CLUSTER repository variable, or aks-longhaul-release-119)"
         required: false
         type: string
 
@@ -25,9 +25,10 @@ jobs:
     env:
       DAPR_INSTALL_URL: https://raw.githubusercontent.com/dapr/cli/master/install/install.sh
       DAPR_NAMESPACE: dapr-system
-      # Inputs are empty on push, so merges keep using the release cluster
-      TEST_CLUSTER_NAME: ${{ inputs.cluster_name || 'aks-longhaul-release' }}
-      TEST_RESOURCE_GROUP: ${{ inputs.cluster_name || 'aks-longhaul-release' }}
+      # Inputs are empty on push. Then the LONGHAUL_RELEASE_CLUSTER repository variable
+      # selects the release cluster. If the variable is not set, use aks-longhaul-release-119.
+      TEST_CLUSTER_NAME: ${{ inputs.cluster_name || vars.LONGHAUL_RELEASE_CLUSTER || 'aks-longhaul-release-119' }}
+      TEST_RESOURCE_GROUP: ${{ inputs.cluster_name || vars.LONGHAUL_RELEASE_CLUSTER || 'aks-longhaul-release-119' }}
       HELMVER: v3.7.2
       # Test applications-specific settings
       APP_NAMESPACE: longhaul-test

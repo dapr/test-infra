@@ -36,6 +36,8 @@ param location string = resourceGroup().location
 param kubernetesNamespace string = 'longhaul-test'
 @description('ObjectID for an user in AAD you want to grant grafana admin rights. Default is to not provide anything: not grant this permission any individual')
 param userGrafanaAdminObjectId string = ''
+@description('If true, deploy an Azure Managed Grafana instance. The longhaul Grafana dashboards run inside the cluster, so the default is false')
+param deployGrafana bool = false
 
 
 
@@ -112,6 +114,7 @@ module monitoring 'monitoring/monitoring.bicep' = {
     workspaceLogAnalyticsName: logAnalyticsName
     grafanaAdminObjectId: managedIdentity.properties.principalId
     userGrafanaAdminObjectId: userGrafanaAdminObjectId
+    deployGrafana: deployGrafana
   }
   // Interestingly, this can be deployed in parallel to AKS cluster and it works just fine. Go figure.
 }

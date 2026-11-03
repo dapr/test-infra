@@ -8,6 +8,8 @@ param userGrafanaAdminObjectId string = ''
 param dceName string
 param dcrName string
 param clusterName string
+@description('If true, deploy an Azure Managed Grafana instance that reads the Azure Monitor workspace')
+param deployGrafana bool = true
 
 resource workspaceLogAnalytics 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: workspaceLogAnalyticsName
@@ -21,7 +23,7 @@ resource workspaceAzureMonitor 'microsoft.monitor/accounts@2021-06-03-preview' =
 
 var azureMonitorWorkspaceResourceId = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/microsoft.monitor/accounts/${workspaceAzureMonitorName}'
 
-resource grafana 'Microsoft.Dashboard/grafana@2022-08-01' = {
+resource grafana 'Microsoft.Dashboard/grafana@2022-08-01' = if (deployGrafana) {
   name: grafanaName
   location: location
   properties: {
@@ -55,7 +57,7 @@ resource amwRole 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing =
 }
 
 // Add user's as Grafana Admin for the Grafana instance
-resource managedRoleAssignmentGrafana 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource managedRoleAssignmentGrafana 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (deployGrafana) {
   name: guid(resourceGroup().id, grafanaAdminObjectId, 'grafana_role')
   scope: grafana
   properties: {
@@ -64,7 +66,7 @@ resource managedRoleAssignmentGrafana 'Microsoft.Authorization/roleAssignments@2
   }
 }
 
-resource userRoleAssignmentGrafana 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (userGrafanaAdminObjectId != '') {
+resource userRoleAssignmentGrafana 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (deployGrafana && userGrafanaAdminObjectId != '') {
   name: guid(resourceGroup().id, userGrafanaAdminObjectId, 'grafana_role')
   scope: grafana
   properties: {
@@ -74,11 +76,11 @@ resource userRoleAssignmentGrafana 'Microsoft.Authorization/roleAssignments@2022
 }
 
 // Provide Grafana access to the AMW instance
-resource roleAssignmentLocal 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource roleAssignmentLocal 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (deployGrafana) {
   name: guid(resourceGroup().id, grafanaAdminObjectId, 'amw_role')
   properties: {
     roleDefinitionId: amwRole.id
-    principalId: grafana.identity.principalId
+    principalId: grafana!.identity.principalId
   }
 }
 

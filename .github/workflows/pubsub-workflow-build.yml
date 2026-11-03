@@ -68,8 +68,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       APP_NAMESPACE: longhaul-test
-      TEST_CLUSTER_NAME: aks-longhaul-release
-      TEST_RESOURCE_GROUP: aks-longhaul-release
+      TEST_CLUSTER_NAME: ${{ vars.LONGHAUL_RELEASE_CLUSTER || 'aks-longhaul-release-119' }}
+      TEST_RESOURCE_GROUP: ${{ vars.LONGHAUL_RELEASE_CLUSTER || 'aks-longhaul-release-119' }}
       ARTIFACT_DIR: ./deploy_artifact
     steps:
       - name: download artifacts

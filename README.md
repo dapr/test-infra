@@ -109,18 +109,13 @@ done
 ```
 
 ### Accessing the Grafana dashboards
-There's currently a managed Grafana in the resource group in Azure, but it is not set up. The actual  Grafana dashboards are running inside of the AKS cluster. You can access them by port-forwarding the Grafana service to your local machine:
+The Grafana dashboards run inside the AKS cluster. To open them, port-forward the Grafana service to your local machine.
 
-For longhaul release:
-```bash
- az aks get-credentials --name aks-longhaul-release --resource-group aks-longhaul-release
- kubectl port-forward svc/grafana 8080:80 --namespace dapr-monitoring
-```
+The workflows deploy to the release cluster that the `LONGHAUL_RELEASE_CLUSTER` repository variable names. If the variable is not set, they use `aks-longhaul-release-119`. The resource group has the same name as the cluster.
 
-For longhaul weekly:
 ```bash
-az aks get-credentials --name aks-longhaul-weekly --resource-group aks-longhaul-weekly
-kubectl port-forward svc/grafana 8081:80 --namespace dapr-monitoring
+az aks get-credentials --name aks-longhaul-release-119 --resource-group aks-longhaul-release-119
+kubectl port-forward svc/grafana 8080:80 --namespace dapr-monitoring
 ```
 
 The username for the Grafana dashboard is "admin" and you can get the password by running:

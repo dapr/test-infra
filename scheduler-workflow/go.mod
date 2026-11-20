@@ -1,6 +1,6 @@
 module test-infra/scheduler-workflow
 
-go 1.23.6
+go 1.24
 
 require github.com/dapr/go-sdk v1.12.0-rc.1
 
@@ -9,7 +9,7 @@ require (
 	github.com/dapr/dapr v1.15.0-rc.16 // indirect
 	github.com/dapr/durabletask-go v0.6.5 // indirect
 	github.com/dapr/kit v0.15.1 // indirect
-	github.com/go-chi/chi/v5 v5.2.1 // indirect
+	github.com/go-chi/chi/v5 v5.4.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
